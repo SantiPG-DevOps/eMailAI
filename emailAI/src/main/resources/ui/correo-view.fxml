@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.CorreoController">
+
+    <!-- Barra superior SOLO para correo -->
+    <top>
+        <HBox styleClass="top-bar">
+            <children>
+                <Button text="Redactar"      onAction="#onRedactar"/>
+                <Button text="Responder"     onAction="#onResponder"/>
+                <Button text="Reenviar"      onAction="#onReenviar"/>
+                <Button text="SPAM"          onAction="#onMarcarSpam"/>
+                <Button text="Legítimo"      onAction="#onMarcarLegitimo"/>
+                <Button text="Reentrenar IA" onAction="#onReentrenarModelo"/>
+                <Label fx:id="lblEstado" styleClass="label-secondary"/>
+            </children>
+        </HBox>
+    </top>
+
+    <!-- Contenido central: lista + detalle + panel IA -->
+    <center>
+        <HBox spacing="10">
+            <!-- Lista de mensajes -->
+            <VBox spacing="5">
+                <children>
+                    <Label text="Bandeja de entrada"/>
+                    <ListView fx:id="lstMensajes" prefWidth="320.0"/>
+                </children>
+                <padding>
+                    <Insets top="10" right="5" bottom="10" left="10"/>
+                </padding>
+            </VBox>
+
+            <!-- Detalle + panel IA -->
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <children>
+                    <VBox spacing="3">
+                        <children>
+                            <Label fx:id="lblAsunto"
+                                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                            <Label fx:id="lblRemitente" styleClass="label-secondary"/>
+                        </children>
+                    </VBox>
+
+                    <TextArea fx:id="txtCuerpo"
+                              wrapText="true"
+                              editable="false"
+                              prefRowCount="18"
+                              styleClass="text-area"/>
+
+                    <VBox styleClass="ia-panel">
+                        <children>
+                            <Label text="Respuestas sugeridas por IA"
+                                   styleClass="label-secondary"/>
+                            <HBox spacing="8">
+                                <children>
+                                    <Button fx:id="btnSug1" styleClass="chip"
+                                            onAction="#onUsarRespuesta1"/>
+                                    <Button fx:id="btnSug2" styleClass="chip"
+                                            onAction="#onUsarRespuesta2"/>
+                                    <Button fx:id="btnSug3" styleClass="chip"
+                                            onAction="#onUsarRespuesta3"/>
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                </children>
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="5"/>
+                </padding>
+            </VBox>
+        </HBox>
+    </center>
+
+</BorderPane>

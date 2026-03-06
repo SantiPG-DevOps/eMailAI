@@ -1,0 +1,13 @@
+public static class CuentaGuardada {
+    public int id;
+    public String servidorImap;
+    public String servidorSmtp;
+    public String emailCifrado;
+
+    public CuentaGuardada(int id, String servidorImap, String servidorSmtp, String emailCifrado) {
+        this.id = id;
+        this.servidorImap = servidorImap;
+        this.servidorSmtp = servidorSmtp;
+        this.emailCifrado = emailCifrado;
+    }
+}

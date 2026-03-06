@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/24.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.CalendarioController">
+
+    <top>
+        <HBox spacing="10">
+            <children>
+                <Label text="Calendario" styleClass="label-asunto"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <DatePicker fx:id="dpFecha"/>
+                <Button text="Hoy" onAction="#onHoy"/>
+            </children>
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="8">
+            <children>
+                <Label text="Eventos del día" styleClass="label-secondary"/>
+
+                <ListView fx:id="lstEventos" VBox.vgrow="ALWAYS"/>
+
+                <HBox spacing="8">
+                    <children>
+                        <TextField fx:id="txtNuevoEvento" promptText="Añadir evento..."/>
+                        <Button text="Añadir" onAction="#onAgregarEvento"/>
+                    </children>
+                </HBox>
+            </children>
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+        </VBox>
+    </center>
+
+</BorderPane>

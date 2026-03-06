@@ -1,0 +1,115 @@
+.root {
+    -fx-base: #f3f4f6;
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Inter", "Roboto", "Sans-Serif";
+    -fx-font-size: 13px;
+}
+
+/* Contenedores */
+.border-pane, .hbox, .vbox {
+    -fx-background-color: transparent;
+}
+
+/* Barra superior clara */
+.top-bar {
+    -fx-background-color: #e5e7eb;
+    -fx-padding: 8 16 8 16;
+    -fx-spacing: 8;
+}
+
+/* Botones pill azules */
+.button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: #ffffff; /* Corregido: añadido # */
+    -fx-background-radius: 999;
+    -fx-padding: 4 18 4 18;
+    -fx-font-weight: 500;
+}
+
+.button:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+/* Botón tema claro */
+.theme-toggle {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #111827;
+    -fx-background-radius: 999;
+    -fx-min-width: 26;
+    -fx-min-height: 26;
+    -fx-max-width: 26;
+    -fx-max-height: 26;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
+    -fx-border-color: #cbd5f5;
+    -fx-border-radius: 999;
+}
+
+/* Barra lateral */
+.sidebar {
+    -fx-background-color: #e5e7eb;
+}
+
+.sidebar-toggle {
+    -fx-background-color: transparent;
+    -fx-text-fill: #4b5563;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 6 10 6 18;
+    -fx-background-radius: 0;
+    -fx-font-weight: 500;
+    -fx-max-width: 1.7976931348623157E308; /* Equivalente a Infinity en CSS de JavaFX */
+}
+
+.sidebar-toggle:selected {
+    -fx-background-color: #0ea5e9;
+    -fx-text-fill: #ffffff;
+}
+
+/* Lista mensajes */
+.list-view {
+    -fx-background-color: #f9fafb;
+    /* -fx-control-inner-background controla el fondo de las celdas */
+    -fx-control-inner-background: #f9fafb;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #d1d5db;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #111827;
+}
+
+.list-cell:selected {
+    -fx-background-color: #bfdbfe;
+}
+
+/* TextArea cuerpo */
+.text-area {
+    -fx-background-color: transparent;
+}
+
+.text-area .content {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #d1d5db;
+}
+
+/* Panel IA claro */
+.ia-panel {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #d1d5db;
+    -fx-padding: 12;
+    /* Se sustituyó text-shadow por un drop-shadow real de JavaFX */
+    -fx-effect: dropshadow(gaussian, rgba(148,163,184,0.4), 18, 0.0, 0, 4);
+}
+
+.label-asunto {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #111827;
+}
