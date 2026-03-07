@@ -54,7 +54,7 @@ public class LoginController {
 
         statusLabel.setText("");
         passwordField.setText("");
-        themeToggle.setSelected(false);
+        themeToggle.setSelected(false); // false = tema oscuro por defecto
 
         cargarCuentasDesdeBD();
         dibujarTarjetas();
@@ -166,31 +166,36 @@ public class LoginController {
             );
             irAVentanaPrincipal(event);
         } catch (Exception e) {
+            e.printStackTrace(); // para ver errores de conexión en consola
             statusLabel.setText("Error al conectar: " + e.getMessage());
         }
     }
 
-    private void irAVentanaPrincipal(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/main-view.fxml"));
-        Scene mainScene = new Scene(loader.load());
-
-        // Aplicar tema actual
-        aplicarTemaAScene(mainScene);
-
-        // Obtener el controlador y pasar MailService
-        MainController mainController = loader.getController();
+    private void irAVentanaPrincipal(ActionEvent event) {
         try {
-            mainController.setMailService(mailService);
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/main-view.fxml"));
+            Scene mainScene = new Scene(loader.load());
+
+            aplicarTemaAScene(mainScene);
+
+            MainController mainController = loader.getController();
+            if (mainController != null) {
+                try {
+                    mainController.setMailService(mailService);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setTitle("eMailAI");
+            stage.setScene(mainScene);
+            stage.show();
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // <-- aquí veremos el LoadException de main-view
+            statusLabel.setText("Error al conectar: " + e.getMessage());
         }
-
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setTitle("eMailAI");
-        stage.setScene(mainScene);
-        stage.show();
     }
-
 
     @FXML
     private void onThemeToggle(ActionEvent event) {
@@ -202,6 +207,11 @@ public class LoginController {
 
     private void aplicarTemaAScene(Scene scene) {
         scene.getStylesheets().clear();
+
+        scene.getStylesheets().add(
+                AppFX.class.getResource("/styles-basic.css").toExternalForm()
+        );
+
         if (themeToggle.isSelected()) {
             scene.getStylesheets().add(
                     AppFX.class.getResource("/styles-light.css").toExternalForm()
@@ -218,6 +228,7 @@ public class LoginController {
         try {
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
             Scene configScene = new Scene(loader.load());
+
             aplicarTemaAScene(configScene);
 
             Stage stage;
@@ -231,6 +242,7 @@ public class LoginController {
             stage.setScene(configScene);
             stage.show();
         } catch (IOException e) {
+            e.printStackTrace();
             statusLabel.setText("No se pudo abrir Nueva cuenta: " + e.getMessage());
         }
     }

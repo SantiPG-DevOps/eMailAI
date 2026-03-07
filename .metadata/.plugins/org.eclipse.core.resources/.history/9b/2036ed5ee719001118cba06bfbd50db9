@@ -1,0 +1,142 @@
+/* -------------------------
+   Paleta corporativa - OSCURO
+   ------------------------- */
+
+/* Fondo principal */
+.root {
+    -fx-background-color: #0F172A; /* Fondo Principal */
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+    -fx-text-fill: #F1F5F9; /* Texto Principal */
+}
+
+/* Título principal eMailAI */
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #38BDF8; /* Azul Corporativo brillante */
+}
+
+/* Etiquetas de sección */
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F1F5F9;
+}
+
+/* Texto general */
+.label {
+    -fx-text-fill: #F1F5F9;
+}
+
+/* Mensajes de estado */
+.status-label {
+    -fx-text-fill: #22D3EE; /* Cyan Tecnológico */
+    -fx-font-size: 11px;
+}
+
+/* -------------------------
+   Botones
+   ------------------------- */
+
+.button {
+    -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-background-color: #22D3EE; /* Cyan Tecnológico */
+    -fx-text-fill: #0F172A;        /* Fondo oscuro para contraste */
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: #67E8F9; /* Cyan Brillante */
+}
+
+.button:pressed {
+    -fx-background-color: #38BDF8; /* Azul Corporativo */
+}
+
+/* Botón toggle tema Claro/Oscuro */
+.toggle-button {
+    -fx-background-radius: 999;
+    -fx-background-color: #334155; /* Fondo Elevado */
+    -fx-text-fill: #F1F5F9;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #22D3EE; /* Cyan Tecnológico */
+    -fx-text-fill: #0F172A;
+}
+
+/* -------------------------
+   Campos de texto
+   ------------------------- */
+
+.text-field,
+.password-field {
+    -fx-background-color: #1E293B; /* Fondo Secundario */
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #334155; /* Fondo Elevado */
+    -fx-border-width: 1;
+    -fx-text-fill: #F1F5F9;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #22D3EE; /* Cyan Tecnológico */
+    -fx-border-width: 2;
+}
+
+/* -------------------------
+   Tarjetas cuentas (login)
+   ------------------------- */
+
+.account-card {
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-background-color: #1E293B; /* Fondo Secundario */
+    -fx-border-radius: 12;
+    -fx-border-color: #334155;     /* Fondo Elevado */
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+.account-card:hover {
+    -fx-background-color: #334155; /* Fondo Elevado */
+}
+
+.account-card-selected {
+    -fx-background-color: #38BDF8; /* Azul Corporativo */
+    -fx-border-color: #00F0FF;     /* Glow IA */
+    -fx-effect: dropshadow(gaussian, #00F0FF, 18, 0.4, 0, 0);
+}
+
+.account-email {
+    -fx-font-weight: bold;
+    -fx-text-fill: #F1F5F9; /* Texto Principal */
+}
+
+.account-server {
+    -fx-font-size: 11px;
+    -fx-text-fill: #94A3B8; /* Texto Secundario */
+}
+
+/* Tarjeta "+ Añadir cuenta" */
+.account-card-new {
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-background-color: #0F172A; /* Fondo Principal */
+    -fx-border-radius: 12;
+    -fx-border-color: #22D3EE;     /* Cyan Tecnológico */
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.account-card-new:hover {
+    -fx-background-color: #1E293B; /* Fondo Secundario */
+}
+
+.account-new-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #22D3EE;
+}

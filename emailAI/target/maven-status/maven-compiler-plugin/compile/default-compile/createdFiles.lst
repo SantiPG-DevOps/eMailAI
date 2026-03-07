@@ -20,5 +20,6 @@ com/emailAI/AppFX.class
 com/emailAI/controller/CorreoController$1.class
 com/emailAI/dao/DAOCuentas$CuentaGuardada.class
 com/emailAI/dao/DAOEntrenamiento$Ejemplo.class
+com/emailAI/controller/CorreoController$3.class
 com/emailAI/controller/LoginController.class
 com/emailAI/AppConsole.class

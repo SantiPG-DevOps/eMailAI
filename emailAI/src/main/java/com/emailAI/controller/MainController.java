@@ -9,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
 
 public class MainController {
 
@@ -37,25 +36,27 @@ public class MainController {
     @FXML
     private ToggleGroup grpSecciones;
 
-    // Servicio de correo compartido
+    @FXML
+    private ToggleButton btnTema;   // botón ☾ del sidebar
+
     private MailService mailService;
 
-    // Llamado desde LoginController después de conectar
-    public void setMailService(MailService mailService) throws Exception {
-        this.mailService = mailService;
-        // Cargar por defecto la sección Correo
-        seleccionarCorreo();
-    }
+    // ===================== Inicialización =====================
 
     @FXML
     private void initialize() {
-        // Si llegamos sin setMailService (caso inicial), al menos marcamos el botón Correo.
         if (btnCorreo != null) {
             btnCorreo.setSelected(true);
         }
     }
 
-    // ===================== Navegación de secciones =====================
+    // Lo llama LoginController después de conectar
+    public void setMailService(MailService mailService) throws Exception {
+        this.mailService = mailService;
+        seleccionarCorreo();
+    }
+
+    // ===================== Navegación secciones =====================
 
     @FXML
     private void onSeccionCorreo() {
@@ -70,7 +71,6 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/correo-view.fxml"));
         Node vistaCorreo = loader.load();
 
-        // Pasar mailService al CorreoController
         CorreoController controller = loader.getController();
         if (mailService != null) {
             controller.setMailService(mailService);
@@ -84,31 +84,95 @@ public class MainController {
 
     @FXML
     private void onSeccionCalendario() {
-        // TODO: cargar calendario-view.fxml en centerPane
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/calendario-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnCalendario != null) btnCalendario.setSelected(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void onSeccionContactos() {
-        // TODO: cargar contactos-view.fxml en centerPane
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/contactos-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnContactos != null) btnContactos.setSelected(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void onSeccionTareas() {
-        // TODO: cargar tareas-view.fxml en centerPane
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/tareas-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnTareas != null) btnTareas.setSelected(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void onSeccionConfiguracion() {
-        // TODO: cargar config-view.fxml o una vista específica de config general
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnConfiguracion != null) btnConfiguracion.setSelected(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void onSeccionChatIA() {
-        // TODO: cargar vista de chat IA
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/chat-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnChatIA != null) btnChatIA.setSelected(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    // ===================== Tema claro/oscuro desde sidebar =====================
 
     @FXML
     private void onToggleTema() {
-        // TODO: si quieres cambiar tema desde aquí, similar a LoginController
+        if (btnTema == null) return;
+
+        Scene scene = btnTema.getScene();
+        if (scene == null) return;
+
+        aplicarTemaAScene(scene);
+    }
+
+    private void aplicarTemaAScene(Scene scene) {
+        scene.getStylesheets().clear();
+
+        // Siempre CSS básico
+        scene.getStylesheets().add(
+                AppFX.class.getResource("/styles-basic.css").toExternalForm()
+        );
+
+        boolean light = btnTema.isSelected();
+        btnTema.setText(light ? "☼" : "☾");
+
+        if (light) {
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-light.css").toExternalForm()
+            );
+        } else {
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
+            );
+        }
     }
 }

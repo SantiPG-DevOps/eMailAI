@@ -1,0 +1,189 @@
+@import "styles-basic.css";
+
+/* =========================
+   Tema CLARO eMailAI
+   ========================= */
+
+/* Fondo general + texto */
+.root {
+    -fx-background-color: #E8ECEF; /* Plata Claro */
+    -fx-text-fill: #1E3A5F;       /* Azul Corporativo Oscuro */
+}
+
+/* Títulos y textos principales */
+.title-label {
+    -fx-text-fill: #1E3A5F;
+}
+
+.section-label {
+    -fx-text-fill: #1E3A5F;
+}
+
+.label-secondary,
+.status-label {
+    -fx-text-fill: #0891B2; /* Azul Tecnológico */
+}
+
+/* -------------------------
+   Botones
+   ------------------------- */
+
+.button {
+    -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-background-color: #0891B2; /* Azul Tecnológico */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button:hover {
+    -fx-background-color: #06B6D4; /* Cyan Brillante */
+}
+
+.button:pressed {
+    -fx-background-color: #1E3A5F; /* Azul Corporativo Oscuro */
+}
+
+/* Toggle tema claro/oscuro */
+.toggle-button {
+    -fx-background-radius: 999;
+    -fx-background-color: #B8BEC4; /* Gris Metálico */
+    -fx-text-fill: #1E3A5F;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+}
+
+/* Botón pequeño Enviar/Recibir */
+.small-button {
+    -fx-background-color: #06B6D4;
+    -fx-text-fill: #1E3A5F;
+}
+
+.small-button:hover {
+    -fx-background-color: #22D3EE;
+}
+
+/* Chips IA */
+.chip {
+    -fx-background-color: #06B6D4; /* Cyan Brillante */
+    -fx-text-fill: #1E3A5F;
+    -fx-font-weight: bold;
+}
+
+.chip:hover {
+    -fx-background-color: #22D3EE; /* Turquesa Eléctrico */
+}
+
+/* -------------------------
+   Campos de texto
+   ------------------------- */
+
+.text-field,
+.password-field,
+.text-area {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #B8BEC4; /* Gris Metálico */
+    -fx-border-width: 1;
+    -fx-text-fill: #1E3A5F;
+}
+
+.text-field:focused,
+.password-field:focused,
+.text-area:focused {
+    -fx-border-color: #06B6D4; /* Cyan Brillante */
+    -fx-border-width: 2;
+}
+
+/* -------------------------
+   Tarjetas cuentas (login)
+   ------------------------- */
+
+.account-card {
+    -fx-background-color: #E8ECEF; /* Plata Claro */
+    -fx-border-color: #B8BEC4;     /* Gris Metálico */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+}
+
+.account-card:hover {
+    -fx-background-color: #06B6D4; /* Cyan Brillante */
+}
+
+.account-card-selected {
+    -fx-background-color: #0891B2; /* Azul Tecnológico */
+    -fx-border-color: #1E3A5F;
+}
+
+.account-card-new {
+    -fx-background-color: #B8BEC4; /* Gris Metálico */
+    -fx-border-color: #0891B2;
+}
+
+.account-new-label {
+    -fx-text-fill: #1E3A5F;
+}
+
+.account-email {
+    -fx-text-fill: #1E3A5F;
+}
+
+.account-server {
+    -fx-text-fill: #4B5563;
+}
+
+/* -------------------------
+   Lista de mensajes (tarjetas)
+   ------------------------- */
+
+.list-view {
+    -fx-background-color: #E8ECEF;
+    -fx-control-inner-background: #E8ECEF;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.list-view .message-card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #B8BEC4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 6, 0, 0, 1);
+}
+
+.list-view .message-card:selected {
+    -fx-background-color: #06B6D4;
+    -fx-text-fill: #1E3A5F;
+}
+
+/* -------------------------
+   Panel IA
+   ------------------------- */
+
+.ia-panel {
+    -fx-background-color: #E8ECEF;
+}
+
+/* -------------------------
+   Sidebar (main-view)
+   ------------------------- */
+
+.sidebar {
+    -fx-background-color: #1E3A5F; /* Azul Corporativo Oscuro */
+}
+
+.sidebar-toggle {
+    -fx-background-color: #B8BEC4; /* Gris Metálico */
+    -fx-text-fill: #1E3A5F;
+}
+
+.sidebar-toggle:selected {
+    -fx-background-color: #0891B2; /* Azul Tecnológico */
+    -fx-text-fill: white;
+}
+
+/* Cabecera dentro del sidebar (título eMailAI) */
+.sidebar .label {
+    -fx-text-fill: #E8ECEF;
+}

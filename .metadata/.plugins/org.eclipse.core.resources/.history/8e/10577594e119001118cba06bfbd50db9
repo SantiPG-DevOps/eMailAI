@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.LoginController">
+
+    <!-- ZONA SUPERIOR: título + logo -->
+    <top>
+        <VBox alignment="CENTER" spacing="8">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <!-- Título eMailAI -->
+            <Label text="eMailAI"
+                   styleClass="title-label"/>
+
+            <!-- Logo -->
+            <ImageView fx:id="logoImage"
+                       fitHeight="60"
+                       preserveRatio="true"/>
+        </VBox>
+    </top>
+
+    <!-- ZONA CENTRAL: cuentas guardadas + contraseña/entrar -->
+    <center>
+        <HBox spacing="30">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <!-- Columna de cuentas guardadas -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Cuentas guardadas"
+                       styleClass="section-label"/>
+
+                <!-- Contenedor de tarjetas -->
+                <ScrollPane fitToWidth="true" prefViewportHeight="180">
+                    <content>
+                        <!-- TilePane: aquí se añadirán las tarjetas por código -->
+                        <TilePane fx:id="accountsTilePane"
+                                  hgap="10" vgap="10"
+                                  prefColumns="2"/>
+                    </content>
+                </ScrollPane>
+            </VBox>
+
+            <!-- Columna de contraseña + entrar -->
+            <VBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Contraseña"
+                       styleClass="section-label"/>
+                <PasswordField fx:id="passwordField"
+                               promptText="Introduce la contraseña"/>
+
+                <Button text="Entrar"
+                        fx:id="loginButton"
+                        onAction="#onLoginClicked"
+                        defaultButton="true"/>
+
+                <!-- Mensajes de error/estado -->
+                <Label fx:id="statusLabel"
+                       text=""
+                       styleClass="status-label"/>
+            </VBox>
+        </HBox>
+    </center>
+
+    <!-- ZONA INFERIOR: tema claro/oscuro + botón nueva cuenta -->
+    <bottom>
+        <HBox spacing="10"
+              alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <!-- Toggle tema claro/oscuro -->
+            <ToggleButton fx:id="themeToggle"
+                          text="Claro / Oscuro"
+                          onAction="#onThemeToggle"/>
+
+            <!-- Relleno flexible -->
+            <Pane HBox.hgrow="ALWAYS"/>
+
+            <!-- Botón Nueva cuenta -->
+            <Button text="Nueva cuenta"
+                    fx:id="newAccountButton"
+                    onAction="#onNewAccountClicked"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

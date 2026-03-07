@@ -1,142 +1,135 @@
-/* -------------------------
-   Paleta corporativa - OSCURO
-   ------------------------- */
+@import "styles-basic.css";
 
-/* Fondo principal */
+/* Fondo general */
 .root {
-    -fx-background-color: #0F172A; /* Fondo Principal */
-    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
-    -fx-text-fill: #F1F5F9; /* Texto Principal */
+    -fx-background-color: #0F172A;
+    -fx-text-fill: #F1F5F9;
 }
 
-/* Título principal eMailAI */
+/* Títulos */
 .title-label {
-    -fx-font-size: 26px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #38BDF8; /* Azul Corporativo brillante */
+    -fx-text-fill: #38BDF8;
 }
 
-/* Etiquetas de sección */
 .section-label {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
     -fx-text-fill: #F1F5F9;
 }
 
-/* Texto general */
-.label {
-    -fx-text-fill: #F1F5F9;
-}
-
-/* Mensajes de estado */
+.label-secondary,
 .status-label {
-    -fx-text-fill: #22D3EE; /* Cyan Tecnológico */
-    -fx-font-size: 11px;
+    -fx-text-fill: #94A3B8;
 }
 
-/* -------------------------
-   Botones
-   ------------------------- */
-
+/* Botones */
 .button {
     -fx-background-radius: 8;
     -fx-padding: 6 14 6 14;
-    -fx-background-color: #22D3EE; /* Cyan Tecnológico */
-    -fx-text-fill: #0F172A;        /* Fondo oscuro para contraste */
+    -fx-background-color: #22D3EE;
+    -fx-text-fill: #0F172A;
     -fx-font-weight: bold;
 }
 
 .button:hover {
-    -fx-background-color: #67E8F9; /* Cyan Brillante */
+    -fx-background-color: #67E8F9;
 }
 
 .button:pressed {
-    -fx-background-color: #38BDF8; /* Azul Corporativo */
+    -fx-background-color: #38BDF8;
 }
 
-/* Botón toggle tema Claro/Oscuro */
+/* Toggle */
 .toggle-button {
     -fx-background-radius: 999;
-    -fx-background-color: #334155; /* Fondo Elevado */
+    -fx-background-color: #334155;
     -fx-text-fill: #F1F5F9;
 }
 
 .toggle-button:selected {
-    -fx-background-color: #22D3EE; /* Cyan Tecnológico */
+    -fx-background-color: #22D3EE;
     -fx-text-fill: #0F172A;
 }
 
-/* -------------------------
-   Campos de texto
-   ------------------------- */
-
+/* Campos */
 .text-field,
-.password-field {
-    -fx-background-color: #1E293B; /* Fondo Secundario */
+.password-field,
+.text-area {
+    -fx-background-color: #1E293B;
     -fx-background-radius: 6;
     -fx-border-radius: 6;
-    -fx-border-color: #334155; /* Fondo Elevado */
+    -fx-border-color: #334155;
     -fx-border-width: 1;
     -fx-text-fill: #F1F5F9;
 }
 
 .text-field:focused,
-.password-field:focused {
-    -fx-border-color: #22D3EE; /* Cyan Tecnológico */
+.password-field:focused,
+.text-area:focused {
+    -fx-border-color: #22D3EE;
     -fx-border-width: 2;
 }
 
-/* -------------------------
-   Tarjetas cuentas (login)
-   ------------------------- */
-
+/* Tarjetas cuentas */
 .account-card {
-    -fx-padding: 10;
-    -fx-background-radius: 12;
-    -fx-background-color: #1E293B; /* Fondo Secundario */
-    -fx-border-radius: 12;
-    -fx-border-color: #334155;     /* Fondo Elevado */
-    -fx-border-width: 1;
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 12, 0, 0, 4);
-    -fx-cursor: hand;
 }
 
 .account-card:hover {
-    -fx-background-color: #334155; /* Fondo Elevado */
+    -fx-background-color: #334155;
 }
 
 .account-card-selected {
-    -fx-background-color: #38BDF8; /* Azul Corporativo */
-    -fx-border-color: #00F0FF;     /* Glow IA */
-    -fx-effect: dropshadow(gaussian, #00F0FF, 18, 0.4, 0, 0);
+    -fx-background-color: #38BDF8;
+    -fx-border-color: #00F0FF;
+}
+
+.account-card-new {
+    -fx-background-color: #0F172A;
+    -fx-border-color: #22D3EE;
 }
 
 .account-email {
-    -fx-font-weight: bold;
-    -fx-text-fill: #F1F5F9; /* Texto Principal */
+    -fx-text-fill: #F1F5F9;
 }
 
 .account-server {
-    -fx-font-size: 11px;
-    -fx-text-fill: #94A3B8; /* Texto Secundario */
+    -fx-text-fill: #94A3B8;
 }
 
-/* Tarjeta "+ Añadir cuenta" */
-.account-card-new {
-    -fx-padding: 10;
-    -fx-background-radius: 12;
-    -fx-background-color: #0F172A; /* Fondo Principal */
-    -fx-border-radius: 12;
-    -fx-border-color: #22D3EE;     /* Cyan Tecnológico */
-    -fx-border-width: 1;
-    -fx-cursor: hand;
+/* Lista mensajes */
+.list-view {
+    -fx-background-color: #0F172A;
+    -fx-control-inner-background: #0F172A;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
 }
 
-.account-card-new:hover {
-    -fx-background-color: #1E293B; /* Fondo Secundario */
+.list-view .message-card {
+    -fx-background-color: #1E293B;
 }
 
-.account-new-label {
-    -fx-font-weight: bold;
-    -fx-text-fill: #22D3EE;
+.list-view .message-card:selected {
+    -fx-background-color: #38BDF8;
+    -fx-text-fill: #0F172A;
+}
+
+/* Panel IA */
+.ia-panel {
+    -fx-background-color: #1E293B;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: #020617;
+}
+
+.sidebar-toggle {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #F1F5F9;
+}
+
+.sidebar-toggle:selected {
+    -fx-background-color: #38BDF8;
+    -fx-text-fill: #0F172A;
 }

@@ -1,0 +1,107 @@
+.root {
+    -fx-base: #0f172a;
+    -fx-background-color: #0f172a;
+    -fx-text-fill: #e5e7eb;
+    -fx-font-family: "Segoe UI", "Inter", "Roboto", "Sans-Serif";
+    -fx-font-size: 13px;
+}
+
+/* Contenedores base */
+.border-pane, .hbox, .vbox {
+    -fx-background-color: transparent;
+}
+
+/* Barra superior */
+.top-bar {
+    -fx-background-color: #111827;
+    -fx-padding: 8 16 8 16;
+    -fx-spacing: 8;
+}
+
+/* Botones principales */
+.button {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: #ffffff; /* Aseguramos el uso de # */
+    -fx-background-radius: 999;
+    -fx-padding: 4 18 4 18;
+    -fx-font-weight: 500;
+}
+
+.button:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+/* Barra lateral */
+.sidebar {
+    -fx-background-color: #020617;
+}
+
+.sidebar-toggle {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9ca3af;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 6 10 6 18;
+    -fx-background-radius: 0;
+    -fx-font-weight: 500;
+    -fx-max-width: 1.7976931348623157E308; /* Valor máximo para evitar el error de Infinity */
+}
+
+.sidebar-toggle:selected {
+    -fx-background-color: #0ea5e9;
+    -fx-text-fill: #0b1120;
+}
+
+/* Lista de mensajes */
+.list-view {
+    -fx-background-color: #020617;
+    -fx-control-inner-background: #020617;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #111827;
+}
+
+.list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e5e7eb;
+}
+
+.list-cell:selected {
+    -fx-background-color: rgba(37, 99, 235, 0.25);
+}
+
+/* TextArea cuerpo */
+.text-area {
+    -fx-background-color: transparent;
+}
+
+.text-area .content {
+    -fx-background-color: #020617;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #111827;
+    -fx-text-fill: #e5e7eb;
+}
+
+/* Panel IA */
+.ia-panel {
+    -fx-background-color: #0b1120; /* Un tono ligeramente distinto para que resalte */
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(148, 163, 184, 0.4);
+    -fx-padding: 12;
+    /* Corrección del efecto de sombra para modo oscuro */
+    -fx-effect: dropshadow(gaussian, #000000, 15, 0, 0, 4);
+}
+
+.chip {
+    -fx-background-color: #020617;
+    -fx-background-radius: 10;
+    -fx-padding: 6 12 6 12;
+    -fx-text-fill: #e5e7eb;
+    -fx-border-color: rgba(148, 163, 184, 0.6);
+    -fx-border-radius: 10;
+}
+
+.chip:hover {
+    -fx-background-color: #1e293b;
+}

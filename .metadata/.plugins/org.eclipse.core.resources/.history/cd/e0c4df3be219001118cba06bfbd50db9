@@ -1,0 +1,107 @@
+package com.emailAI.controller;
+
+import com.emailAI.AppFX;
+import com.emailAI.dao.DAOCuentas;
+import com.emailAI.security.UtilidadCifrado;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+public class ConfigController {
+
+    @FXML
+    private TextField imapField;
+
+    @FXML
+    private TextField smtpField;
+
+    @FXML
+    private TextField emailField;
+
+    @FXML
+    private PasswordField masterPassField;
+
+    @FXML
+    private Label statusLabel;
+
+    // Inicialización simple
+    @FXML
+    private void initialize() {
+        statusLabel.setText("");
+    }
+
+    @FXML
+    private void onSaveClicked(ActionEvent event) {
+        statusLabel.setText("");
+
+        String imap = imapField.getText();
+        String smtp = smtpField.getText();
+        String email = emailField.getText();
+        String masterPass = masterPassField.getText();
+
+        // Validaciones básicas
+        if (imap == null || imap.isBlank()
+                || smtp == null || smtp.isBlank()
+                || email == null || email.isBlank()
+                || masterPass == null || masterPass.isBlank()) {
+            statusLabel.setText("Rellena todos los campos.");
+            return;
+        }
+
+        try {
+            // Cifrar email y generar hash de contraseña maestra
+            String emailCifrado = UtilidadCifrado.cifrar(email);
+            String passHash = UtilidadCifrado.hash(masterPass);
+
+            // Guardar en BD
+            DAOCuentas dao = new DAOCuentas();
+            dao.guardarCuenta(imap, smtp, emailCifrado, passHash);
+
+            statusLabel.setText("Cuenta guardada correctamente.");
+
+            // Volver a la pantalla de login y recargar tarjetas
+            irALogin(event);
+
+        } catch (Exception e) {
+            statusLabel.setText("Error guardando cuenta: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onCancelClicked(ActionEvent event) {
+        try {
+            irALogin(event);
+        } catch (Exception e) {
+            statusLabel.setText("Error al volver al login: " + e.getMessage());
+        }
+    }
+
+    private void irALogin(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
+        Scene loginScene = new Scene(loader.load());
+
+        // Mantener tema actual si es posible
+        Scene currentScene = ((Node) event.getSource()).getScene();
+        if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
+            loginScene.getStylesheets().setAll(currentScene.getStylesheets());
+        } else {
+            // Por defecto tema oscuro
+            loginScene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
+            );
+        }
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setTitle("eMailAI - Login");
+        stage.setScene(loginScene);
+        stage.show();
+    }
+}

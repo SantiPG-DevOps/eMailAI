@@ -12,7 +12,11 @@ public class AppFX extends Application {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
         Scene scene = new Scene(loader.load(), 470, 350);
 
-        // Aplicar tema oscuro por defecto
+        // Siempre cargamos primero el CSS básico
+        scene.getStylesheets().add(
+                AppFX.class.getResource("/styles-basic.css").toExternalForm()
+        );
+        // Tema por defecto: oscuro
         scene.getStylesheets().add(
                 AppFX.class.getResource("/styles-dark.css").toExternalForm()
         );
@@ -26,4 +30,3 @@ public class AppFX extends Application {
         launch(args);
     }
 }
-

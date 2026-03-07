@@ -6,6 +6,7 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -17,6 +18,7 @@ public class MailService {
     private String currentUser;
     private String currentPassword;
     private String smtpHost = null;
+    private String imapHost = null; // recordar el host IMAP
 
     /**
      * Establece la conexión IMAP para recibir y prepara los datos SMTP para enviar.
@@ -35,6 +37,7 @@ public class MailService {
         this.currentUser = user;
         this.currentPassword = password;
         this.smtpHost = smtpHost;
+        this.imapHost = imapHost;
     }
 
     /**
@@ -52,8 +55,12 @@ public class MailService {
         int max = 20; // último bloque de correos para procesar
         int inicio = Math.max(1, total - max + 1);
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         for (int i = total; i >= inicio; i--) { // Iteramos de más reciente a más antiguo
             Message msg = messages[i - 1];
+
+            // Identificador lógico (de momento messageNumber)
             String id = String.valueOf(msg.getMessageNumber());
 
             Address[] froms = msg.getFrom();
@@ -66,6 +73,16 @@ public class MailService {
 
             // Creamos el objeto mensaje
             Mensaje mensajeObj = new Mensaje(id, remitente, asunto, cuerpo);
+
+            // Rellenar uidImap y fecha para la BD
+            mensajeObj.setUidImap(id); // de momento igual que id
+            if (msg.getReceivedDate() != null) {
+                mensajeObj.setFecha(sdf.format(msg.getReceivedDate()));
+            } else if (msg.getSentDate() != null) {
+                mensajeObj.setFecha(sdf.format(msg.getSentDate()));
+            } else {
+                mensajeObj.setFecha("");
+            }
 
             // --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL ---
             try {
@@ -143,7 +160,6 @@ public class MailService {
                 if (tipo.startsWith("text/plain")) {
                     sb.append(part.getContent().toString()).append("\n");
                 } else if (part.getContent() instanceof Multipart innerMultipart) {
-                    // Manejo recursivo simple para estructuras complejas
                     for (int j = 0; j < innerMultipart.getCount(); j++) {
                         BodyPart innerPart = innerMultipart.getBodyPart(j);
                         if (innerPart.getContentType().toLowerCase().startsWith("text/plain")) {
@@ -155,5 +171,15 @@ public class MailService {
             return sb.toString();
         }
         return "";
+    }
+
+    // ========== GETTERS NUEVOS PARA CorreoController ==========
+
+    public String getEmail() {
+        return currentUser;
+    }
+
+    public String getImapHost() {
+        return imapHost;
     }
 }

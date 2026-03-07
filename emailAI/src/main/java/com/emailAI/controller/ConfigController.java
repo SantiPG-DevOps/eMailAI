@@ -41,16 +41,13 @@ public class ConfigController {
     @FXML
     private Label statusLabel;
 
-    // Mapa proveedor -> (imap,smtp)
     private final Map<String, String[]> proveedores = new HashMap<>();
-
     private static final String PERSONALIZADO = "Servidor personalizado";
 
     @FXML
     private void initialize() {
         statusLabel.setText("");
 
-        // 1. Rellenar lista de proveedores más usados (puedes ajustar la lista)
         proveedores.put("Gmail",      new String[]{"imap.gmail.com", "smtp.gmail.com"});
         proveedores.put("Outlook/Hotmail", new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
         proveedores.put("Yahoo",      new String[]{"imap.mail.yahoo.com", "smtp.mail.yahoo.com"});
@@ -59,7 +56,6 @@ public class ConfigController {
         proveedores.put("ProtonMail (Bridge)", new String[]{"127.0.0.1", "127.0.0.1"});
         proveedores.put("Zoho Mail",  new String[]{"imap.zoho.com", "smtp.zoho.com"});
 
-        // Añadir al ComboBox
         providerCombo.getItems().addAll(
                 "Gmail",
                 "Outlook/Hotmail",
@@ -71,7 +67,7 @@ public class ConfigController {
                 PERSONALIZADO
         );
 
-        providerCombo.getSelectionModel().selectFirst(); // por defecto Gmail
+        providerCombo.getSelectionModel().selectFirst();
         aplicarProveedorSeleccionado();
     }
 
@@ -85,7 +81,6 @@ public class ConfigController {
         if (proveedor == null) return;
 
         if (PERSONALIZADO.equals(proveedor)) {
-            // Mostrar campos IMAP/SMTP vacíos y editables
             imapLabel.setVisible(true);
             imapField.setVisible(true);
             smtpLabel.setVisible(true);
@@ -96,7 +91,6 @@ public class ConfigController {
             imapField.setEditable(true);
             smtpField.setEditable(true);
         } else {
-            // Rellenar automáticamente y ocultar campos
             String[] datos = proveedores.get(proveedor);
             String imap = datos[0];
             String smtp = datos[1];
@@ -119,7 +113,6 @@ public class ConfigController {
         String email = emailField.getText();
         String masterPass = masterPassField.getText();
 
-        // Resolver IMAP/SMTP según proveedor
         String imap;
         String smtp;
 
@@ -137,7 +130,6 @@ public class ConfigController {
             smtp = datos[1];
         }
 
-        // Validaciones básicas
         if (email == null || email.isBlank()
                 || masterPass == null || masterPass.isBlank()
                 || imap == null || imap.isBlank()
@@ -174,9 +166,26 @@ public class ConfigController {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
         Scene loginScene = new Scene(loader.load());
 
+        // Siempre básico + tema actual (si podemos leerlo de la escena actual)
+        loginScene.getStylesheets().add(
+                AppFX.class.getResource("/styles-basic.css").toExternalForm()
+        );
+
         Scene currentScene = ((Node) event.getSource()).getScene();
-        if (currentScene != null && !currentScene.getStylesheets().isEmpty()) {
-            loginScene.getStylesheets().setAll(currentScene.getStylesheets());
+        boolean light = false;
+        if (currentScene != null) {
+            for (String s : currentScene.getStylesheets()) {
+                if (s.contains("styles-light.css")) {
+                    light = true;
+                    break;
+                }
+            }
+        }
+
+        if (light) {
+            loginScene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-light.css").toExternalForm()
+            );
         } else {
             loginScene.getStylesheets().add(
                     AppFX.class.getResource("/styles-dark.css").toExternalForm()

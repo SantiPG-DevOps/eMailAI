@@ -1,34 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.emailAI.controller.MainController"
             fx:id="rootPane">
-	<fx:define>
-		<ToggleGroup fx:id="grpSecciones"/>
-	</fx:define>
-		
-    <!-- Menú lateral izquierda (visible siempre, desde arriba) -->
+
+    <fx:define>
+        <ToggleGroup fx:id="grpSecciones"/>
+    </fx:define>
+
+    <!-- MENÚ LATERAL IZQUIERDO -->
     <left>
         <VBox spacing="10"
               styleClass="sidebar">
 
+            <padding>
+                <Insets top="15" right="5" bottom="15" left="5"/>
+            </padding>
+
             <children>
-                <!-- Cabecera MailAI + botón tema -->
+                <!-- Cabecera eMailAI + botón tema -->
                 <HBox spacing="8" alignment="CENTER_LEFT">
-                    <children>
-                        <Label text="eMail AI"
-                               style="-fx-text-fill: white; -fx-padding: 10 0 0 10; -fx-font-size: 20;"/>
-                        <Button fx:id="btnTema"
-                                text="☾"
-                                onAction="#onToggleTema"
-                                styleClass="theme-toggle"/>
-                    </children>
-                </HBox>
+    				<children>
+        				<Label text="eMail AI"
+               				styleClass="title-label"/>
+        				<ToggleButton fx:id="btnTema"
+                      		text="☾"
+                      		onAction="#onToggleTema"
+                      		styleClass="small-button"/>
+    				</children>
+				</HBox>
+
+
 
                 <!-- Botones de secciones -->
                 <ToggleButton text="Correo" fx:id="btnCorreo"
@@ -63,16 +70,12 @@
                               onAction="#onSeccionChatIA"
                               styleClass="sidebar-toggle"/>
             </children>
-
-            <padding>
-                <Insets top="15" right="5" bottom="15" left="5"/>
-            </padding>
         </VBox>
     </left>
 
-    <!-- Centro: lo rellenan las vistas de cada sección -->
+    <!-- CENTRO: contenedor donde se cargan las vistas -->
     <center>
-       <StackPane fx:id="centerPane"/>
+        <StackPane fx:id="centerPane"/>
     </center>
 
 </BorderPane>

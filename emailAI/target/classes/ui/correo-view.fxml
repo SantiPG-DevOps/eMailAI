@@ -7,72 +7,95 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.emailAI.controller.CorreoController">
 
-    <!-- Barra superior SOLO para correo -->
+    <!-- BARRA SUPERIOR: acciones generales -->
     <top>
-        <HBox styleClass="top-bar">
-            <children>
-                <Button text="Redactar"      onAction="#onRedactar"/>
-                <Button text="Responder"     onAction="#onResponder"/>
-                <Button text="Reenviar"      onAction="#onReenviar"/>
-                <Button text="SPAM"          onAction="#onMarcarSpam"/>
-                <Button text="Legítimo"      onAction="#onMarcarLegitimo"/>
-                <Button text="Reentrenar IA" onAction="#onReentrenarModelo"/>
-                <Label fx:id="lblEstado" styleClass="label-secondary"/>
-            </children>
+        <HBox spacing="8" styleClass="top-bar">
+            <padding>
+                <Insets top="8" right="10" bottom="8" left="10"/>
+            </padding>
+
+            <Button text="Redactar"      onAction="#onRedactar"/>
+            <Button text="Reentrenar IA" onAction="#onReentrenarModelo"/>
+
+            <!-- Separador flexible -->
+            <Pane HBox.hgrow="ALWAYS"/>
+
+            <Label fx:id="lblEstado" styleClass="label-secondary"/>
         </HBox>
     </top>
 
-    <!-- Contenido central: lista + detalle + panel IA -->
+    <!-- CONTENIDO CENTRAL -->
     <center>
         <HBox spacing="10">
-            <!-- Lista de mensajes -->
-            <VBox spacing="5">
-                <children>
-                    <Label text="Bandeja de entrada"/>
-                    <ListView fx:id="lstMensajes" prefWidth="320.0"/>
-                </children>
+            <!-- Columna IZQUIERDA: bandeja de entrada -->
+            <VBox spacing="5" prefWidth="340">
                 <padding>
                     <Insets top="10" right="5" bottom="10" left="10"/>
                 </padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="Bandeja de entrada"
+                           styleClass="section-label"/>
+
+                    <Button text="Enviar/Recibir"
+                            fx:id="btnActualizar"
+                            onAction="#onActualizarBandeja"
+                            styleClass="small-button"/>
+                </HBox>
+
+                <!-- Lista de mensajes (tarjetas) -->
+                <ListView fx:id="lstMensajes"
+                          VBox.vgrow="ALWAYS"/>
             </VBox>
 
-            <!-- Detalle + panel IA -->
+            <!-- Columna DERECHA: detalle + acciones + IA -->
             <VBox spacing="8" HBox.hgrow="ALWAYS">
-                <children>
-                    <VBox spacing="3">
-                        <children>
-                            <Label fx:id="lblAsunto"
-                                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                            <Label fx:id="lblRemitente" styleClass="label-secondary"/>
-                        </children>
-                    </VBox>
-
-                    <TextArea fx:id="txtCuerpo"
-                              wrapText="true"
-                              editable="false"
-                              prefRowCount="18"
-                              styleClass="text-area"/>
-
-                    <VBox styleClass="ia-panel">
-                        <children>
-                            <Label text="Respuestas sugeridas por IA"
-                                   styleClass="label-secondary"/>
-                            <HBox spacing="8">
-                                <children>
-                                    <Button fx:id="btnSug1" styleClass="chip"
-                                            onAction="#onUsarRespuesta1"/>
-                                    <Button fx:id="btnSug2" styleClass="chip"
-                                            onAction="#onUsarRespuesta2"/>
-                                    <Button fx:id="btnSug3" styleClass="chip"
-                                            onAction="#onUsarRespuesta3"/>
-                                </children>
-                            </HBox>
-                        </children>
-                    </VBox>
-                </children>
                 <padding>
                     <Insets top="10" right="10" bottom="10" left="5"/>
                 </padding>
+
+                <!-- Cabecera del mensaje + acciones -->
+                <HBox spacing="10">
+                    <VBox spacing="3" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblAsunto"
+                               styleClass="message-subject"/>
+                        <Label fx:id="lblRemitente"
+                               styleClass="label-secondary"/>
+                    </VBox>
+
+                    <!-- Acciones sobre el mensaje actual -->
+                    <HBox spacing="6" alignment="CENTER_RIGHT">
+                        <Button text="Responder" onAction="#onResponder"/>
+                        <Button text="Reenviar"  onAction="#onReenviar"/>
+                        <Button text="SPAM"      onAction="#onMarcarSpam"/>
+                        <Button text="Legítimo"  onAction="#onMarcarLegitimo"/>
+                    </HBox>
+                </HBox>
+
+                <!-- Cuerpo del mensaje -->
+                <TextArea fx:id="txtCuerpo"
+                          wrapText="true"
+                          editable="false"
+                          prefRowCount="18"
+                          VBox.vgrow="ALWAYS"
+                          styleClass="text-area"/>
+
+                <!-- Panel de respuestas IA -->
+                <VBox styleClass="ia-panel" spacing="6">
+                    <Label text="Respuestas sugeridas por IA"
+                           styleClass="label-secondary"/>
+                    <HBox spacing="8">
+                        <Button fx:id="btnSug1"
+                                styleClass="chip"
+                                onAction="#onUsarRespuesta1"/>
+                        <Button fx:id="btnSug2"
+                                styleClass="chip"
+                                onAction="#onUsarRespuesta2"/>
+                        <Button fx:id="btnSug3"
+                                styleClass="chip"
+                                onAction="#onUsarRespuesta3"/>
+                    </HBox>
+                </VBox>
             </VBox>
         </HBox>
     </center>

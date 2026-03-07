@@ -1,0 +1,304 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOCuentas.CuentaGuardada;
+import com.emailAI.AppFX;
+import com.emailAI.dao.DAOCuentas;
+import com.emailAI.security.UtilidadCifrado;
+import com.emailAI.service.MailService;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Controlador de la ventana de login.
+ * Capa de presentación: gestiona tarjetas de cuentas, contraseña y navegación.
+ */
+public class LoginController {
+
+    // --- Nodos de la vista ---
+
+    @FXML
+    private TilePane accountsTilePane;
+
+    @FXML
+    private PasswordField passwordField;
+
+    @FXML
+    private Label statusLabel;
+
+    @FXML
+    private ToggleButton themeToggle;
+
+    @FXML
+    private Button newAccountButton;
+
+    @FXML
+    private ImageView logoImage;
+
+    // --- Estado interno ---
+
+    /** Lista de cuentas cargadas desde BD (modelo simplificado). */
+    private final List<CuentaGuardadaVM> cuentas = new ArrayList<>();
+
+    /** Cuenta seleccionada actualmente (puede ser null). */
+    private CuentaGuardadaVM cuentaSeleccionada;
+
+    /** Servicio de correo (lógica de negocio). */
+    private final MailService mailService = new MailService();
+
+    // --- Clase interna para representar la cuenta en la UI ---
+
+    private static class CuentaGuardadaVM {
+        final int id;
+        final String servidorImap;
+        final String servidorSmtp;
+        final String emailDescifrado;
+
+        CuentaGuardadaVM(int id, String servidorImap, String servidorSmtp, String emailDescifrado) {
+            this.id = id;
+            this.servidorImap = servidorImap;
+            this.servidorSmtp = servidorSmtp;
+            this.emailDescifrado = emailDescifrado;
+        }
+    }
+
+    // --- Inicialización de la vista ---
+
+    @FXML
+    private void initialize() {
+        // 1. Cargar logo (ajusta la ruta a tu imagen real)
+        try {
+            Image logo = new Image(AppFX.class.getResourceAsStream("/logo.png"));
+            logoImage.setImage(logo);
+        } catch (Exception e) {
+            // Si no hay logo, no pasa nada
+        }
+
+        // 2. Estado inicial
+        statusLabel.setText("");
+        passwordField.setText("");
+        themeToggle.setSelected(false); // false = oscuro (por defecto en AppFX)
+
+        // 3. Cargar cuentas guardadas desde BD
+        cargarCuentasDesdeBD();
+
+        // 4. Dibujar tarjetas
+        dibujarTarjetas();
+    }
+
+    // --- Carga de cuentas desde BD ---
+
+    private void cargarCuentasDesdeBD() {
+        cuentas.clear();
+
+        try {
+            DAOCuentas dao = new DAOCuentas();
+            try (Connection conn = com.emailAI.dao.ConexionBD.getConnection();
+                 ResultSet rs = dao.obtenerTodasLasCuentas(conn)) {
+
+                int id = 0;
+                while (rs.next()) {
+                    id++;
+                    String servidorImap = rs.getString("servidor_imap");
+                    String servidorSmtp = rs.getString("servidor_smtp");
+                    String emailCifrado = rs.getString("email_cifrado");
+
+                    String emailDescifrado = UtilidadCifrado.descifrar(emailCifrado);
+
+                    cuentas.add(new CuentaGuardadaVM(
+                            id,
+                            servidorImap,
+                            servidorSmtp,
+                            emailDescifrado
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            statusLabel.setText("Error cargando cuentas: " + e.getMessage());
+        }
+    }
+
+    // --- Creación de tarjetas ---
+
+    private void dibujarTarjetas() {
+        accountsTilePane.getChildren().clear();
+
+        // Tarjetas de cuentas guardadas
+        for (CuentaGuardadaVM cuenta : cuentas) {
+            Node card = crearTarjetaCuenta(cuenta);
+            accountsTilePane.getChildren().add(card);
+        }
+
+        // Tarjeta especial "+ Añadir cuenta"
+        Node cardNueva = crearTarjetaNuevaCuenta();
+        accountsTilePane.getChildren().add(cardNueva);
+    }
+
+    private Node crearTarjetaCuenta(CuentaGuardadaVM cuenta) {
+        VBox card = new VBox();
+        card.getStyleClass().add("account-card");
+        card.setSpacing(4);
+
+        Label emailLabel = new Label(cuenta.emailDescifrado);
+        emailLabel.getStyleClass().add("account-email");
+
+        Label servidorLabel = new Label(cuenta.servidorImap);
+        servidorLabel.getStyleClass().add("account-server");
+
+        card.getChildren().addAll(emailLabel, servidorLabel);
+
+        card.setOnMouseClicked(event -> {
+            seleccionarCuenta(cuenta, card);
+        });
+
+        return card;
+    }
+
+    private Node crearTarjetaNuevaCuenta() {
+        VBox card = new VBox();
+        card.getStyleClass().add("account-card-new");
+        card.setSpacing(4);
+
+        Label masLabel = new Label("+ Añadir cuenta");
+        masLabel.getStyleClass().add("account-new-label");
+
+        card.getChildren().add(masLabel);
+
+        card.setOnMouseClicked(event -> onNewAccountClicked(null));
+
+        return card;
+    }
+
+    private void seleccionarCuenta(CuentaGuardadaVM cuenta, VBox cardSeleccionada) {
+        this.cuentaSeleccionada = cuenta;
+
+        // Quitar estilo seleccionado de todas las tarjetas
+        for (Node node : accountsTilePane.getChildren()) {
+            node.getStyleClass().remove("account-card-selected");
+        }
+
+        // Añadir estilo seleccionado a la tarjeta actual
+        cardSeleccionada.getStyleClass().add("account-card-selected");
+
+        statusLabel.setText("Cuenta seleccionada: " + cuenta.emailDescifrado);
+        passwordField.requestFocus();
+    }
+
+    // --- Acción: botón Entrar ---
+
+    @FXML
+    private void onLoginClicked(ActionEvent event) {
+        statusLabel.setText("");
+
+        if (cuentaSeleccionada == null) {
+            statusLabel.setText("Selecciona una cuenta primero.");
+            return;
+        }
+
+        String password = passwordField.getText();
+        if (password == null || password.isBlank()) {
+            statusLabel.setText("Introduce la contraseña.");
+            return;
+        }
+
+        try {
+            // Conectar usando MailService
+            mailService.connect(
+                    cuentaSeleccionada.servidorImap,
+                    cuentaSeleccionada.servidorSmtp,
+                    cuentaSeleccionada.emailDescifrado,
+                    password
+            );
+
+            // Si conecta bien, cargamos la vista principal
+            irAVentanaPrincipal(event);
+
+        } catch (Exception e) {
+            statusLabel.setText("Error al conectar: " + e.getMessage());
+        }
+    }
+
+    private void irAVentanaPrincipal(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/main-view.fxml"));
+        Scene mainScene = new Scene(loader.load());
+
+        // Aplicar el mismo tema actual
+        aplicarTemaAScene(mainScene);
+
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setTitle("eMailAI");
+        stage.setScene(mainScene);
+        stage.show();
+    }
+
+    // --- Acción: toggle tema claro/oscuro ---
+
+    @FXML
+    private void onThemeToggle(ActionEvent event) {
+        // Obtener escena actual
+        Scene scene = themeToggle.getScene();
+        if (scene == null) {
+            return;
+        }
+        aplicarTemaAScene(scene);
+    }
+
+    private void aplicarTemaAScene(Scene scene) {
+        // Limpiar estilos actuales
+        scene.getStylesheets().clear();
+
+        if (themeToggle.isSelected()) {
+            // Tema claro
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-light.css").toExternalForm()
+            );
+        } else {
+            // Tema oscuro
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
+            );
+        }
+    }
+
+    // --- Acción: botón Nueva cuenta ---
+
+    @FXML
+    private void onNewAccountClicked(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
+            Scene configScene = new Scene(loader.load());
+
+            // Aplicar el mismo tema
+            aplicarTemaAScene(configScene);
+
+            Stage stage;
+            if (event != null) {
+                stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            } else {
+                // Si venimos de la tarjeta "+", tirar del botón newAccountButton
+                stage = (Stage) newAccountButton.getScene().getWindow();
+            }
+
+            stage.setTitle("eMailAI - Nueva cuenta");
+            stage.setScene(configScene);
+            stage.show();
+        } catch (IOException e) {
+            statusLabel.setText("No se pudo abrir la ventana de nueva cuenta: " + e.getMessage());
+        }
+    }
+}
