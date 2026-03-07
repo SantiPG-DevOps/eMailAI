@@ -1,115 +1,141 @@
+/* -------------------------
+   Paleta corporativa - CLARO
+   ------------------------- */
+
+/* Fondos principales y secundarios */
 .root {
-    -fx-base: #f3f4f6;
-    -fx-background-color: #f3f4f6;
-    -fx-text-fill: #111827;
-    -fx-font-family: "Segoe UI", "Inter", "Roboto", "Sans-Serif";
-    -fx-font-size: 13px;
+    -fx-background-color: #E8ECEF; /* Plata Claro */
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+    -fx-text-fill: #1E3A5F; /* Azul Corporativo Oscuro */
 }
 
-/* Contenedores */
-.border-pane, .hbox, .vbox {
-    -fx-background-color: transparent;
+/* Título principal eMailAI */
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F; /* Azul Corporativo Oscuro */
 }
 
-/* Barra superior clara */
-.top-bar {
-    -fx-background-color: #e5e7eb;
-    -fx-padding: 8 16 8 16;
-    -fx-spacing: 8;
+/* Etiquetas de sección ("Cuentas guardadas", "Contraseña") */
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
 }
 
-/* Botones pill azules */
+/* Texto general (por si lo usas) */
+.label {
+    -fx-text-fill: #1E3A5F;
+}
+
+/* Mensajes de estado */
+.status-label {
+    -fx-text-fill: #0891B2; /* Azul Tecnológico */
+    -fx-font-size: 11px;
+}
+
+/* -------------------------
+   Botones
+   ------------------------- */
+
 .button {
-    -fx-background-color: #2563eb;
-    -fx-text-fill: #ffffff; /* Corregido: añadido # */
-    -fx-background-radius: 999;
-    -fx-padding: 4 18 4 18;
-    -fx-font-weight: 500;
+    -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-background-color: #0891B2; /* Azul Tecnológico */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
 }
 
 .button:hover {
-    -fx-background-color: #1d4ed8;
+    -fx-background-color: #06B6D4; /* Cyan Brillante */
 }
 
-/* Botón tema claro */
-.theme-toggle {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #111827;
+.button:pressed {
+    -fx-background-color: #1E3A5F; /* Azul Corporativo Oscuro */
+}
+
+/* Botón toggle tema Claro/Oscuro */
+.toggle-button {
     -fx-background-radius: 999;
-    -fx-min-width: 26;
-    -fx-min-height: 26;
-    -fx-max-width: 26;
-    -fx-max-height: 26;
-    -fx-padding: 0;
-    -fx-font-size: 13px;
-    -fx-border-color: #cbd5f5;
-    -fx-border-radius: 999;
+    -fx-background-color: #B8BEC4; /* Gris Metálico */
+    -fx-text-fill: #1E3A5F;
 }
 
-/* Barra lateral */
-.sidebar {
-    -fx-background-color: #e5e7eb;
+.toggle-button:selected {
+    -fx-background-color: #0891B2; /* Azul Tecnológico */
+    -fx-text-fill: white;
 }
 
-.sidebar-toggle {
-    -fx-background-color: transparent;
-    -fx-text-fill: #4b5563;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 6 10 6 18;
-    -fx-background-radius: 0;
-    -fx-font-weight: 500;
-    -fx-max-width: 1.7976931348623157E308; /* Equivalente a Infinity en CSS de JavaFX */
+/* -------------------------
+   Campos de texto
+   ------------------------- */
+
+.text-field,
+.password-field {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #B8BEC4; /* Gris Metálico */
+    -fx-border-width: 1;
+    -fx-text-fill: #1E3A5F;
 }
 
-.sidebar-toggle:selected {
-    -fx-background-color: #0ea5e9;
-    -fx-text-fill: #ffffff;
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #06B6D4; /* Cyan Brillante */
+    -fx-border-width: 2;
 }
 
-/* Lista mensajes */
-.list-view {
-    -fx-background-color: #f9fafb;
-    /* -fx-control-inner-background controla el fondo de las celdas */
-    -fx-control-inner-background: #f9fafb;
+/* -------------------------
+   Tarjetas cuentas (login)
+   ------------------------- */
+
+.account-card {
+    -fx-padding: 10;
     -fx-background-radius: 12;
+    -fx-background-color: #E8ECEF; /* Plata Claro */
+    -fx-border-color: #B8BEC4;     /* Gris Metálico */
     -fx-border-radius: 12;
-    -fx-border-color: #d1d5db;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-cursor: hand;
 }
 
-.list-cell {
-    -fx-background-color: transparent;
-    -fx-text-fill: #111827;
+.account-card:hover {
+    -fx-background-color: #06B6D4; /* Cyan Brillante */
 }
 
-.list-cell:selected {
-    -fx-background-color: #bfdbfe;
+.account-card-selected {
+    -fx-background-color: #0891B2; /* Azul Tecnológico */
+    -fx-border-color: #1E3A5F;
 }
 
-/* TextArea cuerpo */
-.text-area {
-    -fx-background-color: transparent;
+.account-email {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
 }
 
-.text-area .content {
-    -fx-background-color: #ffffff;
+.account-server {
+    -fx-font-size: 11px;
+    -fx-text-fill: #4b5563; /* gris más oscuro */
+}
+
+/* Tarjeta "+ Añadir cuenta" */
+.account-card-new {
+    -fx-padding: 10;
     -fx-background-radius: 12;
+    -fx-background-color: #B8BEC4; /* Gris Metálico */
     -fx-border-radius: 12;
-    -fx-border-color: #d1d5db;
+    -fx-border-color: #0891B2;     /* Azul Tecnológico */
+    -fx-border-width: 1;
+    -fx-cursor: hand;
 }
 
-/* Panel IA claro */
-.ia-panel {
-    -fx-background-color: #ffffff;
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-border-color: #d1d5db;
-    -fx-padding: 12;
-    /* Se sustituyó text-shadow por un drop-shadow real de JavaFX */
-    -fx-effect: dropshadow(gaussian, rgba(148,163,184,0.4), 18, 0.0, 0, 4);
+.account-card-new:hover {
+    -fx-background-color: #06B6D4; /* Cyan Brillante */
 }
 
-.label-asunto {
-    -fx-font-size: 16px;
-    -fx-font-weight: 600;
-    -fx-text-fill: #111827;
+.account-new-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
 }

@@ -209,4 +209,34 @@ public class CorreoController {
             lblEstado.setText("Selecciona un mensaje para reenviar.");
         }
     }
+    // ===== Acciones de botones de respuesta rápida =====
+
+    @FXML
+    private void onUsarRespuesta1() {
+        usarRespuestaRapida(btnSug1);
+    }
+
+    @FXML
+    private void onUsarRespuesta2() {
+        usarRespuestaRapida(btnSug2);
+    }
+
+    @FXML
+    private void onUsarRespuesta3() {
+        usarRespuestaRapida(btnSug3);
+    }
+
+    private void usarRespuestaRapida(Button boton) {
+        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
+        if (idx < 0) {
+            lblEstado.setText("Selecciona un mensaje primero.");
+            return;
+        }
+        Mensaje m = mensajes.get(idx);
+        String texto = boton.getText();
+
+        // Abrir ventana de redactar con esa sugerencia como cuerpo inicial
+        abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(), texto + "\n\n--- Mensaje original ---\n" + m.getCuerpo());
+    }
+
 }

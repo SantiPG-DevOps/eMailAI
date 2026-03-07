@@ -1,8 +1,8 @@
-com/emailAI/controller/LoginController$ConfigProveedor.class
 com/emailAI/security/UtilidadCifrado.class
 com/emailAI/controller/CorreoController.class
 com/emailAI/dao/DAOEventosCalendario.class
 com/emailAI/dao/DAOEventosCalendario$Evento.class
+com/emailAI/controller/ConfigController.class
 com/emailAI/dao/DAOEntrenamiento.class
 com/emailAI/controller/ComposeController.class
 com/emailAI/controller/CalendarioController$1.class
@@ -10,12 +10,14 @@ com/emailAI/ia/GestorModelos.class
 com/emailAI/dao/DAOCuentas.class
 com/emailAI/controller/CalendarioController.class
 com/emailAI/ia/ExtractorAtributos.class
+com/emailAI/controller/CorreoController$2.class
 com/emailAI/service/IAAsistenteService.class
 com/emailAI/controller/MainController.class
 com/emailAI/model/Mensaje.class
 com/emailAI/dao/ConexionBD.class
 com/emailAI/service/MailService.class
 com/emailAI/AppFX.class
+com/emailAI/controller/CorreoController$1.class
 com/emailAI/dao/DAOCuentas$CuentaGuardada.class
 com/emailAI/dao/DAOEntrenamiento$Ejemplo.class
 com/emailAI/controller/LoginController.class

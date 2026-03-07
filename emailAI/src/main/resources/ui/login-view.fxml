@@ -1,52 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 
-<StackPane styleClass="root" stylesheets="@../styles-dark.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.emailAI.controller.LoginController">
-   <children>
-      <VBox alignment="CENTER" maxWidth="450.0" spacing="20.0" style="-fx-background-color: #111827; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 10);">
-         <children>
-            <Label style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;" text="MailAI" />
-            
-            <VBox spacing="8.0">
-               <children>
-                  <Label styleClass="label-secondary" text="Selecciona tu cuenta:" textFill="#9ca3af" />
-                  <ComboBox fx:id="cmbCuentas" maxWidth="Infinity" prefHeight="40.0" style="-fx-background-radius: 10;" />
-               </children>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.LoginController">
+
+    <!-- ZONA SUPERIOR: título + logo -->
+    <top>
+        <VBox alignment="CENTER" spacing="8">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <!-- Título eMailAI -->
+            <Label text="eMailAI"
+                   styleClass="title-label"/>
+
+            <!-- Logo -->
+            <ImageView fx:id="logoImage"
+                       fitHeight="60"
+                       preserveRatio="true"/>
+        </VBox>
+    </top>
+
+    <!-- ZONA CENTRAL: cuentas guardadas + contraseña/entrar -->
+    <center>
+        <HBox spacing="30">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <!-- Columna de cuentas guardadas -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Cuentas guardadas"
+                       styleClass="section-label"/>
+
+                <!-- Contenedor de tarjetas -->
+                <ScrollPane fitToWidth="true" prefViewportHeight="180">
+                    <content>
+                        <!-- TilePane: aquí se añadirán las tarjetas por código -->
+                        <TilePane fx:id="accountsTilePane"
+                                  hgap="10" vgap="10"
+                                  prefColumns="2"/>
+                    </content>
+                </ScrollPane>
             </VBox>
 
-            <VBox fx:id="containerProveedor" spacing="12.0">
-               <children>
-                  <Label styleClass="label-secondary" text="Configuración manual:" textFill="#9ca3af" />
-                  
-                  <ComboBox fx:id="cmbProveedor" maxWidth="Infinity" prefHeight="40.0" promptText="Selecciona proveedor" style="-fx-background-radius: 10;" />
-                  
-                  <TextField fx:id="txtServidor" prefHeight="40.0" promptText="Servidor IMAP (ej: imap.gmail.com)" style="-fx-background-radius: 10;" />
-               </children>
+            <!-- Columna de contraseña + entrar -->
+            <VBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Contraseña"
+                       styleClass="section-label"/>
+
+                <PasswordField fx:id="passwordField"
+                               promptText="Introduce la contraseña"/>
+
+                <Button text="Entrar"
+                        fx:id="loginButton"
+                        onAction="#onLoginClicked"
+                        defaultButton="true"/>
+
+                <!-- Mensajes de error/estado -->
+                <Label fx:id="statusLabel"
+                       text=""
+                       styleClass="status-label"/>
             </VBox>
+        </HBox>
+    </center>
 
-            <VBox spacing="12.0">
-               <children>
-                  <TextField fx:id="txtEmail" prefHeight="40.0" promptText="Correo electrónico" style="-fx-background-radius: 10;" />
-                  
-                  <PasswordField fx:id="txtPassword" prefHeight="40.0" promptText="Contraseña o App Password" style="-fx-background-radius: 10;" />
-               </children>
-            </VBox>
+    <!-- ZONA INFERIOR: tema claro/oscuro + botón nueva cuenta -->
+    <bottom>
+        <HBox spacing="10"
+              alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
 
-            <Button fx:id="btnLogin" maxWidth="Infinity" onAction="#onLogin" prefHeight="45.0" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;" text="Iniciar sesión" />
+            <!-- Toggle tema claro/oscuro -->
+            <ToggleButton fx:id="themeToggle"
+                          text="Claro / Oscuro"
+                          onAction="#onThemeToggle"/>
 
-            <Label fx:id="lblEstado" alignment="CENTER" maxWidth="Infinity" style="-fx-text-fill: #9ca3af;" textAlignment="CENTER" wrapText="true" />
-         </children>
-         <padding>
-            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-         </padding>
-      </VBox>
-   </children>
-</StackPane>
+            <!-- Relleno flexible -->
+            <Pane HBox.hgrow="ALWAYS"/>
+
+            <!-- Botón Nueva cuenta -->
+            <Button text="Nueva cuenta"
+                    fx:id="newAccountButton"
+                    onAction="#onNewAccountClicked"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

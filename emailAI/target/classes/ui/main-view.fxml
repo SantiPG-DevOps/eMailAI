@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -71,7 +72,7 @@
 
     <!-- Centro: lo rellenan las vistas de cada sección -->
     <center>
-        <!-- vacío: aquí iran las diferentes views -->
+       <StackPane fx:id="centerPane"/>
     </center>
 
 </BorderPane>

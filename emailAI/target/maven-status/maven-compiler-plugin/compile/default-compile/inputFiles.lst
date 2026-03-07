@@ -1,17 +1,18 @@
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/AppConsole.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/AppFX.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/controller/CalendarioController.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/controller/ComposeController.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/controller/CorreoController.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/controller/LoginController.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/controller/MainController.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/dao/ConexionBD.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/dao/DAOCuentas.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/dao/DAOEntrenamiento.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/dao/DAOEventosCalendario.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/ia/ExtractorAtributos.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/ia/GestorModelos.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/model/Mensaje.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/security/UtilidadCifrado.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/service/IAAsistenteService.java
-/home/santipg/Proyectos J/EmAIl/emailAI/src/main/java/com/emailAI/service/MailService.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/AppConsole.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/AppFX.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/controller/CalendarioController.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/controller/ComposeController.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/controller/ConfigController.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/controller/CorreoController.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/controller/LoginController.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/controller/MainController.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/ConexionBD.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/DAOCuentas.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/DAOEntrenamiento.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/DAOEventosCalendario.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/ia/ExtractorAtributos.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/ia/GestorModelos.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/model/Mensaje.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/security/UtilidadCifrado.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/service/IAAsistenteService.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/service/MailService.java

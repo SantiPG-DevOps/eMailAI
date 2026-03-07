@@ -4,167 +4,111 @@ import com.emailAI.AppFX;
 import com.emailAI.service.MailService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.BorderPane;
-
-import java.io.IOException;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 public class MainController {
 
-    @FXML private BorderPane rootPane;
+    @FXML
+    private StackPane centerPane;
 
-    // Menú lateral
-    @FXML private ToggleButton btnCorreo;
-    @FXML private ToggleButton btnCalendario;
-    @FXML private ToggleButton btnContactos;
-    @FXML private ToggleButton btnTareas;
-    @FXML private ToggleButton btnConfiguracion;
-    @FXML private ToggleButton btnChatIA;
-    @FXML private ToggleGroup grpSecciones;
+    @FXML
+    private ToggleButton btnCorreo;
 
-    // Botón de tema sol/luna
-    @FXML private Button btnTema;
+    @FXML
+    private ToggleButton btnCalendario;
 
-    // Estado (lo muestra la barra superior de correo)
-    @FXML private Label lblEstado;
+    @FXML
+    private ToggleButton btnContactos;
 
+    @FXML
+    private ToggleButton btnTareas;
+
+    @FXML
+    private ToggleButton btnConfiguracion;
+
+    @FXML
+    private ToggleButton btnChatIA;
+
+    @FXML
+    private ToggleGroup grpSecciones;
+
+    // Servicio de correo compartido
     private MailService mailService;
-    private boolean modoOscuro = true;
 
-    // Lo llama LoginController al abrir main-view.fxml
-    public void setMailService(MailService mailService) {
+    // Llamado desde LoginController después de conectar
+    public void setMailService(MailService mailService) throws Exception {
         this.mailService = mailService;
-        cargarVistaCorreo();   // correo como vista inicial
+        // Cargar por defecto la sección Correo
+        seleccionarCorreo();
     }
 
     @FXML
     private void initialize() {
-        // Selecciona Correo por defecto en la barra lateral
-        if (grpSecciones != null && btnCorreo != null) {
-            grpSecciones.selectToggle(btnCorreo);
-        }
-        if (btnTema != null) {
-            btnTema.setText("☾"); // empezamos en modo oscuro
+        // Si llegamos sin setMailService (caso inicial), al menos marcamos el botón Correo.
+        if (btnCorreo != null) {
+            btnCorreo.setSelected(true);
         }
     }
 
-    // ========= Navegación secciones =========
+    // ===================== Navegación de secciones =====================
 
     @FXML
     private void onSeccionCorreo() {
-        if (grpSecciones != null) grpSecciones.selectToggle(btnCorreo);
-        cargarVistaCorreo();
+        try {
+            seleccionarCorreo();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void seleccionarCorreo() throws Exception {
+        FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/correo-view.fxml"));
+        Node vistaCorreo = loader.load();
+
+        // Pasar mailService al CorreoController
+        CorreoController controller = loader.getController();
+        if (mailService != null) {
+            controller.setMailService(mailService);
+        }
+
+        centerPane.getChildren().setAll(vistaCorreo);
+        if (btnCorreo != null) {
+            btnCorreo.setSelected(true);
+        }
     }
 
     @FXML
     private void onSeccionCalendario() {
-        if (grpSecciones != null) grpSecciones.selectToggle(btnCalendario);
-        cargarVistaSimple("/ui/calendario-view.fxml", "Calendario");
+        // TODO: cargar calendario-view.fxml en centerPane
     }
 
     @FXML
     private void onSeccionContactos() {
-        if (grpSecciones != null) grpSecciones.selectToggle(btnContactos);
-        cargarVistaSimple("/ui/contactos-view.fxml", "Contactos");
+        // TODO: cargar contactos-view.fxml en centerPane
     }
 
     @FXML
     private void onSeccionTareas() {
-        if (grpSecciones != null) grpSecciones.selectToggle(btnTareas);
-        cargarVistaSimple("/ui/tareas-view.fxml", "Tareas");
+        // TODO: cargar tareas-view.fxml en centerPane
     }
 
     @FXML
     private void onSeccionConfiguracion() {
-        if (grpSecciones != null) grpSecciones.selectToggle(btnConfiguracion);
-        cargarVistaSimple("/ui/config-view.fxml", "Configuración");
+        // TODO: cargar config-view.fxml o una vista específica de config general
     }
 
     @FXML
     private void onSeccionChatIA() {
-        if (grpSecciones != null) grpSecciones.selectToggle(btnChatIA);
-        cargarVistaSimple("/ui/chat-ia-view.fxml", "Chat IA");
+        // TODO: cargar vista de chat IA
     }
-
-    // ========= Botón de tema sol / luna =========
 
     @FXML
     private void onToggleTema() {
-        modoOscuro = !modoOscuro;
-        if (modoOscuro) {
-            btnTema.setText("☾");
-            aplicarTemaOscuro();
-        } else {
-            btnTema.setText("☀");
-            aplicarTemaClaro();
-        }
-    }
-
-    private void aplicarTemaOscuro() {
-        if (rootPane.getScene() == null) return;
-        rootPane.getScene().getStylesheets().clear();
-        rootPane.getScene().getStylesheets().add(
-                AppFX.class.getResource("/styles-dark.css").toExternalForm()
-        );
-    }
-
-    private void aplicarTemaClaro() {
-        if (rootPane.getScene() == null) return;
-        rootPane.getScene().getStylesheets().clear();
-        rootPane.getScene().getStylesheets().add(
-                AppFX.class.getResource("/styles-light.css").toExternalForm()
-        );
-    }
-
-    // ========= Helpers carga de vistas =========
-
-    private void cargarVistaCorreo() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/correo-view.fxml"));
-            Parent contenido = loader.load();
-
-            // Pasar el MailService al controlador de correo
-            CorreoController correoController = loader.getController();
-            if (mailService != null) {
-                try {
-                    correoController.setMailService(mailService);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    if (lblEstado != null) {
-                        lblEstado.setText("Error cargando bandeja: " + e.getMessage());
-                    }
-                }
-            }
-
-            rootPane.setCenter(contenido);
-
-            if (lblEstado != null) {
-                lblEstado.setText("Sección: Correo");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (lblEstado != null) {
-                lblEstado.setText("Error cargando Correo: " + e.getMessage());
-            }
-        }
-    }
-
-    private void cargarVistaSimple(String recursoFxml, String nombreSeccion) {
-        try {
-            Parent contenido = FXMLLoader.load(getClass().getResource(recursoFxml));
-            rootPane.setCenter(contenido);
-            if (lblEstado != null) {
-                lblEstado.setText("Sección: " + nombreSeccion);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            if (lblEstado != null) {
-                lblEstado.setText("Error cargando " + nombreSeccion + ": " + e.getMessage());
-            }
-        }
+        // TODO: si quieres cambiar tema desde aquí, similar a LoginController
     }
 }
