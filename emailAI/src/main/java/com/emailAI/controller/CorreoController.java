@@ -14,7 +14,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -25,16 +24,21 @@ public class CorreoController {
     @FXML private ListView<String> lstMensajes;
     @FXML private Label lblAsunto;
     @FXML private Label lblRemitente;
-    @FXML private TextArea txtCuerpo;
     @FXML private Label lblEstado;
     @FXML private Button btnSug1, btnSug2, btnSug3;
-    @FXML private ProgressIndicator progressCargando; // si no lo tienes en FXML, puedes quitarlo
+    @FXML private ProgressIndicator progressCargando; // si no está en FXML, puedes quitarlo
+    @FXML private TextArea txtCuerpo;
+
+    // Botones de acción fija
+    @FXML private Button btnReentrenar;
+    @FXML private Button btnSpam;
+    @FXML private Button btnLegitimo;
 
     private MailService mailService;
     private List<Mensaje> mensajes = new ArrayList<>();
 
     private DAOMensajes daoMensajes;
-    private String cuentaHash; // identificador lógico de la cuenta
+    private String cuentaHash;
 
     public CorreoController() {
         try {
@@ -50,21 +54,16 @@ public class CorreoController {
     public void setMailService(MailService mailService) throws Exception {
         this.mailService = mailService;
 
-        // 1) Calcular hash de cuenta a partir de email + servidor IMAP
-        String email = mailService.getEmail();      // asegúrate de tener getters en MailService
+        String email = mailService.getEmail();
         String imapHost = mailService.getImapHost();
         this.cuentaHash = UtilidadCifrado.hash(email + "@" + imapHost);
 
-        // 2) Cargar mensajes desde BD (rápido, sin red)
         cargarDesdeBD();
-
-        // 3) Lanzar sincronización en segundo plano (no bloquea UI)
         onActualizarBandeja();
     }
 
     @FXML
     private void initialize() {
-        // Listener selección detalle
         lstMensajes.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
             int idx = newVal.intValue();
             if (idx >= 0 && idx < mensajes.size()) {
@@ -72,7 +71,6 @@ public class CorreoController {
             }
         });
 
-        // CellFactory para mostrar cada item como tarjeta
         lstMensajes.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -88,6 +86,11 @@ public class CorreoController {
                 }
             }
         });
+
+        // Fijar textos de los botones de acción por si acaso
+        if (btnReentrenar != null) btnReentrenar.setText("Act IA");
+        if (btnSpam != null)       btnSpam.setText("SPAM");
+        if (btnLegitimo != null)   btnLegitimo.setText("Legit");
     }
 
     // ===================== Carga desde BD =====================
@@ -119,14 +122,10 @@ public class CorreoController {
         Task<List<Mensaje>> tareaDescarga = new Task<>() {
             @Override
             protected List<Mensaje> call() throws Exception {
-                // 1) Descargar de IMAP
                 List<Mensaje> descargados = mailService.listInbox();
-
-                // 2) Guardar/actualizar en BD
                 if (cuentaHash != null && daoMensajes != null) {
                     daoMensajes.guardarOModificar(cuentaHash, descargados);
                 }
-
                 return descargados;
             }
         };
@@ -136,7 +135,6 @@ public class CorreoController {
             actualizarListaVisual();
             if (progressCargando != null) progressCargando.setVisible(false);
             lblEstado.setText("Bandeja actualizada.");
-
             if (!mensajes.isEmpty()) {
                 lstMensajes.getSelectionModel().select(0);
             }
@@ -157,8 +155,11 @@ public class CorreoController {
         var items = FXCollections.<String>observableArrayList();
         for (Mensaje m : mensajes) {
             String linea1 = m.getRemitente();
-            String prefijo = m.getCategoria() != null && m.getCategoria().equals("SPAM") ? "[SPAM]" : "";
-            if ("URGENTE".equals(m.getPrioridad())) {
+            String prefijo = "";
+            if ("SPAM".equalsIgnoreCase(m.getCategoria())) {
+                prefijo = "[SPAM]";
+            }
+            if ("URGENTE".equalsIgnoreCase(m.getPrioridad())) {
                 prefijo = "[URGENTE]";
             }
             String linea2 = (prefijo + " " + m.getAsunto()).trim();
@@ -167,14 +168,34 @@ public class CorreoController {
         lstMensajes.setItems(items);
     }
 
+    // ===================== Mostrar detalle =====================
+
     private void mostrarDetalle(Mensaje m) {
-        lblAsunto.setText(m.getAsunto());
+        // Asunto recortado para que la cabecera no crezca
+        String asunto = m.getAsunto();
+        int maxLen = 60;
+        if (asunto != null && asunto.length() > maxLen) {
+            asunto = asunto.substring(0, maxLen) + "...";
+        }
+        lblAsunto.setText(asunto);
         lblRemitente.setText("De: " + m.getRemitente());
-        txtCuerpo.setText(m.getCuerpo());
+
+        // Si tenemos HTML, hacemos una limpieza simple para verlo legible
+        if (m.getHtml() != null && !m.getHtml().isBlank()) {
+            String texto = m.getHtml()
+                    .replaceAll("(?is)<br\\s*/?>", "\n")
+                    .replaceAll("(?is)</p>", "\n\n")
+                    .replaceAll("(?is)<a[^>]*>(.*?)</a>", "$1")
+                    .replaceAll("(?is)<[^>]+>", "");
+            txtCuerpo.setText(texto.trim());
+        } else {
+            txtCuerpo.setText(m.getCuerpo() != null ? m.getCuerpo() : "");
+        }
+
         generarSugerencias(m);
     }
 
-    // ===== Lógica de Entrenamiento con el nuevo DAO (como tenías) =====
+    // ===== Entrenamiento IA =====
 
     @FXML private void onMarcarSpam()      { marcarConEtiqueta("SPAM", "SPAM"); }
     @FXML private void onMarcarLegitimo()  { marcarConEtiqueta("LEGITIMO", "SPAM"); }
@@ -223,7 +244,7 @@ public class CorreoController {
         new Thread(tareaEntrenamiento).start();
     }
 
-    // ===== Lógica de Sugerencias y botones =====
+    // ===== Sugerencias IA y redacción =====
 
     private void generarSugerencias(Mensaje m) {
         String texto = (m.getAsunto() + m.getCuerpo()).toLowerCase();
@@ -255,7 +276,8 @@ public class CorreoController {
 
     @FXML private void onRedactar() { abrirCompose(null, null, null); }
 
-    @FXML private void onResponder() {
+    @FXML
+    private void onResponder() {
         int idx = lstMensajes.getSelectionModel().getSelectedIndex();
         if (idx >= 0) {
             Mensaje m = mensajes.get(idx);
@@ -276,7 +298,6 @@ public class CorreoController {
         }
     }
 
-    // Botones de respuesta rápida IA
     @FXML private void onUsarRespuesta1() { usarRespuestaRapida(btnSug1); }
     @FXML private void onUsarRespuesta2() { usarRespuestaRapida(btnSug2); }
     @FXML private void onUsarRespuesta3() { usarRespuestaRapida(btnSug3); }

@@ -1,7 +1,7 @@
 package com.emailAI.service;
 
-import com.emailAI.model.Mensaje;
 import com.emailAI.ia.GestorModelos;
+import com.emailAI.model.Mensaje;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -33,7 +33,7 @@ public class MailService {
         session = Session.getInstance(props);
         store = session.getStore("imap");
         store.connect(imapHost, user, password);
-        
+
         this.currentUser = user;
         this.currentPassword = password;
         this.smtpHost = smtpHost;
@@ -42,6 +42,7 @@ public class MailService {
 
     /**
      * Descarga los últimos mensajes y los clasifica mediante IA (Spam y Prioridad).
+     * Guarda texto plano en Mensaje.cuerpo y HTML (si lo hay) en Mensaje.html.
      */
     public List<Mensaje> listInbox() throws Exception {
         List<Mensaje> resultado = new ArrayList<>();
@@ -69,13 +70,16 @@ public class MailService {
                     : "desconocido";
 
             String asunto = msg.getSubject();
+
+            // Texto plano (para BD + IA)
             String cuerpo = extraerCuerpoTexto(msg);
 
-            // Creamos el objeto mensaje
+            // HTML (solo interfaz; si no hay, será null)
+            String html = extraerCuerpoHtml(msg);
+
             Mensaje mensajeObj = new Mensaje(id, remitente, asunto, cuerpo);
 
-            // Rellenar uidImap y fecha para la BD
-            mensajeObj.setUidImap(id); // de momento igual que id
+            mensajeObj.setUidImap(id);
             if (msg.getReceivedDate() != null) {
                 mensajeObj.setFecha(sdf.format(msg.getReceivedDate()));
             } else if (msg.getSentDate() != null) {
@@ -84,13 +88,14 @@ public class MailService {
                 mensajeObj.setFecha("");
             }
 
+            // Guardamos el HTML solo para la UI
+            mensajeObj.setHtml(html);
+
             // --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL ---
             try {
-                // 1. Clasificación de SPAM
                 String categoria = GestorModelos.clasificarSpam(mensajeObj);
                 mensajeObj.setCategoria(categoria);
 
-                // 2. Clasificación de PRIORIDAD (solo si es legítimo)
                 if (!"SPAM".equalsIgnoreCase(categoria)) {
                     String prioridad = GestorModelos.clasificarPrioridad(mensajeObj);
                     mensajeObj.setPrioridad(prioridad);
@@ -142,9 +147,10 @@ public class MailService {
             store.close();
         }
     }
-    
+
     /**
-     * Extrae el contenido en texto plano del mensaje, manejando estructuras Multipart.
+     * Extrae contenido en texto plano del mensaje, manejando estructuras Multipart.
+     * Este texto se usa para BD y modelo IA.
      */
     private String extraerCuerpoTexto(Message message) throws Exception {
         Object content = message.getContent();
@@ -173,7 +179,48 @@ public class MailService {
         return "";
     }
 
-    // ========== GETTERS NUEVOS PARA CorreoController ==========
+    /**
+     * Extrae el cuerpo HTML principal del mensaje, si existe.
+     * Si no hay HTML, devuelve null.
+     */
+    private String extraerCuerpoHtml(Message message) throws Exception {
+        Object content = message.getContent();
+
+        if (content instanceof String s) {
+            if (message.isMimeType("text/html")) {
+                return s;
+            } else {
+                return null;
+            }
+        } else if (content instanceof Multipart multipart) {
+            return extraerHtmlDeMultipart(multipart);
+        }
+        return null;
+    }
+
+    private String extraerHtmlDeMultipart(Multipart multipart) throws Exception {
+        String html = null;
+
+        for (int i = 0; i < multipart.getCount(); i++) {
+            BodyPart part = multipart.getBodyPart(i);
+            String tipo = part.getContentType().toLowerCase();
+
+            if (tipo.startsWith("text/html")) {
+                Object pc = part.getContent();
+                if (pc instanceof String) {
+                    return (String) pc; // primer HTML que encontremos
+                }
+            } else if (part.getContent() instanceof Multipart inner) {
+                String innerHtml = extraerHtmlDeMultipart(inner);
+                if (innerHtml != null) {
+                    html = innerHtml;
+                }
+            }
+        }
+        return html;
+    }
+
+    // ========== GETTERS PARA CorreoController ==========
 
     public String getEmail() {
         return currentUser;

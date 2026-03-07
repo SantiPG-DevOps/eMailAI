@@ -2,21 +2,22 @@ package com.emailAI.model;
 
 public class Mensaje {
 
-    private String id;         // puede ser el messageNumber/UID
+    private String id;         // identificador lógico (messageNumber / UID)
     private String remitente;
     private String asunto;
-    private String cuerpo;
+    private String cuerpo;     // texto plano (para BD + IA)
     private String fecha;
     private String uidImap;
     private String categoria;  // SPAM / LEGITIMO / DESCONOCIDO
     private String prioridad;  // URGENTE / NORMAL
-    private String cuentaHash; // para vincular a la cuenta en BD
+    private String cuentaHash; // hash de la cuenta
+    private String html;       // cuerpo HTML solo para interfaz
 
-    // Constructor vacío NECESARIO para DAOMensajes
+    // Constructor vacío (necesario para DAOMensajes)
     public Mensaje() {
     }
 
-    // Tu constructor actual (lo mantenemos)
+    // Constructor que ya usas al crear desde MailService
     public Mensaje(String id, String remitente, String asunto, String cuerpo) {
         this.id = id;
         this.remitente = remitente;
@@ -24,7 +25,7 @@ public class Mensaje {
         this.cuerpo = cuerpo;
     }
 
-    // ========== GETTERS Y SETTERS ==========
+    // ===== GETTERS y SETTERS =====
 
     public String getId() {
         return id;
@@ -96,5 +97,13 @@ public class Mensaje {
 
     public void setCuentaHash(String cuentaHash) {
         this.cuentaHash = cuentaHash;
+    }
+
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
     }
 }

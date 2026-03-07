@@ -1,0 +1,242 @@
+/* =========================
+   eMailAI - MODO OSCURO
+   Paleta de Santiago
+   ========================= */
+
+/* Fondo principal de la app */
+.root {
+    -fx-background-color: #0F172A;      /* Fondo Principal */
+    -fx-base: #0F172A;
+    -fx-text-fill: #F1F5F9;             /* Texto Principal */
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+}
+
+/* ========= CONTENEDORES Y PANELES ========= */
+
+/* Panel principal / fondo de cada vista */
+.main-background {
+    -fx-background-color: #0F172A;
+}
+
+/* Menú lateral (si lo usas en otras vistas) */
+.sidebar {
+    -fx-background-color: #1E293B;      /* Fondo Secundario */
+}
+
+/* Tarjetas, bloques de contenido (login, panel derecho, etc.) */
+.card {
+    -fx-background-color: #1E293B;      /* Fondo Secundario */
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #334155;          /* Fondo Elevado como borde */
+    -fx-border-width: 1;
+}
+
+/* Panel más elevado (opcional) */
+.elevated {
+    -fx-background-color: #334155;      /* Fondo Elevado */
+    -fx-background-radius: 16;
+}
+
+/* Barra superior de la ventana de correo */
+.top-bar {
+    -fx-background-color: #1E293B;
+}
+
+/* Panel de respuestas IA */
+.ia-panel {
+    -fx-background-color: #1E293B;
+    -fx-background-radius: 10;
+    -fx-padding: 8 10 8 10;
+}
+
+/* ========= TEXTOS ========= */
+
+.label {
+    -fx-text-fill: #F1F5F9;             /* Texto Principal */
+}
+
+.label-secondary {
+    -fx-text-fill: #94A3B8;             /* Texto Secundario */
+    -fx-font-size: 12px;
+}
+
+.section-label {
+    -fx-text-fill: #F1F5F9;
+    -fx-font-weight: bold;
+}
+
+.message-subject {
+    -fx-text-fill: #38BDF8;             /* Azul Corporativo brillante */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Texto de estados (ej: “Bandeja actualizada”) */
+.status-label {
+    -fx-text-fill: #22D3EE;             /* Cyan Tecnológico */
+    -fx-font-size: 12px;
+}
+
+/* ========= CAMPOS DE TEXTO ========= */
+
+.text-field {
+    -fx-background-color: #0F172A;
+    -fx-control-inner-background: #0F172A;
+    -fx-text-fill: #F1F5F9;
+    -fx-prompt-text-fill: #94A3B8;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.text-field:focused {
+    -fx-border-color: #22D3EE;
+}
+
+/* Área de texto del cuerpo del correo */
+.text-area {
+    -fx-control-inner-background: #0F172A;  /* Fondo Principal */
+    -fx-background-color: #1E293B;         /* Marco */
+    -fx-text-fill: #F1F5F9;
+    -fx-border-color: #334155;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+/* ========= LISTA DE MENSAJES ========= */
+
+.list-view {
+    -fx-background-color: #0F172A;
+    -fx-control-inner-background: #1E293B;  /* Fondo Secundario */
+    -fx-text-fill: #F1F5F9;
+    -fx-padding: 4;
+}
+
+/* Celda estándar para mensajes (la que creas con styleClass "message-card") */
+.list-cell.message-card {
+    -fx-background-color: #1E293B;         /* Fondo Secundario */
+    -fx-text-fill: #F1F5F9;
+    -fx-padding: 6 10 6 10;
+}
+
+/* Celdas vacías sin color raro */
+.list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+/* Mensaje seleccionado: alto contraste */
+.list-cell.message-card:selected {
+    -fx-background-color: #38BDF8;         /* Azul Corporativo */
+    -fx-text-fill: #0F172A;                /* Texto oscuro sobre azul claro */
+}
+
+/* Pie o separador en la lista, si lo usas */
+.list-cell.message-card.footer {
+    -fx-background-color: #334155;         /* Fondo Elevado */
+    -fx-text-fill: #F1F5F9;
+}
+
+/* ========= BOTONES GENERALES ========= */
+
+.button {
+    -fx-background-color: #22D3EE;         /* Cyan Tecnológico */
+    -fx-text-fill: #0F172A;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: transparent;
+}
+
+.button:hover {
+    -fx-background-color: #67E8F9;         /* Cyan Brillante */
+}
+
+/* Botones pequeños tipo "Enviar/Recibir" */
+.small-button {
+    -fx-font-size: 11px;
+    -fx-padding: 2 10 2 10;
+}
+
+/* ========= BOTONES DE ACCIÓN (Act IA, SPAM, Legit) ========= */
+
+.action-button {
+    -fx-background-color: #1E293B;   /* Fondo Secundario */
+    -fx-text-fill: #F1F5F9;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #22D3EE;
+    -fx-border-width: 1;
+    -fx-pref-height: 28;
+    -fx-font-size: 11px;
+    -fx-padding: 2 8 2 8;
+}
+
+.action-button:hover {
+    -fx-background-color: #334155;   /* Fondo Elevado */
+}
+
+/* ========= BOTONES CHIPS IA (respuestas rápidas) ========= */
+
+.chip {
+    -fx-background-color: #22D3EE;
+    -fx-text-fill: #0F172A;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-font-size: 11px;
+    -fx-padding: 4 12 4 12;
+    -fx-wrap-text: true;
+    -fx-pref-height: 30;
+    -fx-min-width: 120;             /* ancho mínimo para no deformar */
+}
+
+.chip:hover {
+    -fx-background-color: #67E8F9;
+}
+
+/* ========= SPLITPANE ========= */
+
+.split-pane {
+    -fx-background-color: transparent;
+}
+
+.split-pane-divider {
+    -fx-background-color: #0F172A;
+}
+
+/* ========= SCROLLBARS ========= */
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #334155;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #38BDF8;
+}
+
+/* ========= OTROS (tabs, glow, etc.) ========= */
+
+.tab-pane {
+    -fx-background-color: #0F172A;
+}
+
+.tab {
+    -fx-background-color: #1E293B;
+    -fx-text-base-color: #F1F5F9;
+}
+
+.tab:selected {
+    -fx-background-color: #38BDF8;
+    -fx-text-base-color: #0F172A;
+}
+
+/* Efecto glow IA */
+.glow-ia {
+    -fx-effect: dropshadow(gaussian, #00F0FF, 20, 0.5, 0, 0);
+}

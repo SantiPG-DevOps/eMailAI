@@ -1,13 +1,29 @@
-public static class CuentaGuardada {
-    public int id;
-    public String servidorImap;
-    public String servidorSmtp;
-    public String emailCifrado;
+    // ===== Acciones de botones de respuesta rápida =====
 
-    public CuentaGuardada(int id, String servidorImap, String servidorSmtp, String emailCifrado) {
-        this.id = id;
-        this.servidorImap = servidorImap;
-        this.servidorSmtp = servidorSmtp;
-        this.emailCifrado = emailCifrado;
+    @FXML
+    private void onUsarRespuesta1() {
+        usarRespuestaRapida(btnSug1);
     }
-}
+
+    @FXML
+    private void onUsarRespuesta2() {
+        usarRespuestaRapida(btnSug2);
+    }
+
+    @FXML
+    private void onUsarRespuesta3() {
+        usarRespuestaRapida(btnSug3);
+    }
+
+    private void usarRespuestaRapida(Button boton) {
+        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
+        if (idx < 0) {
+            lblEstado.setText("Selecciona un mensaje primero.");
+            return;
+        }
+        Mensaje m = mensajes.get(idx);
+        String texto = boton.getText();
+
+        // Abrir ventana de redactar con esa sugerencia como cuerpo inicial
+        abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(), texto + "\n\n--- Mensaje original ---\n" + m.getCuerpo());
+    }

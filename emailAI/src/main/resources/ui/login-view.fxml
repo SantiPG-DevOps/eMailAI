@@ -27,22 +27,20 @@
         </VBox>
     </top>
 
-    <!-- ZONA CENTRAL: cuentas guardadas + contraseña/entrar -->
+    <!-- ZONA CENTRAL: cuentas arriba + contraseña debajo -->
     <center>
-        <HBox spacing="30">
+        <VBox spacing="20" alignment="TOP_CENTER">
             <padding>
                 <Insets top="10" right="20" bottom="10" left="20"/>
             </padding>
 
-            <!-- Columna de cuentas guardadas -->
-            <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <!-- Cuentas guardadas (tarjetas) -->
+            <VBox spacing="10" prefWidth="360">
                 <Label text="Cuentas guardadas"
                        styleClass="section-label"/>
 
-                <!-- Contenedor de tarjetas -->
                 <ScrollPane fitToWidth="true" prefViewportHeight="180">
                     <content>
-                        <!-- TilePane: aquí se añadirán las tarjetas por código -->
                         <TilePane fx:id="accountsTilePane"
                                   hgap="10" vgap="10"
                                   prefColumns="2"/>
@@ -50,25 +48,27 @@
                 </ScrollPane>
             </VBox>
 
-            <!-- Columna de contraseña + entrar -->
-            <VBox spacing="12" alignment="CENTER_LEFT">
+            <!-- Contraseña + botón Entrar -->
+            <VBox spacing="8" prefWidth="280">
                 <Label text="Contraseña"
                        styleClass="section-label"/>
 
                 <PasswordField fx:id="passwordField"
-                               promptText="Introduce la contraseña"/>
+                               promptText="Introduce la contraseña"
+                               styleClass="text-field"/>
 
                 <Button text="Entrar"
                         fx:id="loginButton"
                         onAction="#onLoginClicked"
-                        defaultButton="true"/>
+                        defaultButton="true"
+                        maxWidth="Infinity"/>
 
                 <!-- Mensajes de error/estado -->
                 <Label fx:id="statusLabel"
                        text=""
                        styleClass="status-label"/>
             </VBox>
-        </HBox>
+        </VBox>
     </center>
 
     <!-- ZONA INFERIOR: tema claro/oscuro + botón nueva cuenta -->

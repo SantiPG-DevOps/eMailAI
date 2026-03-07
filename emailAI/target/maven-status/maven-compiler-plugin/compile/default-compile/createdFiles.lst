@@ -13,6 +13,7 @@ com/emailAI/ia/ExtractorAtributos.class
 com/emailAI/controller/CorreoController$2.class
 com/emailAI/service/IAAsistenteService.class
 com/emailAI/controller/MainController.class
+com/emailAI/dao/DAOMensajes.class
 com/emailAI/model/Mensaje.class
 com/emailAI/dao/ConexionBD.class
 com/emailAI/service/MailService.class

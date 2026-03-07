@@ -1,103 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/21.0.1"
             fx:controller="com.emailAI.controller.CorreoController">
 
     <!-- BARRA SUPERIOR: acciones generales -->
     <top>
         <HBox spacing="8" styleClass="top-bar">
             <padding>
-                <Insets top="8" right="10" bottom="8" left="10"/>
+                <Insets bottom="8" left="10" right="10" top="8" />
             </padding>
 
-            <Button text="Redactar"      onAction="#onRedactar"/>
-            <Button text="Reentrenar IA" onAction="#onReentrenarModelo"/>
+            <Button onAction="#onRedactar" text="Redactar" />
 
             <!-- Separador flexible -->
-            <Pane HBox.hgrow="ALWAYS"/>
+            <Pane HBox.hgrow="ALWAYS">
+                <children>
+                    <Button layoutX="264.0" layoutY="1.0"
+                            onAction="#onResponder"
+                            text="Responder" />
+                    <Button layoutX="362.0" layoutY="1.0"
+                            onAction="#onReenviar"
+                            text="Reenviar" />
+                </children>
+            </Pane>
 
-            <Label fx:id="lblEstado" styleClass="label-secondary"/>
+            <Label fx:id="lblEstado" styleClass="label-secondary" />
         </HBox>
     </top>
 
     <!-- CONTENIDO CENTRAL -->
     <center>
-        <HBox spacing="10">
-            <!-- Columna IZQUIERDA: bandeja de entrada -->
-            <VBox spacing="5" prefWidth="340">
-                <padding>
-                    <Insets top="10" right="5" bottom="10" left="10"/>
-                </padding>
+        <SplitPane dividerPositions="0.3">
+            <items>
+                <!-- Columna IZQUIERDA: bandeja de entrada -->
+                <VBox prefWidth="340" spacing="5">
+                    <padding>
+                        <Insets bottom="10" left="10" right="5" top="10" />
+                    </padding>
 
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label text="Bandeja de entrada"
-                           styleClass="section-label"/>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label styleClass="section-label" text="Bandeja de entrada" />
+                        <Button fx:id="btnActualizar"
+                                onAction="#onActualizarBandeja"
+                                styleClass="small-button"
+                                text="Enviar/Recibir" />
+                    </HBox>
 
-                    <Button text="Enviar/Recibir"
-                            fx:id="btnActualizar"
-                            onAction="#onActualizarBandeja"
-                            styleClass="small-button"/>
-                </HBox>
+                    <!-- Lista de mensajes (tarjetas) -->
+                    <ListView fx:id="lstMensajes" VBox.vgrow="ALWAYS" />
+                </VBox>
 
-                <!-- Lista de mensajes (tarjetas) -->
-                <ListView fx:id="lstMensajes"
-                          VBox.vgrow="ALWAYS"/>
-            </VBox>
+                <!-- Columna DERECHA: detalle + acciones + IA -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets bottom="10" left="5" right="10" top="10" />
+                    </padding>
 
-            <!-- Columna DERECHA: detalle + acciones + IA -->
-            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                <padding>
-                    <Insets top="10" right="10" bottom="10" left="5"/>
-                </padding>
+                    <!-- Cabecera del mensaje + acciones -->
+                    <HBox spacing="10">
+                        <!-- Bloque asunto + remitente ocupa el espacio sobrante -->
+                        <VBox spacing="3" HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblAsunto" styleClass="message-subject" />
+                            <Label fx:id="lblRemitente" styleClass="label-secondary" />
+                        </VBox>
 
-                <!-- Cabecera del mensaje + acciones -->
-                <HBox spacing="10">
-                    <VBox spacing="3" HBox.hgrow="ALWAYS">
-                        <Label fx:id="lblAsunto"
-                               styleClass="message-subject"/>
-                        <Label fx:id="lblRemitente"
-                               styleClass="label-secondary"/>
+                        <!-- Acciones sobre el mensaje actual (fijas) -->
+                        <HBox alignment="CENTER_RIGHT" spacing="6">
+                            <Button fx:id="btnReentrenar"
+                                    onAction="#onReentrenarModelo"
+                                    text="Act IA"
+                                    styleClass="action-button" />
+                            <Button fx:id="btnSpam"
+                                    onAction="#onMarcarSpam"
+                                    text="SPAM"
+                                    prefWidth="70"
+                                    styleClass="action-button" />
+                            <Button fx:id="btnLegitimo"
+                                    onAction="#onMarcarLegitimo"
+                                    text="Legit"
+                                    prefWidth="70"
+                                    styleClass="action-button" />
+                        </HBox>
+                    </HBox>
+
+                    <!-- Cuerpo del mensaje -->
+                    <TextArea fx:id="txtCuerpo"
+                              editable="false"
+                              wrapText="true"
+                              VBox.vgrow="ALWAYS"
+                              prefRowCount="18"
+                              styleClass="text-area" />
+
+                    <!-- Panel de respuestas IA -->
+                    <VBox spacing="6" styleClass="ia-panel">
+                        <Label styleClass="label-secondary"
+                               text="Respuestas sugeridas por IA" />
+                        <HBox spacing="8">
+                            <Button fx:id="btnSug1"
+                                    onAction="#onUsarRespuesta1"
+                                    styleClass="chip"
+                                    HBox.hgrow="ALWAYS" />
+                            <Button fx:id="btnSug2"
+                                    onAction="#onUsarRespuesta2"
+                                    styleClass="chip"
+                                    HBox.hgrow="ALWAYS" />
+                            <Button fx:id="btnSug3"
+                                    onAction="#onUsarRespuesta3"
+                                    styleClass="chip"
+                                    HBox.hgrow="ALWAYS" />
+                        </HBox>
                     </VBox>
 
-                    <!-- Acciones sobre el mensaje actual -->
-                    <HBox spacing="6" alignment="CENTER_RIGHT">
-                        <Button text="Responder" onAction="#onResponder"/>
-                        <Button text="Reenviar"  onAction="#onReenviar"/>
-                        <Button text="SPAM"      onAction="#onMarcarSpam"/>
-                        <Button text="Legítimo"  onAction="#onMarcarLegitimo"/>
-                    </HBox>
-                </HBox>
-
-                <!-- Cuerpo del mensaje -->
-                <TextArea fx:id="txtCuerpo"
-                          wrapText="true"
-                          editable="false"
-                          prefRowCount="18"
-                          VBox.vgrow="ALWAYS"
-                          styleClass="text-area"/>
-
-                <!-- Panel de respuestas IA -->
-                <VBox styleClass="ia-panel" spacing="6">
-                    <Label text="Respuestas sugeridas por IA"
-                           styleClass="label-secondary"/>
-                    <HBox spacing="8">
-                        <Button fx:id="btnSug1"
-                                styleClass="chip"
-                                onAction="#onUsarRespuesta1"/>
-                        <Button fx:id="btnSug2"
-                                styleClass="chip"
-                                onAction="#onUsarRespuesta2"/>
-                        <Button fx:id="btnSug3"
-                                styleClass="chip"
-                                onAction="#onUsarRespuesta3"/>
-                    </HBox>
                 </VBox>
-            </VBox>
-        </HBox>
+            </items>
+        </SplitPane>
     </center>
 
 </BorderPane>

@@ -10,6 +10,7 @@
 /home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/DAOCuentas.java
 /home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/DAOEntrenamiento.java
 /home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/DAOEventosCalendario.java
+/home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/dao/DAOMensajes.java
 /home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/ia/ExtractorAtributos.java
 /home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/ia/GestorModelos.java
 /home/santipg/Proyectos/Java/emAIl/emailAI/src/main/java/com/emailAI/model/Mensaje.java
