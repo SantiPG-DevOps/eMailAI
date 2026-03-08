@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="WorkbenchPreferenceDialog.dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="556"/>
-		<item key="DIALOG_Y_ORIGIN" value="330"/>
-		<item key="DIALOG_WIDTH" value="614"/>
-		<item key="DIALOG_HEIGHT" value="552"/>
-		<item key="DIALOG_FONT_NAME" value="1|Fira Sans|10.0|0|GTK|1|"/>
+		<item key="DIALOG_X_ORIGIN" value="-216"/>
+		<item key="DIALOG_Y_ORIGIN" value="346"/>
+		<item key="DIALOG_WIDTH" value="712"/>
+		<item key="DIALOG_HEIGHT" value="813"/>
+		<item key="DIALOG_FONT_NAME" value="1|SF Pro Display|10.0|0|GTK|1|"/>
 	</section>
 </section>

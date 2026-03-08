@@ -1,9 +1,11 @@
 applyBackground=false
 approved.defs.file.last.changed.time=1693315978000
 configurationInstallLocation=/home/santipg/.eclipse/java-2025-12/eclipse/
+ct.upsell.display.after=1773241395508
 eclipse.preferences.version=1
 iconcolormode=primary
-last.download.attempt.time=1772852297473
-lastConfiguration=1772852292528
-newinstall=true
+last.download.attempt.time=1772983875299
+lastConfiguration=1772983870063
+newinstall=false
+showWelcomeDialog=false
 workbench.theme=Dark Gray

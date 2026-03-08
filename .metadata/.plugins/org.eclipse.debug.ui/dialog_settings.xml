@@ -4,8 +4,8 @@
 		<item key="org.eclipse.debug.ui.DIALOG_SASH_WEIGHTS_1" value="237"/>
 		<item key="org.eclipse.debug.ui.DIALOG_SASH_WEIGHTS_2" value="762"/>
 		<item key="org.eclipse.debug.ui.EXPANDED_NODES" value=", org.eclipse.jdt.launching.localJavaApplication, "/>
-		<item key="DIALOG_WIDTH" value="1025"/>
-		<item key="DIALOG_HEIGHT" value="935"/>
-		<item key="DIALOG_FONT_NAME" value="1|Fira Sans|10.0|0|GTK|1|"/>
+		<item key="DIALOG_WIDTH" value="1050"/>
+		<item key="DIALOG_HEIGHT" value="1411"/>
+		<item key="DIALOG_FONT_NAME" value="1|SF Pro Display|10.0|0|GTK|1|"/>
 	</section>
 </section>
