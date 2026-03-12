@@ -25,9 +25,8 @@
     -fx-padding: 4 10 4 10;
 }
 
-/* Tarjetas de cuentas (login) */
-.account-card,
-.account-card-new {
+/* Tarjetas de cuentas (genérico) */
+.account-card {
     -fx-padding: 10;
     -fx-background-radius: 12;
     -fx-border-radius: 12;
@@ -35,7 +34,9 @@
     -fx-cursor: hand;
 }
 
-.account-card-selected { }
+.account-card-selected {
+    /* colores concretos se definen en dark/light */
+}
 
 .account-email {
     -fx-font-weight: bold;
@@ -82,4 +83,25 @@
 /* Barra superior correo */
 .top-bar {
     -fx-spacing: 8;
+}
+
+/* LOGIN: campos y botón principal */
+.login-password {
+    /* hereda de .text-field; ajusta aquí si quieres algo específico */
+}
+
+.primary-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+/* Toggle sol/luna */
+.theme-toggle {
+    -fx-font-size: 14px;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 4 10 4 10;
 }

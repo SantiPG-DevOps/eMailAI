@@ -10,10 +10,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -24,7 +26,7 @@ import java.util.List;
 public class LoginController {
 
     @FXML
-    private TilePane accountsTilePane;
+    private VBox accountsList;           // lista vertical de tarjetas
 
     @FXML
     private PasswordField passwordField;
@@ -54,7 +56,11 @@ public class LoginController {
 
         statusLabel.setText("");
         passwordField.setText("");
-        themeToggle.setSelected(false); // false = tema oscuro por defecto
+
+        if (themeToggle != null) {
+            themeToggle.setSelected(false); // oscuro por defecto
+            themeToggle.setText("🌙");
+        }
 
         cargarCuentasDesdeBD();
         dibujarTarjetas();
@@ -71,21 +77,19 @@ public class LoginController {
     }
 
     private void dibujarTarjetas() {
-        accountsTilePane.getChildren().clear();
+        accountsList.getChildren().clear();
 
         for (CuentaGuardada cuenta : cuentas) {
             VBox card = crearTarjetaCuenta(cuenta);
-            accountsTilePane.getChildren().add(card);
+            accountsList.getChildren().add(card);
         }
-
-        VBox cardNueva = crearTarjetaNuevaCuenta();
-        accountsTilePane.getChildren().add(cardNueva);
     }
 
     private VBox crearTarjetaCuenta(CuentaGuardada cuenta) {
         VBox card = new VBox();
         card.getStyleClass().add("account-card");
         card.setSpacing(4);
+        card.setMaxWidth(560); // mismo ancho que el contenedor
 
         String emailDescifrado;
         try {
@@ -108,28 +112,16 @@ public class LoginController {
         return card;
     }
 
-    private VBox crearTarjetaNuevaCuenta() {
-        VBox card = new VBox();
-        card.getStyleClass().add("account-card-new");
-        card.setSpacing(4);
-
-        Label masLabel = new Label("+ Añadir cuenta");
-        masLabel.getStyleClass().add("account-new-label");
-
-        card.getChildren().add(masLabel);
-
-        card.setOnMouseClicked(ev -> onNewAccountClicked(null));
-
-        return card;
-    }
-
-    private void seleccionarCuenta(CuentaGuardada cuenta, VBox cardSeleccionada, String emailDescifrado) {
+    private void seleccionarCuenta(CuentaGuardada cuenta,
+                                   VBox cardSeleccionada,
+                                   String emailDescifrado) {
         this.cuentaSeleccionada = cuenta;
 
-        accountsTilePane.getChildren()
+        accountsList.getChildren()
                 .forEach(node -> node.getStyleClass().remove("account-card-selected"));
 
         cardSeleccionada.getStyleClass().add("account-card-selected");
+
         statusLabel.setText("Cuenta seleccionada: " + emailDescifrado);
         passwordField.requestFocus();
     }
@@ -166,7 +158,7 @@ public class LoginController {
             );
             irAVentanaPrincipal(event);
         } catch (Exception e) {
-            e.printStackTrace(); // para ver errores de conexión en consola
+            e.printStackTrace();
             statusLabel.setText("Error al conectar: " + e.getMessage());
         }
     }
@@ -192,13 +184,21 @@ public class LoginController {
             stage.setScene(mainScene);
             stage.show();
         } catch (Exception e) {
-            e.printStackTrace(); // <-- aquí veremos el LoadException de main-view
+            e.printStackTrace();
             statusLabel.setText("Error al conectar: " + e.getMessage());
         }
     }
 
     @FXML
     private void onThemeToggle(ActionEvent event) {
+        if (themeToggle != null) {
+            if (themeToggle.isSelected()) {
+                themeToggle.setText("☀");
+            } else {
+                themeToggle.setText("🌙");
+            }
+        }
+
         Scene scene = themeToggle.getScene();
         if (scene != null) {
             aplicarTemaAScene(scene);
@@ -212,7 +212,7 @@ public class LoginController {
                 AppFX.class.getResource("/styles-basic.css").toExternalForm()
         );
 
-        if (themeToggle.isSelected()) {
+        if (themeToggle != null && themeToggle.isSelected()) {
             scene.getStylesheets().add(
                     AppFX.class.getResource("/styles-light.css").toExternalForm()
             );
@@ -231,13 +231,7 @@ public class LoginController {
 
             aplicarTemaAScene(configScene);
 
-            Stage stage;
-            if (event != null) {
-                stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            } else {
-                stage = (Stage) newAccountButton.getScene().getWindow();
-            }
-
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setTitle("eMailAI - Nueva cuenta");
             stage.setScene(configScene);
             stage.show();

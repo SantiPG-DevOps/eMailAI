@@ -10,7 +10,7 @@ public class AppFX extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
-        Scene scene = new Scene(loader.load(), 470, 350);
+        Scene scene = new Scene(loader.load(), 800, 650);
 
         // Siempre cargamos primero el CSS básico
         scene.getStylesheets().add(

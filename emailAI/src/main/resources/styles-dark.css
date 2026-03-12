@@ -13,17 +13,14 @@
 
 /* ========= CONTENEDORES Y PANELES ========= */
 
-/* Panel principal / fondo de cada vista */
 .main-background {
     -fx-background-color: #0F172A;
 }
 
-/* Menú lateral (si lo usas en otras vistas) */
 .sidebar {
     -fx-background-color: #1E293B;      /* Fondo Secundario */
 }
 
-/* Tarjetas, bloques de contenido (login, panel derecho, etc.) */
 .card {
     -fx-background-color: #1E293B;      /* Fondo Secundario */
     -fx-background-radius: 12;
@@ -32,18 +29,15 @@
     -fx-border-width: 1;
 }
 
-/* Panel más elevado (opcional) */
 .elevated {
     -fx-background-color: #334155;      /* Fondo Elevado */
     -fx-background-radius: 16;
 }
 
-/* Barra superior de la ventana de correo */
 .top-bar {
     -fx-background-color: #1E293B;
 }
 
-/* Panel de respuestas IA */
 .ia-panel {
     -fx-background-color: #1E293B;
     -fx-background-radius: 10;
@@ -53,11 +47,11 @@
 /* ========= TEXTOS ========= */
 
 .label {
-    -fx-text-fill: #F1F5F9;             /* Texto Principal */
+    -fx-text-fill: #F1F5F9;
 }
 
 .label-secondary {
-    -fx-text-fill: #94A3B8;             /* Texto Secundario */
+    -fx-text-fill: #94A3B8;
     -fx-font-size: 12px;
 }
 
@@ -67,15 +61,14 @@
 }
 
 .message-subject {
-    -fx-text-fill: #38BDF8;             /* Azul Corporativo brillante */
+    -fx-text-fill: #38BDF8;
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-max-width: 400;
 }
 
-/* Texto de estados (ej: “Bandeja actualizada”) */
 .status-label {
-    -fx-text-fill: #22D3EE;             /* Cyan Tecnológico */
+    -fx-text-fill: #22D3EE;
     -fx-font-size: 12px;
 }
 
@@ -95,10 +88,9 @@
     -fx-border-color: #22D3EE;
 }
 
-/* Área de texto del cuerpo del correo */
 .text-area {
-    -fx-control-inner-background: #0F172A;  /* Fondo Principal */
-    -fx-background-color: #1E293B;         /* Marco */
+    -fx-control-inner-background: #0F172A;
+    -fx-background-color: #1E293B;
     -fx-text-fill: #F1F5F9;
     -fx-border-color: #334155;
     -fx-background-radius: 8;
@@ -109,39 +101,35 @@
 
 .list-view {
     -fx-background-color: #0F172A;
-    -fx-control-inner-background: #1E293B;  /* Fondo Secundario */
+    -fx-control-inner-background: #1E293B;
     -fx-text-fill: #F1F5F9;
     -fx-padding: 4;
 }
 
-/* Celda estándar para mensajes (la que creas con styleClass "message-card") */
 .list-cell.message-card {
-    -fx-background-color: #1E293B;         /* Fondo Secundario */
+    -fx-background-color: #1E293B;
     -fx-text-fill: #F1F5F9;
     -fx-padding: 6 10 6 10;
 }
 
-/* Celdas vacías sin color raro */
 .list-cell:empty {
     -fx-background-color: transparent;
 }
 
-/* Mensaje seleccionado: alto contraste */
 .list-cell.message-card:selected {
-    -fx-background-color: #38BDF8;         /* Azul Corporativo */
-    -fx-text-fill: #0F172A;                /* Texto oscuro sobre azul claro */
+    -fx-background-color: #38BDF8;
+    -fx-text-fill: #0F172A;
 }
 
-/* Pie o separador en la lista, si lo usas */
 .list-cell.message-card.footer {
-    -fx-background-color: #334155;         /* Fondo Elevado */
+    -fx-background-color: #334155;
     -fx-text-fill: #F1F5F9;
 }
 
 /* ========= BOTONES GENERALES ========= */
 
 .button {
-    -fx-background-color: #22D3EE;         /* Cyan Tecnológico */
+    -fx-background-color: #22D3EE;
     -fx-text-fill: #0F172A;
     -fx-font-weight: bold;
     -fx-background-radius: 20;
@@ -150,19 +138,19 @@
 }
 
 .button:hover {
-    -fx-background-color: #67E8F9;         /* Cyan Brillante */
+    -fx-background-color: #67E8F9;
 }
 
 /* Botones pequeños tipo "Enviar/Recibir" */
 .small-button {
     -fx-font-size: 11px;
-    -fx-padding: 2 10 2 10;
+    -fx-padding: 4 10 4 10;
 }
 
-/* ========= BOTONES DE ACCIÓN (Act IA, SPAM, Legit) ========= */
+/* ========= BOTONES DE ACCIÓN ========= */
 
 .action-button {
-    -fx-background-color: #1E293B;   /* Fondo Secundario */
+    -fx-background-color: #1E293B;
     -fx-text-fill: #F1F5F9;
     -fx-background-radius: 16;
     -fx-border-radius: 16;
@@ -171,22 +159,18 @@
     -fx-pref-height: 28;
     -fx-min-height: 28;
     -fx-max-height: 28;
-
-    /* ANCHO FIJO */
     -fx-pref-width: 70;
     -fx-min-width: 70;
     -fx-max-width: 70;
-
     -fx-font-size: 11px;
     -fx-padding: 2 8 2 8;
 }
 
-
 .action-button:hover {
-    -fx-background-color: #334155;   /* Fondo Elevado */
+    -fx-background-color: #334155;
 }
 
-/* ========= BOTONES CHIPS IA (respuestas rápidas) ========= */
+/* ========= BOTONES CHIPS IA ========= */
 
 .chip {
     -fx-background-color: #22D3EE;
@@ -197,7 +181,7 @@
     -fx-padding: 4 12 4 12;
     -fx-wrap-text: true;
     -fx-pref-height: 30;
-    -fx-min-width: 120;             /* ancho mínimo para no deformar */
+    -fx-min-width: 120;
 }
 
 .chip:hover {
@@ -230,7 +214,7 @@
     -fx-background-color: #38BDF8;
 }
 
-/* ========= OTROS (tabs, glow, etc.) ========= */
+/* ========= OTROS ========= */
 
 .tab-pane {
     -fx-background-color: #0F172A;
@@ -246,22 +230,54 @@
     -fx-text-base-color: #0F172A;
 }
 
-/* Efecto glow IA */
 .glow-ia {
     -fx-effect: dropshadow(gaussian, #00F0FF, 20, 0.5, 0, 0);
 }
 
-/* Lista de cuentas en login */
-#lstCuentas {
-    -fx-background-color: #0F172A;
-    -fx-control-inner-background: #1E293B;
-    -fx-text-fill: #F1F5F9;
+/* LOGIN: Scroll de cuentas sin marco */
+
+.accounts-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
 }
 
-/* Celdas de cuenta (si en el controller añades la clase "message-card" o similar) */
-.list-cell.account-card {
+.accounts-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Tarjetas de cuenta en modo oscuro */
+
+.account-card {
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-border-color: #334155;
+    -fx-background-color: #1E293B;
+    -fx-cursor: hand;
+}
+
+.account-card-selected {
+    -fx-border-color: #38BDF8;
+    -fx-background-color: #0B1220;
+}
+
+.account-email {
+    -fx-text-fill: #F1F5F9;
+    -fx-font-weight: bold;
+}
+
+.account-server {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 11px;
+}
+
+/* Toggle sol/luna oscuro */
+
+.theme-toggle {
     -fx-background-color: #1E293B;
     -fx-text-fill: #F1F5F9;
-    -fx-padding: 6 10 6 10;
+    -fx-border-color: #334155;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
 }
-

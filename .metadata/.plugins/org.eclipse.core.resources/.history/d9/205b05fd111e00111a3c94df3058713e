@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.LoginController"
+            prefWidth="420" prefHeight="360">
+
+    <!-- ZONA SUPERIOR: título + logo -->
+    <top>
+        <VBox alignment="CENTER" spacing="6">
+            <padding>
+                <Insets top="16" right="20" bottom="8" left="20"/>
+            </padding>
+
+            <Label text="eMailAI"
+                   styleClass="title-label"/>
+
+            <ImageView fx:id="logoImage"
+                       fitHeight="70"
+                       preserveRatio="true"/>
+        </VBox>
+    </top>
+
+    <!-- ZONA CENTRAL: cuentas + contraseña + botón -->
+    <center>
+        <VBox spacing="14" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="40" bottom="10" left="40"/>
+            </padding>
+
+            <!-- Cuentas guardadas como ComboBox -->
+            <VBox spacing="4" prefWidth="320">
+                <Label text="Cuentas guardadas"
+                       styleClass="section-label"/>
+
+                <ComboBox fx:id="accountsCombo"
+                          prefWidth="320"
+                          promptText="Selecciona una cuenta"/>
+            </VBox>
+
+            <!-- Contraseña + botón Entrar -->
+            <VBox spacing="6" prefWidth="320">
+                <Label text="Contraseña"
+                       styleClass="section-label"/>
+
+                <PasswordField fx:id="passwordField"
+                               promptText="Introduce la contraseña"
+                               styleClass="text-field"/>
+
+                <Button text="Entrar"
+                        fx:id="loginButton"
+                        onAction="#onLoginClicked"
+                        defaultButton="true"
+                        maxWidth="Infinity"
+                        styleClass="primary-button"/>
+
+                <Label fx:id="statusLabel"
+                       text=""
+                       styleClass="status-label"/>
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- ZONA INFERIOR: solo un pequeño pie opcional -->
+    <bottom>
+        <HBox alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="6" right="8" bottom="6" left="8"/>
+            </padding>
+
+            <Button text="Configuración"
+                    fx:id="settingsButton"
+                    onAction="#onSettingsClicked"
+                    styleClass="flat-button"/>
+        </HBox>
+        <bottom>
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <padding>
+            <Insets top="10" right="20" bottom="10" left="20"/>
+        </padding>
+
+        <ToggleButton fx:id="themeToggle"
+                      text="Claro / Oscuro"
+                      onAction="#onThemeToggle"/>
+
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Button text="Configuración"
+                fx:id="settingsButton"
+                onAction="#onSettingsClicked"
+                styleClass="flat-button"/>
+    </HBox>
+</bottom>
+        
+    </bottom>
+    
+
+</BorderPane>

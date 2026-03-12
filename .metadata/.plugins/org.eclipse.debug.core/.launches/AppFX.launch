@@ -16,5 +16,5 @@
     <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="emailAI"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="emailAI"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="--module-path /opt/JavaFX/javafx-sdk-21.0.10/lib/ --add-modules javafx.controls,javafx.fxml,javafx.graphics"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="--module-path /opt/javafx-sdk-21.0.10/lib --add-modules=javafx.controls,javafx.fxml"/>
 </launchConfiguration>
