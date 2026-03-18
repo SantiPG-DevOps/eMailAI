@@ -4,6 +4,7 @@ import com.emailAI.dao.DAOEventosCalendario;
 import com.emailAI.dao.DAOEventosCalendario.Evento;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -19,12 +20,16 @@ public class CalendarioController {
 
     private DAOEventosCalendario dao;
 
+    // Para saber si estamos editando un evento existente
+    private Evento eventoEnEdicion;
+
     @FXML
     private void initialize() {
         try {
             dao = new DAOEventosCalendario();
         } catch (Exception e) {
             e.printStackTrace();
+            mostrarError("Error inicializando calendario", e.getMessage());
         }
 
         LocalDate hoy = LocalDate.now();
@@ -48,6 +53,13 @@ public class CalendarioController {
             }
         });
 
+        // Doble clic sobre un evento para ponerlo en edición
+        lstEventos.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                onEditarEvento();
+            }
+        });
+
         cargarEventos(hoy);
     }
 
@@ -58,6 +70,7 @@ public class CalendarioController {
             lstEventos.setItems(FXCollections.observableArrayList(lista));
         } catch (Exception e) {
             e.printStackTrace();
+            mostrarError("Error cargando eventos", e.getMessage());
         }
     }
 
@@ -78,11 +91,26 @@ public class CalendarioController {
         }
 
         try {
-            dao.guardarEvento(fecha, texto, null, "local");
+            // Si hay evento en edición, actualizamos; si no, creamos nuevo
+            if (eventoEnEdicion != null) {
+                Evento actualizado = new Evento(
+                        eventoEnEdicion.id(),
+                        fecha,
+                        texto,
+                        eventoEnEdicion.detalle(),
+                        eventoEnEdicion.origen()
+                );
+                dao.actualizarEvento(actualizado);
+                eventoEnEdicion = null;
+            } else {
+                dao.guardarEvento(fecha, texto, null, "local");
+            }
+
             txtNuevoEvento.clear();
             cargarEventos(fecha);
         } catch (Exception e) {
             e.printStackTrace();
+            mostrarError("Error guardando evento", e.getMessage());
         }
     }
 
@@ -94,9 +122,35 @@ public class CalendarioController {
 
         try {
             dao.borrarEvento(seleccionado.id());
+            if (eventoEnEdicion != null && eventoEnEdicion.id() == seleccionado.id()) {
+                eventoEnEdicion = null;
+                txtNuevoEvento.clear();
+            }
             cargarEventos(dpFecha.getValue());
         } catch (Exception e) {
             e.printStackTrace();
+            mostrarError("Error borrando evento", e.getMessage());
         }
+    }
+
+    @FXML
+    private void onEditarEvento() {
+        Evento seleccionado = lstEventos.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) {
+            return;
+        }
+
+        // Ponemos sus datos en los controles para editar
+        eventoEnEdicion = seleccionado;
+        dpFecha.setValue(seleccionado.fecha());
+        txtNuevoEvento.setText(seleccionado.titulo());
+    }
+
+    private void mostrarError(String titulo, String detalle) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(titulo);
+        alert.setContentText(detalle);
+        alert.showAndWait();
     }
 }

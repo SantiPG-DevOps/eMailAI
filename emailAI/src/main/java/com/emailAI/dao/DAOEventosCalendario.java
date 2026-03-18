@@ -71,4 +71,17 @@ public class DAOEventosCalendario {
             st.executeUpdate();
         }
     }
+
+    public void actualizarEvento(Evento evento) throws Exception {
+        String sql = "UPDATE eventos_calendario SET fecha = ?, titulo = ?, detalle = ?, origen = ? WHERE id = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, evento.fecha().toString());
+            st.setString(2, evento.titulo());
+            st.setString(3, evento.detalle());
+            st.setString(4, evento.origen());
+            st.setInt(5, evento.id());
+            st.executeUpdate();
+        }
+    }
 }

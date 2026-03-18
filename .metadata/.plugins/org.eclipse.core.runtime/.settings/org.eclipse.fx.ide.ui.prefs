@@ -1,2 +1,2 @@
 eclipse.preferences.version=1
-scenebuilder.exe=/var/lib/flatpak/exports/bin/com.gluonhq.SceneBuilder
+scenebuilder.exe=/usr/bin/scenebuilder

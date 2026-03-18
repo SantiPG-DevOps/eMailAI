@@ -1,5 +1,5 @@
 eclipse.preferences.version=1
 overriddenByCSS=,pref_console_message_color,pref_console_command_color,pref_console_error_color,
-pref_console_command_color=199,221,12
-pref_console_error_color=210,82,82
-pref_console_message_color=216,216,216
+pref_console_command_color=109,109,159
+pref_console_error_color=120,220,232
+pref_console_message_color=229,223,248
