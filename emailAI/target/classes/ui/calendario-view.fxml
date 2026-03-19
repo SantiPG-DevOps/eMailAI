@@ -1,45 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/24.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.emailAI.controller.CalendarioController">
 
+    <!-- Barra superior: navegación de meses -->
     <top>
-        <HBox spacing="10">
+        <HBox spacing="12">
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12"/>
+            </padding>
             <children>
-                <Label text="Calendario" styleClass="label-asunto"/>
+                <Button text="&lt;" onAction="#onMesAnterior"/>
+                <Label fx:id="lblMesAnio" styleClass="calendario-mes-label"/>
+                <Button text="&gt;" onAction="#onMesSiguiente"/>
                 <Pane HBox.hgrow="ALWAYS"/>
-                <DatePicker fx:id="dpFecha"/>
                 <Button text="Hoy" onAction="#onHoy"/>
             </children>
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
         </HBox>
     </top>
 
+    <!-- Cabecera de días de la semana + grid mensual -->
     <center>
-        <VBox spacing="8">
-            <children>
-                <Label text="Eventos del día" styleClass="label-secondary"/>
-
-                <ListView fx:id="lstEventos" VBox.vgrow="ALWAYS"/>
-
-                <HBox spacing="8">
-                    <children>
-                        <TextField fx:id="txtNuevoEvento" promptText="Añadir evento..."/>
-                        <Button text="Añadir" onAction="#onAgregarEvento"/>
-                    </children>
-                </HBox>
-            </children>
+        <VBox spacing="4">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="12" right="12" bottom="12" left="12"/>
             </padding>
+            <children>
+
+                <!-- Cabeceras L M X J V S D -->
+                <GridPane hgap="4" vgap="4">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="24" prefHeight="24"/>
+                    </rowConstraints>
+                    <children>
+                        <Label text="L" GridPane.columnIndex="0"/>
+                        <Label text="M" GridPane.columnIndex="1"/>
+                        <Label text="X" GridPane.columnIndex="2"/>
+                        <Label text="J" GridPane.columnIndex="3"/>
+                        <Label text="V" GridPane.columnIndex="4"/>
+                        <Label text="S" GridPane.columnIndex="5"/>
+                        <Label text="D" GridPane.columnIndex="6"/>
+                    </children>
+                </GridPane>
+
+                <!-- Grid de días del mes -->
+                <GridPane fx:id="gridCalendario" hgap="4" vgap="4">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                        <ColumnConstraints percentWidth="14.28"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="ALWAYS"/>
+                        <RowConstraints vgrow="ALWAYS"/>
+                        <RowConstraints vgrow="ALWAYS"/>
+                        <RowConstraints vgrow="ALWAYS"/>
+                        <RowConstraints vgrow="ALWAYS"/>
+                        <RowConstraints vgrow="ALWAYS"/>
+                    </rowConstraints>
+                </GridPane>
+
+            </children>
         </VBox>
     </center>
+
+    <!-- Zona inferior para añadir evento rápido al día seleccionado -->
+    <bottom>
+        <HBox spacing="8">
+            <padding>
+                <Insets top="8" right="8" bottom="8" left="8"/>
+            </padding>
+            <children>
+                <Label text="Nuevo evento:"/>
+                <TextField fx:id="txtNuevoEvento" HBox.hgrow="ALWAYS"
+                           promptText="Escribe el título del evento"/>
+                <Button text="Añadir" onAction="#onAgregarEvento"/>
+            </children>
+        </HBox>
+    </bottom>
 
 </BorderPane>

@@ -93,6 +93,7 @@ public class LoginController {
 
         String emailDescifrado;
         try {
+            // email cifrado con clave fija de app
             emailDescifrado = UtilidadCifrado.descifrar(cuenta.emailCifrado);
         } catch (Exception e) {
             emailDescifrado = "[email]";
@@ -141,6 +142,14 @@ public class LoginController {
             return;
         }
 
+        // 1) Validar contraseña maestra con hash
+        String hashIntroducido = UtilidadCifrado.hash(password);
+        if (!hashIntroducido.equals(cuentaSeleccionada.passMaestraHash)) {
+            statusLabel.setText("Contraseña incorrecta.");
+            return;
+        }
+
+        // 2) Descifrar email con clave fija de app
         String email;
         try {
             email = UtilidadCifrado.descifrar(cuentaSeleccionada.emailCifrado);
@@ -149,6 +158,9 @@ public class LoginController {
             return;
         }
 
+        // 3) Derivar clave de cifrado por cuenta
+        String claveCuenta = UtilidadCifrado.hash(password + "|" + email);
+
         try {
             mailService.connect(
                     cuentaSeleccionada.servidorImap,
@@ -156,14 +168,14 @@ public class LoginController {
                     email,
                     password
             );
-            irAVentanaPrincipal(event);
+            irAVentanaPrincipal(event, claveCuenta);
         } catch (Exception e) {
             e.printStackTrace();
             statusLabel.setText("Error al conectar: " + e.getMessage());
         }
     }
 
-    private void irAVentanaPrincipal(ActionEvent event) {
+    private void irAVentanaPrincipal(ActionEvent event, String claveCuenta) {
         try {
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/main-view.fxml"));
             Scene mainScene = new Scene(loader.load());
@@ -174,6 +186,8 @@ public class LoginController {
             if (mainController != null) {
                 try {
                     mainController.setMailService(mailService);
+                    // pasamos clave y id de cuenta para cifrado por cuenta
+                    mainController.setupCuenta(claveCuenta, cuentaSeleccionada.id);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -185,7 +199,7 @@ public class LoginController {
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
-            statusLabel.setText("Error al conectar: " + e.getMessage());
+            statusLabel.setText("Error al abrir ventana principal: " + e.getMessage());
         }
     }
 

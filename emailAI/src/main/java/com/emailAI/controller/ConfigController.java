@@ -3,127 +3,197 @@ package com.emailAI.controller;
 import com.emailAI.AppFX;
 import com.emailAI.dao.DAOCuentas;
 import com.emailAI.security.UtilidadCifrado;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.stage.Stage;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigController {
 
-    @FXML
-    private ComboBox<String> providerCombo;
+    // ====== Pestaña GENERAL ======
 
-    @FXML
-    private TextField emailField;
+    @FXML private TabPane tabPrincipal;   // por si lo necesitas más adelante
+    @FXML private CheckBox chkTemaClaro;
+    @FXML private CheckBox chkNotificaciones;
+    @FXML private CheckBox chkComprobarInicio;
 
-    @FXML
-    private PasswordField masterPassField;
+    // ====== Pestaña CORREO (tu lógica antigua) ======
 
-    @FXML
-    private TextField imapField;
-
-    @FXML
-    private TextField smtpField;
-
-    @FXML
-    private Label imapLabel;
-
-    @FXML
-    private Label smtpLabel;
-
-    @FXML
-    private Label statusLabel;
+    @FXML private ComboBox<String> providerCombo;
+    @FXML private TextField emailField;
+    @FXML private PasswordField masterPassField;
+    @FXML private TextField imapField;
+    @FXML private TextField smtpField;
+    @FXML private Label imapLabel;
+    @FXML private Label smtpLabel;
+    @FXML private Label statusLabel;
 
     private final Map<String, String[]> proveedores = new HashMap<>();
     private static final String PERSONALIZADO = "Servidor personalizado";
 
-    @FXML
-    private void initialize() {
-        statusLabel.setText("");
+    // referencia opcional al MainController (cuando se abre desde la app principal)
+    private MainController mainController;
 
-        proveedores.put("Gmail",      new String[]{"imap.gmail.com", "smtp.gmail.com"});
-        proveedores.put("Outlook/Hotmail", new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
-        proveedores.put("Yahoo",      new String[]{"imap.mail.yahoo.com", "smtp.mail.yahoo.com"});
-        proveedores.put("iCloud",     new String[]{"imap.mail.me.com", "smtp.mail.me.com"});
-        proveedores.put("GMX",        new String[]{"imap.gmx.com", "mail.gmx.com"});
-        proveedores.put("ProtonMail (Bridge)", new String[]{"127.0.0.1", "127.0.0.1"});
-        proveedores.put("Zoho Mail",  new String[]{"imap.zoho.com", "smtp.zoho.com"});
-
-        providerCombo.getItems().addAll(
-                "Gmail",
-                "Outlook/Hotmail",
-                "Yahoo",
-                "iCloud",
-                "GMX",
-                "ProtonMail (Bridge)",
-                "Zoho Mail",
-                PERSONALIZADO
-        );
-
-        providerCombo.getSelectionModel().selectFirst();
-        aplicarProveedorSeleccionado();
-    }
-
-    @FXML
-    private void onProviderChanged(ActionEvent event) {
-        aplicarProveedorSeleccionado();
-    }
-
-    private void aplicarProveedorSeleccionado() {
-        String proveedor = providerCombo.getSelectionModel().getSelectedItem();
-        if (proveedor == null) return;
-
-        if (PERSONALIZADO.equals(proveedor)) {
-            imapLabel.setVisible(true);
-            imapField.setVisible(true);
-            smtpLabel.setVisible(true);
-            smtpField.setVisible(true);
-
-            imapField.clear();
-            smtpField.clear();
-            imapField.setEditable(true);
-            smtpField.setEditable(true);
-        } else {
-            String[] datos = proveedores.get(proveedor);
-            String imap = datos[0];
-            String smtp = datos[1];
-
-            imapField.setText(imap);
-            smtpField.setText(smtp);
-
-            imapLabel.setVisible(false);
-            imapField.setVisible(false);
-            smtpLabel.setVisible(false);
-            smtpField.setVisible(false);
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+        // inicializar estado del tema según la ventana principal
+        if (mainController != null && chkTemaClaro != null) {
+            chkTemaClaro.setSelected(mainController.isTemaClaro());
+        } else if (chkTemaClaro != null) {
+            // si se abre desde login u otra vista, deducimos el tema por CSS
+            Scene scene = chkTemaClaro.getScene();
+            boolean light = false;
+            if (scene != null) {
+                for (String s : scene.getStylesheets()) {
+                    if (s.contains("styles-light.css")) {
+                        light = true;
+                        break;
+                    }
+                }
+            }
+            chkTemaClaro.setSelected(light);
         }
     }
 
     @FXML
-    private void onSaveClicked(ActionEvent event) {
-        statusLabel.setText("");
+    private void initialize() {
+        if (statusLabel != null) {
+            statusLabel.setText("");
+        }
+
+        // === Inicialización de proveedores (pestaña Correo) ===
+        if (providerCombo != null) {
+            proveedores.put("Gmail",      new String[]{"imap.gmail.com", "smtp.gmail.com"});
+            proveedores.put("Outlook/Hotmail", new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
+            proveedores.put("Yahoo",      new String[]{"imap.mail.yahoo.com", "smtp.mail.yahoo.com"});
+            proveedores.put("iCloud",     new String[]{"imap.mail.me.com", "smtp.mail.me.com"});
+            proveedores.put("GMX",        new String[]{"imap.gmx.com", "mail.gmx.com"});
+            proveedores.put("ProtonMail (Bridge)", new String[]{"127.0.0.1", "127.0.0.1"});
+            proveedores.put("Zoho Mail",  new String[]{"imap.zoho.com", "smtp.zoho.com"});
+
+            providerCombo.getItems().addAll(
+                    "Gmail",
+                    "Outlook/Hotmail",
+                    "Yahoo",
+                    "iCloud",
+                    "GMX",
+                    "ProtonMail (Bridge)",
+                    "Zoho Mail",
+                    PERSONALIZADO
+            );
+
+            providerCombo.getSelectionModel().selectFirst();
+            aplicarProveedorSeleccionado();
+        }
+    }
+
+    // ====== General: tema claro/oscuro ======
+
+    @FXML
+    private void onToggleTemaClaro() {
+        if (chkTemaClaro == null) return;
+        boolean claro = chkTemaClaro.isSelected();
+
+        if (mainController != null) {
+            // estamos dentro de la app principal
+            mainController.setTemaClaro(claro);
+        } else {
+            // estamos en otra escena (por ejemplo, una ventana de config independiente)
+            // cambiamos estilos sobre la escena actual
+            Scene scene = chkTemaClaro.getScene();
+            if (scene == null) return;
+
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-basic.css").toExternalForm()
+            );
+            if (claro) {
+                scene.getStylesheets().add(
+                        AppFX.class.getResource("/styles-light.css").toExternalForm()
+                );
+            } else {
+                scene.getStylesheets().add(
+                        AppFX.class.getResource("/styles-dark.css").toExternalForm()
+                );
+            }
+        }
+    }
+
+    // ====== Correo: proveedor / IMAP / SMTP ======
+
+    @FXML
+    private void onProviderChanged() {
+        aplicarProveedorSeleccionado();
+    }
+
+    private void aplicarProveedorSeleccionado() {
+        if (providerCombo == null) return;
 
         String proveedor = providerCombo.getSelectionModel().getSelectedItem();
-        String email = emailField.getText();
-        String masterPass = masterPassField.getText();
+        if (proveedor == null) return;
+
+        if (PERSONALIZADO.equals(proveedor)) {
+            if (imapLabel != null) imapLabel.setVisible(true);
+            if (imapField != null) {
+                imapField.setVisible(true);
+                imapField.clear();
+                imapField.setEditable(true);
+            }
+
+            if (smtpLabel != null) smtpLabel.setVisible(true);
+            if (smtpField != null) {
+                smtpField.setVisible(true);
+                smtpField.clear();
+                smtpField.setEditable(true);
+            }
+        } else {
+            String[] datos = proveedores.get(proveedor);
+            if (datos == null) return;
+
+            String imap = datos[0];
+            String smtp = datos[1];
+
+            if (imapField != null) {
+                imapField.setText(imap);
+                imapField.setVisible(false);
+            }
+            if (smtpField != null) {
+                smtpField.setText(smtp);
+                smtpField.setVisible(false);
+            }
+            if (imapLabel != null) imapLabel.setVisible(false);
+            if (smtpLabel != null) smtpLabel.setVisible(false);
+        }
+    }
+
+    @FXML
+    private void onSaveCuenta() {
+        if (statusLabel != null) statusLabel.setText("");
+
+        if (providerCombo == null) return;
+
+        String proveedor = providerCombo.getSelectionModel().getSelectedItem();
+        String email = emailField != null ? emailField.getText() : null;
+        String masterPass = masterPassField != null ? masterPassField.getText() : null;
 
         String imap;
         String smtp;
 
         if (proveedor == null) {
-            statusLabel.setText("Selecciona un proveedor.");
+            if (statusLabel != null) statusLabel.setText("Selecciona un proveedor.");
             return;
         }
 
         if (PERSONALIZADO.equals(proveedor)) {
-            imap = imapField.getText();
-            smtp = smtpField.getText();
+            imap = imapField != null ? imapField.getText() : null;
+            smtp = smtpField != null ? smtpField.getText() : null;
         } else {
             String[] datos = proveedores.get(proveedor);
             imap = datos[0];
@@ -134,7 +204,7 @@ public class ConfigController {
                 || masterPass == null || masterPass.isBlank()
                 || imap == null || imap.isBlank()
                 || smtp == null || smtp.isBlank()) {
-            statusLabel.setText("Rellena todos los campos necesarios.");
+            if (statusLabel != null) statusLabel.setText("Rellena todos los campos necesarios.");
             return;
         }
 
@@ -145,56 +215,9 @@ public class ConfigController {
             DAOCuentas dao = new DAOCuentas();
             dao.guardarCuenta(imap, smtp, emailCifrado, passHash);
 
-            statusLabel.setText("Cuenta guardada correctamente.");
-            irALogin(event);
-
+            if (statusLabel != null) statusLabel.setText("Cuenta guardada correctamente.");
         } catch (Exception e) {
-            statusLabel.setText("Error guardando cuenta: " + e.getMessage());
+            if (statusLabel != null) statusLabel.setText("Error guardando cuenta: " + e.getMessage());
         }
-    }
-
-    @FXML
-    private void onCancelClicked(ActionEvent event) {
-        try {
-            irALogin(event);
-        } catch (Exception e) {
-            statusLabel.setText("Error al volver al login: " + e.getMessage());
-        }
-    }
-
-    private void irALogin(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
-        Scene loginScene = new Scene(loader.load());
-
-        // Siempre básico + tema actual (si podemos leerlo de la escena actual)
-        loginScene.getStylesheets().add(
-                AppFX.class.getResource("/styles-basic.css").toExternalForm()
-        );
-
-        Scene currentScene = ((Node) event.getSource()).getScene();
-        boolean light = false;
-        if (currentScene != null) {
-            for (String s : currentScene.getStylesheets()) {
-                if (s.contains("styles-light.css")) {
-                    light = true;
-                    break;
-                }
-            }
-        }
-
-        if (light) {
-            loginScene.getStylesheets().add(
-                    AppFX.class.getResource("/styles-light.css").toExternalForm()
-            );
-        } else {
-            loginScene.getStylesheets().add(
-                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
-            );
-        }
-
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setTitle("eMailAI - Login");
-        stage.setScene(loginScene);
-        stage.show();
     }
 }

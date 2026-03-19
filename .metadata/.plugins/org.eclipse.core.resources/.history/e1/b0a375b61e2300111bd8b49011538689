@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/21.0.1"
+            fx:controller="com.emailAI.controller.CorreoController">
+
+    <!-- BARRA SUPERIOR: acciones generales -->
+    <top>
+        <HBox spacing="8" styleClass="top-bar">
+            <padding>
+                <Insets bottom="8" left="10" right="10" top="8" />
+            </padding>
+
+            <Button onAction="#onRedactar" text="Redactar" />
+
+            <!-- Separador flexible -->
+            <Pane HBox.hgrow="ALWAYS"/>
+
+            <Label fx:id="lblEstado" styleClass="label-secondary" />
+        </HBox>
+    </top>
+
+    <!-- CONTENIDO CENTRAL -->
+    <center>
+        <SplitPane dividerPositions="0.3">
+            <items>
+                <!-- Columna IZQUIERDA: bandeja de entrada -->
+                <VBox prefWidth="340" spacing="5">
+                    <padding>
+                        <Insets bottom="10" left="10" right="5" top="10" />
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label styleClass="section-label" text="Bandeja de entrada" />
+                        <Button fx:id="btnActualizar"
+                                onAction="#onActualizarBandeja"
+                                styleClass="small-button"
+                                text="Enviar/Recibir" />
+                    </HBox>
+
+                    <!-- Lista de mensajes (tarjetas) -->
+                    <ListView fx:id="lstMensajes" VBox.vgrow="ALWAYS" />
+                </VBox>
+
+                <!-- Columna DERECHA: borde verde + contenido -->
+                <BorderPane>
+                    <!-- Borde verde a la izquierda, pegado al divisor -->
+                    <left>
+                        <Pane style="-fx-background-color: #00ff00;"
+                              prefWidth="2"/>
+                    </left>
+
+                    <!-- Contenido real a la derecha del borde -->
+                    <center>
+                        <VBox spacing="8">
+                            <padding>
+                                <Insets bottom="10" left="10" right="10" top="10" />
+                            </padding>
+
+                            <!-- Fila de botones Responder / Reenviar -->
+                            <HBox spacing="8">
+                                <Button onAction="#onResponder" text="Responder"
+                                        styleClass="small-button"/>
+                                <Button onAction="#onReenviar" text="Reenviar"
+                                        styleClass="small-button"/>
+                            </HBox>
+
+                            <!-- Cabecera del mensaje + acciones IA -->
+                            <HBox spacing="10">
+                                <!-- Bloque asunto + remitente ocupa el espacio sobrante -->
+                                <VBox spacing="3" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="lblAsunto" styleClass="message-subject" />
+                                    <Label fx:id="lblRemitente" styleClass="label-secondary" />
+                                </VBox>
+
+                                <!-- Acciones sobre el mensaje actual (fijas) -->
+                                <HBox alignment="CENTER_RIGHT" spacing="6">
+                                    <Button fx:id="btnReentrenar"
+                                            onAction="#onReentrenarModelo"
+                                            text="Act IA"
+                                            styleClass="action-button" />
+                                    <Button fx:id="btnSpam"
+                                            onAction="#onMarcarSpam"
+                                            text="SPAM"
+                                            prefWidth="70"
+                                            styleClass="action-button" />
+                                    <Button fx:id="btnLegitimo"
+                                            onAction="#onMarcarLegitimo"
+                                            text="Legit"
+                                            prefWidth="70"
+                                            styleClass="action-button" />
+                                </HBox>
+                            </HBox>
+
+                            <!-- Cuerpo del mensaje -->
+                            <TextArea fx:id="txtCuerpo"
+                                      editable="false"
+                                      wrapText="true"
+                                      VBox.vgrow="ALWAYS"
+                                      prefRowCount="18"
+                                      styleClass="text-area" />
+
+                            <!-- Panel de respuestas IA -->
+                            <VBox spacing="6" styleClass="ia-panel">
+                                <Label styleClass="label-secondary"
+                                       text="Respuestas sugeridas por IA" />
+                                <HBox spacing="8">
+                                    <Button fx:id="btnSug1"
+                                            onAction="#onUsarRespuesta1"
+                                            styleClass="chip"
+                                            HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnSug2"
+                                            onAction="#onUsarRespuesta2"
+                                            styleClass="chip"
+                                            HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="btnSug3"
+                                            onAction="#onUsarRespuesta3"
+                                            styleClass="chip"
+                                            HBox.hgrow="ALWAYS" />
+                                </HBox>
+                            </VBox>
+
+                        </VBox>
+                    </center>
+                </BorderPane>
+
+            </items>
+        </SplitPane>
+    </center>
+
+</BorderPane>

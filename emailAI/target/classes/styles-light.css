@@ -139,3 +139,50 @@
     -fx-font-weight: bold;
     -fx-text-fill: #1E3A5F;
 }
+/* --- Calendario mensual (tema claro) --- */
+
+.calendario-mes-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;      /* Azul corporativo oscuro */
+}
+
+.calendario-dia {
+    -fx-background-color: #F5F7FA;  /* Blanco ligeramente azulado */
+    -fx-border-color: #B8BEC4;      /* Gris metálico */
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.calendario-dia-numero {
+    -fx-text-fill: #1E3A5F;         /* Número en azul corporativo */
+    -fx-font-weight: bold;
+}
+
+.calendario-dia-eventos {
+    -fx-text-fill: #0891B2;         /* Azul tecnológico para eventos */
+    -fx-font-size: 10px;
+}
+
+.calendario-hoy {
+    -fx-border-color: #06B6D4;      /* Cyan brillante para hoy */
+    -fx-border-width: 2;
+}
+
+.calendario-seleccionado {
+    -fx-background-color: #CFE9F5;  /* Azul muy claro para selección */
+}
+/* Pestañas de configuración: ancho dinámico por texto */
+.tab-pane .tab-header-area .tab {
+    -fx-padding: 4 12 4 12;   /* espacio alrededor del texto */
+}
+
+/* Opcional: estilo activo/inactivo */
+.tab-pane .tab-header-area .tab-label {
+    -fx-font-weight: normal;
+}
+
+.tab-pane .tab-header-area .tab:selected .tab-label {
+    -fx-font-weight: bold;
+}
+

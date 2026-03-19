@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.ChatIAController">
+
+    <top>
+        <HBox spacing="8">
+            <padding>
+                <Insets top="12" right="12" bottom="6" left="12"/>
+            </padding>
+            <children>
+                <Label text="Chat IA" styleClass="title-label"/>
+            </children>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="8">
+            <padding>
+                <Insets top="6" right="12" bottom="12" left="12"/>
+            </padding>
+            <children>
+                <TextArea fx:id="txtHistorial" editable="false" wrapText="true"
+                          VBox.vgrow="ALWAYS"/>
+            </children>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="8">
+            <padding>
+                <Insets top="8" right="12" bottom="8" left="12"/>
+            </padding>
+            <children>
+                <TextField fx:id="txtEntrada" HBox.hgrow="ALWAYS"
+                           promptText="Escribe tu mensaje..."/>
+                <Button text="Enviar" onAction="#onEnviar" styleClass="primary-button"/>
+            </children>
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -1,0 +1,141 @@
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+}
+
+/* Títulos y secciones */
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Estado */
+.status-label,
+.label-secondary {
+    -fx-font-size: 11px;
+}
+
+/* Botón pequeño */
+.small-button {
+    -fx-font-size: 11px;
+    -fx-padding: 4 10 4 10;
+}
+
+/* Tarjetas de cuentas (genérico) */
+.account-card {
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.account-card-selected {
+    /* colores concretos se definen en dark/light */
+}
+
+.account-email {
+    -fx-font-weight: bold;
+}
+
+.account-server {
+    -fx-font-size: 11px;
+}
+
+/* Lista de mensajes como tarjetas */
+.list-view .message-card {
+    -fx-padding: 8;
+    -fx-background-radius: 10;
+}
+
+.message-subject {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Chips IA */
+.chip {
+    -fx-background-radius: 999;
+    -fx-padding: 4 12 4 12;
+}
+
+/* Panel IA */
+.ia-panel {
+    -fx-background-radius: 8;
+    -fx-padding: 8 10 8 10;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-padding: 10 5 10 5;
+    -fx-spacing: 10;
+}
+
+.sidebar-toggle {
+    -fx-background-radius: 999;
+    -fx-padding: 6 14 6 14;
+}
+
+/* Barra superior correo */
+.top-bar {
+    -fx-spacing: 8;
+}
+
+/* LOGIN: campos y botón principal */
+.login-password {
+    /* hereda de .text-field; ajusta aquí si quieres algo específico */
+}
+
+.primary-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+/* Toggle sol/luna */
+.theme-toggle {
+    -fx-font-size: 14px;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 4 10 4 10;
+}
+
+/* --- Calendario mensual --- */
+
+.calendario-mes-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.calendario-dia {
+    -fx-background-color: #182030;
+    -fx-border-color: #252b3a;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.calendario-dia-numero {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
+.calendario-dia-eventos {
+    -fx-text-fill: #a8cfff;
+    -fx-font-size: 10px;
+}
+
+.calendario-hoy {
+    -fx-border-color: #00c8ff;
+    -fx-border-width: 2;
+}
+
+.calendario-seleccionado {
+    -fx-background-color: #005f99;
+}
+

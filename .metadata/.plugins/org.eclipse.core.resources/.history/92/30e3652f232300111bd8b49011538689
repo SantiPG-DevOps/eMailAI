@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.ConfigController">
+
+    <top>
+        <HBox spacing="8">
+            <padding>
+                <Insets top="12" right="12" bottom="6" left="12"/>
+            </padding>
+            <children>
+                <Label text="Configuración" styleClass="title-label"/>
+            </children>
+        </HBox>
+    </top>
+
+    <center>
+        <TabPane fx:id="tabPrincipal"
+        			tabMinWidth="-1"
+        			tabMaxWidth="-1">
+            <!-- Pestaña GENERAL -->
+            <tabs>
+                <Tab text="General" closable="false">
+                    <content>
+                        <BorderPane>
+                            <center>
+                                <!-- Subpestañas de tema -->
+                                <TabPane fx:id="tabTema">
+                                    <tabs>
+                                        <!-- Subpestaña General -->
+                                        <Tab text="General" closable="false">
+                                            <content>
+                                                <VBox spacing="10">
+                                                    <padding>
+                                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="Tema de la aplicación" styleClass="section-label"/>
+
+                                                        <!-- Toggle tema claro / oscuro -->
+                                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                                            <Label text="Usar tema claro:"/>
+                                                            <CheckBox fx:id="chkTemaClaro"
+                                                                      onAction="#onToggleTemaClaro"/>
+                                                        </HBox>
+
+                                                        <Label text="(Este interruptor llama internamente al cambio de estilos.)"
+                                                               styleClass="label-secondary"/>
+
+                                                        <Separator/>
+
+                                                        <!-- Otras opciones generales dummy -->
+                                                        <Label text="Opciones generales" styleClass="section-label"/>
+                                                        <CheckBox text="Mostrar notificaciones de nuevos correos" fx:id="chkNotificaciones"/>
+                                                        <CheckBox text="Comprobar correo al iniciar" fx:id="chkComprobarInicio"/>
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </Tab>
+
+                                        <!-- Subpestaña Tema claro -->
+                                        <Tab text="Tema claro" closable="false">
+                                            <content>
+                                                <VBox spacing="10">
+                                                    <padding>
+                                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="Colores tema claro" styleClass="section-label"/>
+                                                        <Label text="(Más adelante podrás editar aquí la paleta clara.)"
+                                                               styleClass="label-secondary"/>
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </Tab>
+
+                                        <!-- Subpestaña Tema oscuro -->
+                                        <Tab text="Tema oscuro" closable="false">
+                                            <content>
+                                                <VBox spacing="10">
+                                                    <padding>
+                                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                                    </padding>
+                                                    <children>
+                                                        <Label text="Colores tema oscuro" styleClass="section-label"/>
+                                                        <Label text="(Más adelante podrás editar aquí la paleta oscura.)"
+                                                               styleClass="label-secondary"/>
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </Tab>
+                                    </tabs>
+                                </TabPane>
+                            </center>
+                        </BorderPane>
+                    </content>
+                </Tab>
+
+               <!-- Pestaña CORREO -->
+<Tab text="Correo" closable="false">
+    <content>
+        <BorderPane>
+            <!-- Título interno de la pestaña -->
+            <top>
+                <VBox alignment="CENTER_LEFT" spacing="4">
+                    <padding>
+                        <Insets top="12" right="12" bottom="8" left="12"/>
+                    </padding>
+                    <children>
+                        <Label text="Cuentas de correo" styleClass="section-label"/>
+                        <Label text="Selecciona un proveedor o configura un servidor personalizado"
+                               styleClass="label-secondary"/>
+                    </children>
+                </VBox>
+            </top>
+
+            <!-- Formulario central -->
+            <center>
+                <VBox spacing="12">
+                    <padding>
+                        <Insets top="10" right="20" bottom="10" left="20"/>
+                    </padding>
+
+                    <GridPane hgap="10" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" minWidth="140"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+
+                        <!-- Proveedor -->
+                        <Label text="Proveedor:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <ComboBox fx:id="providerCombo"
+                                  onAction="#onProviderChanged"
+                                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <!-- Correo electrónico -->
+                        <Label text="Correo electrónico:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="emailField"
+                                   promptText="usuario@dominio.com"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <!-- Contraseña maestra -->
+                        <Label text="Contraseña maestra:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <PasswordField fx:id="masterPassField"
+                                       promptText="Contraseña para proteger la cuenta"
+                                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                        <!-- Servidor IMAP personalizado -->
+                        <Label text="Servidor IMAP:"
+                               fx:id="imapLabel"
+                               GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <TextField fx:id="imapField"
+                                   promptText="imap.midominio.com"
+                                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                        <!-- Servidor SMTP personalizado -->
+                        <Label text="Servidor SMTP:"
+                               fx:id="smtpLabel"
+                               GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                        <TextField fx:id="smtpField"
+                                   promptText="smtp.midominio.com"
+                                   GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <!-- Mensaje de estado -->
+                    <Label fx:id="statusLabel"
+                           text=""
+                           styleClass="status-label"/>
+                </VBox>
+            </center>
+
+            <!-- Botones inferiores -->
+            <bottom>
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <padding>
+                        <Insets top="10" right="20" bottom="20" left="20"/>
+                    </padding>
+                    <children>
+                        <Button text="Guardar cuenta"
+                                fx:id="saveButton"
+                                onAction="#onSaveCuenta"/>
+                    </children>
+                </HBox>
+            </bottom>
+        </BorderPane>
+    </content>
+</Tab>
+
+
+                <!-- Pestaña CALENDARIO -->
+                <Tab text="Calendario" closable="false">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12"/>
+                            </padding>
+                            <children>
+                                <Label text="Configuración de calendario" styleClass="section-label"/>
+                                <Label text="(Formato de fecha, primer día de semana, recordatorios, etc.)"
+                                       styleClass="label-secondary"/>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <!-- Pestaña CONTACTOS -->
+                <Tab text="Contactos" closable="false">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12"/>
+                            </padding>
+                            <children>
+                                <Label text="Configuración de contactos" styleClass="section-label"/>
+                                <Label text="(Más adelante: grupos, ordenación, campos visibles, etc.)"
+                                       styleClass="label-secondary"/>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <!-- Pestaña TAREAS -->
+                <Tab text="Tareas" closable="false">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12"/>
+                            </padding>
+                            <children>
+                                <Label text="Configuración de tareas" styleClass="section-label"/>
+                                <Label text="(Más adelante: categorías, colores por estado, etc.)"
+                                       styleClass="label-secondary"/>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <!-- Pestaña IA -->
+                <Tab text="IA" closable="false">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="12" right="12" bottom="12" left="12"/>
+                            </padding>
+                            <children>
+                                <Label text="Configuración de IA" styleClass="section-label"/>
+                                <Label text="(API keys, modos de resumen, sugerencias de respuesta, etc.)"
+                                       styleClass="label-secondary"/>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+
+</BorderPane>
