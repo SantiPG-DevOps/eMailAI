@@ -1,0 +1,31 @@
+package com.emailAI.service;
+
+import dev.langchain4j.model.openai.OpenAiChatModel;
+
+public class IAAsistenteService {
+
+    private final OpenAiChatModel model;
+
+    public IAAsistenteService(String apiKey) {
+        // Si this.withApiKey no existiera, IntelliJ te lo marcará; en ese caso te digo cómo ajustarlo.
+        this.model = OpenAiChatModel.withApiKey(apiKey);
+    }
+
+    public String generarResumen(String cuerpoCorreo) {
+        if (cuerpoCorreo == null || cuerpoCorreo.length() < 200) {
+            return cuerpoCorreo;
+        }
+
+        String prompt = "Resume el siguiente correo electrónico en una sola frase clara y directa:\n\n"
+                + cuerpoCorreo;
+
+        return model.generate(prompt);
+    }
+
+    public String sugerirRespuesta(String cuerpoCorreo) {
+        String prompt = "Basado en este correo, sugiere una respuesta corta y profesional en español:\n\n"
+                + cuerpoCorreo;
+
+        return model.generate(prompt);
+    }
+}

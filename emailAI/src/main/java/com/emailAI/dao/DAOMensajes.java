@@ -13,7 +13,7 @@ public class DAOMensajes {
     }
 
     private void crearTablaSiNoExiste() throws SQLException {
-        String sql = """
+        String createSql = """
                 CREATE TABLE IF NOT EXISTS mensajes (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     uid_imap TEXT NOT NULL UNIQUE,
@@ -21,6 +21,7 @@ public class DAOMensajes {
                     remitente TEXT NOT NULL,
                     asunto TEXT NOT NULL,
                     cuerpo TEXT,
+                    html TEXT,
                     fecha TEXT,
                     categoria TEXT,
                     prioridad TEXT
@@ -28,8 +29,29 @@ public class DAOMensajes {
                 """;
 
         try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(createSql)) {
             ps.execute();
+        }
+
+        // Si la tabla ya existía sin la columna html, la añadimos
+        try (Connection conn = ConexionBD.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("PRAGMA table_info(mensajes)")) {
+
+            boolean tieneHtml = false;
+            while (rs.next()) {
+                String colName = rs.getString("name");
+                if ("html".equalsIgnoreCase(colName)) {
+                    tieneHtml = true;
+                    break;
+                }
+            }
+
+            if (!tieneHtml) {
+                try (Statement alter = conn.createStatement()) {
+                    alter.execute("ALTER TABLE mensajes ADD COLUMN html TEXT");
+                }
+            }
         }
     }
 
@@ -40,7 +62,7 @@ public class DAOMensajes {
         List<Mensaje> lista = new ArrayList<>();
 
         String sql = """
-                SELECT uid_imap, remitente, asunto, cuerpo, fecha, categoria, prioridad
+                SELECT uid_imap, remitente, asunto, cuerpo, html, fecha, categoria, prioridad
                   FROM mensajes
                  WHERE cuenta_hash = ?
                  ORDER BY id DESC
@@ -58,6 +80,7 @@ public class DAOMensajes {
                     m.setRemitente(rs.getString("remitente"));
                     m.setAsunto(rs.getString("asunto"));
                     m.setCuerpo(rs.getString("cuerpo"));
+                    m.setHtml(rs.getString("html"));
                     m.setFecha(rs.getString("fecha"));
                     m.setCategoria(rs.getString("categoria"));
                     m.setPrioridad(rs.getString("prioridad"));
@@ -77,13 +100,15 @@ public class DAOMensajes {
      */
     public void guardarOModificar(String cuentaHash, List<Mensaje> lista) throws SQLException {
         String sqlExiste = "SELECT id FROM mensajes WHERE uid_imap = ? AND cuenta_hash = ?";
+
         String sqlInsert = """
-                INSERT INTO mensajes (uid_imap, cuenta_hash, remitente, asunto, cuerpo, fecha, categoria, prioridad)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO mensajes (uid_imap, cuenta_hash, remitente, asunto, cuerpo, html, fecha, categoria, prioridad)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
+
         String sqlUpdate = """
                 UPDATE mensajes
-                   SET remitente = ?, asunto = ?, cuerpo = ?, fecha = ?, categoria = ?, prioridad = ?
+                   SET remitente = ?, asunto = ?, cuerpo = ?, html = ?, fecha = ?, categoria = ?, prioridad = ?
                  WHERE uid_imap = ? AND cuenta_hash = ?
                 """;
 
@@ -112,11 +137,12 @@ public class DAOMensajes {
                             psUpdate.setString(1, m.getRemitente());
                             psUpdate.setString(2, m.getAsunto());
                             psUpdate.setString(3, m.getCuerpo());
-                            psUpdate.setString(4, m.getFecha());
-                            psUpdate.setString(5, m.getCategoria());
-                            psUpdate.setString(6, m.getPrioridad());
-                            psUpdate.setString(7, m.getUidImap());
-                            psUpdate.setString(8, cuentaHash);
+                            psUpdate.setString(4, m.getHtml());
+                            psUpdate.setString(5, m.getFecha());
+                            psUpdate.setString(6, m.getCategoria());
+                            psUpdate.setString(7, m.getPrioridad());
+                            psUpdate.setString(8, m.getUidImap());
+                            psUpdate.setString(9, cuentaHash);
                             psUpdate.addBatch();
                         } else {
                             // INSERT
@@ -125,9 +151,10 @@ public class DAOMensajes {
                             psInsert.setString(3, m.getRemitente());
                             psInsert.setString(4, m.getAsunto());
                             psInsert.setString(5, m.getCuerpo());
-                            psInsert.setString(6, m.getFecha());
-                            psInsert.setString(7, m.getCategoria());
-                            psInsert.setString(8, m.getPrioridad());
+                            psInsert.setString(6, m.getHtml());
+                            psInsert.setString(7, m.getFecha());
+                            psInsert.setString(8, m.getCategoria());
+                            psInsert.setString(9, m.getPrioridad());
                             psInsert.addBatch();
                         }
                     }

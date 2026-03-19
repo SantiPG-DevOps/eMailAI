@@ -2,6 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
@@ -16,28 +18,25 @@
     <!-- MENÚ LATERAL IZQUIERDO -->
     <left>
         <VBox spacing="10"
-              styleClass="sidebar">
+              styleClass="sidebar"
+              alignment="TOP_CENTER">
 
             <padding>
                 <Insets top="15" right="5" bottom="15" left="5"/>
             </padding>
 
             <children>
-                <!-- Cabecera eMailAI + botón tema -->
-                <HBox spacing="8" alignment="CENTER_LEFT">
-    				<children>
-        				<Label text="eMail AI"
-               				styleClass="title-label"/>
-        				<ToggleButton fx:id="btnTema"
-                      		text="☾"
-                      		onAction="#onToggleTema"
-                      		styleClass="small-button"/>
-    				</children>
-				</HBox>
+                <!-- Logo eMail AI -->
+                <ImageView fx:id="imgLogo"
+                           fitWidth="180.0"
+                           preserveRatio="true"
+                           pickOnBounds="true">
+                    <image>
+                        <Image url="@../logo.png"/>
+                    </image>
+                </ImageView>
 
-
-
-                <!-- Botones de secciones -->
+                <!-- Botones de secciones principales -->
                 <ToggleButton text="Correo" fx:id="btnCorreo"
                               toggleGroup="$grpSecciones"
                               onAction="#onSeccionCorreo"
@@ -58,8 +57,12 @@
                               onAction="#onSeccionTareas"
                               styleClass="sidebar-toggle"/>
 
+                <!-- Relleno flexible para empujar lo de abajo -->
+                <Pane VBox.vgrow="ALWAYS"/>
+
                 <Separator/>
 
+                <!-- Botones anclados abajo -->
                 <ToggleButton text="Configuración" fx:id="btnConfiguracion"
                               toggleGroup="$grpSecciones"
                               onAction="#onSeccionConfiguracion"

@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.control.ProgressBar;
 
 public class LoginController {
 
@@ -42,6 +43,13 @@ public class LoginController {
 
     @FXML
     private ImageView logoImage;
+    
+    @FXML 
+    private ProgressBar strengthBar;
+    
+    @FXML 
+    private Label strengthLabel;
+
 
     private final List<CuentaGuardada> cuentas = new ArrayList<>();
     private CuentaGuardada cuentaSeleccionada;
@@ -60,6 +68,11 @@ public class LoginController {
         if (themeToggle != null) {
             themeToggle.setSelected(false); // oscuro por defecto
             themeToggle.setText("🌙");
+        }
+        
+        if (strengthBar != null && strengthLabel != null) {
+            strengthBar.setProgress(0.0);
+            strengthLabel.setText("Contraseña débil");
         }
 
         cargarCuentasDesdeBD();
@@ -240,4 +253,56 @@ public class LoginController {
             statusLabel.setText("No se pudo abrir Nueva cuenta: " + e.getMessage());
         }
     }
+    @FXML
+    private void onAppPasswordChanged() {
+        if (strengthBar == null || strengthLabel == null) return;
+        String pwd = passwordField.getText();
+        actualizarStrength(pwd);
+    }
+
+    private void actualizarStrength(String pwd) {
+        int nivel = calcularNivel(pwd); // 0 débil, 1 media, 2 fuerte
+        double progress;
+        String texto;
+
+        switch (nivel) {
+            case 0 -> {
+                progress = 0.2;
+                texto = "Contraseña débil";
+            }
+            case 1 -> {
+                progress = 0.6;
+                texto = "Contraseña media";
+            }
+            default -> {
+                progress = 1.0;
+                texto = "Contraseña fuerte";
+            }
+        }
+        strengthBar.setProgress(progress);
+        strengthLabel.setText(texto);
+    }
+
+    private int calcularNivel(String pwd) {
+        if (pwd == null || pwd.isBlank()) return 0;
+
+        boolean tieneMinus = pwd.matches(".*[a-z].*");
+        boolean tieneMayus = pwd.matches(".*[A-Z].*");
+        boolean tieneNum   = pwd.matches(".*\\d.*");
+        boolean tieneEsp   = pwd.matches(".*[^A-Za-z0-9].*");
+        int longitud = pwd.length();
+
+        int puntos = 0;
+        if (tieneMinus) puntos++;
+        if (tieneMayus) puntos++;
+        if (tieneNum)   puntos++;
+        if (tieneEsp)   puntos++;
+        if (longitud >= 12) puntos++;
+        else if (longitud >= 8) puntos++;
+
+        if (puntos <= 2) return 0;      // débil
+        else if (puntos <= 4) return 1; // media
+        else return 2;                  // fuerte
+    }
+
 }

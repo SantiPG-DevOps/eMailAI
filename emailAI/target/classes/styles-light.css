@@ -139,3 +139,18 @@
     -fx-font-weight: bold;
     -fx-text-fill: #1E3A5F;
 }
+/* Fondo transparente para el scroll de cuentas en tema claro */
+.accounts-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.accounts-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+#accountsList {
+    -fx-background-color: transparent;
+}
+

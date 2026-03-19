@@ -1,0 +1,35 @@
+package com.emailAI.service;
+
+import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+
+public class IAAsistenteService {
+
+    private final ChatLanguageModel model;
+
+    public IAAsistenteService(String apiKey) {
+        // LangChain4j 1.x: se usa builder y método chat() [web:76][web:77][web:78][web:79][web:81][web:82]
+        this.model = OpenAiChatModel.builder()
+                .apiKey(apiKey)
+                .modelName("gpt-4o-mini")   // ajusta si quieres otro modelo
+                .build();
+    }
+
+    public String generarResumen(String cuerpoCorreo) {
+        if (cuerpoCorreo == null || cuerpoCorreo.length() < 200) {
+            return cuerpoCorreo;
+        }
+
+        String prompt = "Resume el siguiente correo electrónico en una sola frase clara y directa:\n\n"
+                + cuerpoCorreo;
+
+        return model.chat(prompt);
+    }
+
+    public String sugerirRespuesta(String cuerpoCorreo) {
+        String prompt = "Basado en este correo, sugiere una respuesta corta y profesional en español:\n\n"
+                + cuerpoCorreo;
+
+        return model.chat(prompt);
+    }
+}

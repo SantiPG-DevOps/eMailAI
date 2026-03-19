@@ -14,6 +14,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -24,12 +26,13 @@ public class CorreoController {
     @FXML private ListView<String> lstMensajes;
     @FXML private Label lblAsunto;
     @FXML private Label lblRemitente;
-    @FXML private Label lblEstado;
-    @FXML private Button btnSug1, btnSug2, btnSug3;
-    @FXML private ProgressIndicator progressCargando; // si no está en FXML, puedes quitarlo
-    @FXML private TextArea txtCuerpo;
+    @FXML private Label lblEstado;            // puede ser null si no hay Label en FXML
+    @FXML private Button btnSug1, btnSug2, btnSug3, btnAnularSub;
+    @FXML private ProgressIndicator progressCargando;
 
-    // Botones de acción fija
+    @FXML private TextArea txtCuerpo;
+    @FXML private WebView webViewCuerpo;
+
     @FXML private Button btnReentrenar;
     @FXML private Button btnSpam;
     @FXML private Button btnLegitimo;
@@ -58,8 +61,11 @@ public class CorreoController {
         String imapHost = mailService.getImapHost();
         this.cuentaHash = UtilidadCifrado.hash(email + "@" + imapHost);
 
-        cargarDesdeBD();
-        onActualizarBandeja();
+        // Primero carga local, luego dispara la actualización online
+        javafx.application.Platform.runLater(() -> {
+            cargarDesdeBD();
+            onActualizarBandeja();
+        });
     }
 
     @FXML
@@ -87,10 +93,14 @@ public class CorreoController {
             }
         });
 
-        // Fijar textos de los botones de acción por si acaso
         if (btnReentrenar != null) btnReentrenar.setText("Act IA");
         if (btnSpam != null)       btnSpam.setText("SPAM");
         if (btnLegitimo != null)   btnLegitimo.setText("Legit");
+
+        if (webViewCuerpo != null) {
+            WebEngine engine = webViewCuerpo.getEngine();
+            engine.setJavaScriptEnabled(false);
+        }
     }
 
     // ===================== Carga desde BD =====================
@@ -101,12 +111,18 @@ public class CorreoController {
         try {
             mensajes = daoMensajes.listarPorCuenta(cuentaHash);
             actualizarListaVisual();
-            lblEstado.setText("Bandeja local cargada.");
+            if (lblEstado != null) {
+                lblEstado.setText("Bandeja local cargada.");
+            }
+
             if (!mensajes.isEmpty()) {
                 lstMensajes.getSelectionModel().select(0);
+                mostrarDetalle(mensajes.get(0));
             }
         } catch (Exception e) {
-            lblEstado.setText("Error al cargar bandeja local: " + e.getMessage());
+            if (lblEstado != null) {
+                lblEstado.setText("Error al cargar bandeja local: " + e.getMessage());
+            }
         }
     }
 
@@ -116,13 +132,22 @@ public class CorreoController {
     private void onActualizarBandeja() {
         if (mailService == null) return;
 
-        lblEstado.setText("Sincronizando correos...");
+        if (lblEstado != null) {
+            lblEstado.setText("Sincronizando correos...");
+        }
         if (progressCargando != null) progressCargando.setVisible(true);
 
         Task<List<Mensaje>> tareaDescarga = new Task<>() {
             @Override
             protected List<Mensaje> call() throws Exception {
                 List<Mensaje> descargados = mailService.listInbox();
+
+                if (cuentaHash != null) {
+                    for (Mensaje m : descargados) {
+                        m.setCuentaHash(cuentaHash);
+                    }
+                }
+
                 if (cuentaHash != null && daoMensajes != null) {
                     daoMensajes.guardarOModificar(cuentaHash, descargados);
                 }
@@ -134,15 +159,16 @@ public class CorreoController {
             mensajes = tareaDescarga.getValue();
             actualizarListaVisual();
             if (progressCargando != null) progressCargando.setVisible(false);
-            lblEstado.setText("Bandeja actualizada.");
-            if (!mensajes.isEmpty()) {
-                lstMensajes.getSelectionModel().select(0);
+            if (lblEstado != null) {
+                lblEstado.setText("Bandeja actualizada.");
             }
         });
 
         tareaDescarga.setOnFailed(event -> {
             if (progressCargando != null) progressCargando.setVisible(false);
-            lblEstado.setText("Error al sincronizar correos (modo offline).");
+            if (lblEstado != null) {
+                lblEstado.setText("Error al sincronizar correos (modo offline).");
+            }
             tareaDescarga.getException().printStackTrace();
         });
 
@@ -171,7 +197,8 @@ public class CorreoController {
     // ===================== Mostrar detalle =====================
 
     private void mostrarDetalle(Mensaje m) {
-        // Asunto recortado para que la cabecera no crezca
+        if (m == null) return;
+
         String asunto = m.getAsunto();
         int maxLen = 60;
         if (asunto != null && asunto.length() > maxLen) {
@@ -180,19 +207,36 @@ public class CorreoController {
         lblAsunto.setText(asunto);
         lblRemitente.setText("De: " + m.getRemitente());
 
-        // Si tenemos HTML, hacemos una limpieza simple para verlo legible
-        if (m.getHtml() != null && !m.getHtml().isBlank()) {
-            String texto = m.getHtml()
-                    .replaceAll("(?is)<br\\s*/?>", "\n")
-                    .replaceAll("(?is)</p>", "\n\n")
-                    .replaceAll("(?is)<a[^>]*>(.*?)</a>", "$1")
-                    .replaceAll("(?is)<[^>]+>", "");
-            txtCuerpo.setText(texto.trim());
+        String html = m.getHtml();
+        boolean hayHtml = html != null && !html.isBlank();
+
+        webViewCuerpo.setVisible(true);
+        webViewCuerpo.setManaged(true);
+        txtCuerpo.setVisible(false);
+        txtCuerpo.setManaged(false);
+
+        String contenidoHtml;
+        if (hayHtml) {
+            contenidoHtml = html;
         } else {
-            txtCuerpo.setText(m.getCuerpo() != null ? m.getCuerpo() : "");
+            String cuerpo = m.getCuerpo() != null ? m.getCuerpo() : "";
+            contenidoHtml = "<html><body><pre style='font-family: sans-serif; white-space: pre-wrap;'>"
+                    + escapeHtml(cuerpo)
+                    + "</pre></body></html>";
         }
 
+        final String htmlFinal = contenidoHtml;
+        javafx.application.Platform.runLater(() ->
+                webViewCuerpo.getEngine().loadContent(htmlFinal, "text/html")
+        );
+
         generarSugerencias(m);
+    }
+
+    private String escapeHtml(String text) {
+        return text.replace("&", "&amp;")
+                   .replace("<", "&lt;")
+                   .replace(">", "&gt;");
     }
 
     // ===== Entrenamiento IA =====
@@ -209,15 +253,22 @@ public class CorreoController {
         try {
             DAOEntrenamiento dao = new DAOEntrenamiento();
             dao.guardarEjemplo(m, etiqueta, tipoModelo);
-            lblEstado.setText("Aprendido: " + etiqueta + " en " + tipoModelo);
+            if (lblEstado != null) {
+                lblEstado.setText("Aprendido: " + etiqueta + " en " + tipoModelo);
+            }
         } catch (Exception e) {
-            lblEstado.setText("Error al guardar entrenamiento.");
+            if (lblEstado != null) {
+                lblEstado.setText("Error al guardar entrenamiento.");
+            }
         }
     }
 
     @FXML
     private void onReentrenarModelo() {
-        lblEstado.setText("Reentrenando IA...");
+        if (lblEstado != null) {
+            lblEstado.setText("Reentrenando IA...");
+        }
+
         Task<Void> tareaEntrenamiento = new Task<>() {
             @Override
             protected Void call() throws Exception {
@@ -225,19 +276,23 @@ public class CorreoController {
 
                 var eSpam = dao.listarEjemplosPorTipo("SPAM");
                 if (!eSpam.isEmpty()) {
-                    GestorModelos.entrenarYGuardar(ExtractorAtributos.convertirAEstructura(eSpam), "SPAM");
+                    GestorModelos.entrenarYGuardar(
+                            ExtractorAtributos.convertirAEstructura(eSpam), "SPAM");
                 }
 
                 var ePrio = dao.listarEjemplosPorTipo("PRIORIDAD");
                 if (!ePrio.isEmpty()) {
-                    GestorModelos.entrenarYGuardar(ExtractorAtributos.convertirAEstructuraPrioridad(ePrio), "PRIORIDAD");
+                    GestorModelos.entrenarYGuardar(
+                            ExtractorAtributos.convertirAEstructuraPrioridad(ePrio), "PRIORIDAD");
                 }
                 return null;
             }
         };
 
         tareaEntrenamiento.setOnSucceeded(e -> {
-            lblEstado.setText("IA reentrenada con éxito.");
+            if (lblEstado != null) {
+                lblEstado.setText("IA reentrenada con éxito.");
+            }
             onActualizarBandeja();
         });
 
@@ -271,8 +326,12 @@ public class CorreoController {
             stage.setTitle("Redactar");
             stage.setScene(scene);
             stage.show();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    // ===== Botones barra de acciones =====
 
     @FXML private void onRedactar() { abrirCompose(null, null, null); }
 
@@ -287,6 +346,18 @@ public class CorreoController {
     }
 
     @FXML
+    private void onResponderTodos() {
+        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
+        if (idx < 0) {
+            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje primero.");
+            return;
+        }
+        Mensaje m = mensajes.get(idx);
+        abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(),
+                "\n\n--- Responder a todos (pendiente CC/CCO) ---\n" + m.getCuerpo());
+    }
+
+    @FXML
     private void onReenviar() {
         int idx = lstMensajes.getSelectionModel().getSelectedIndex();
         if (idx >= 0) {
@@ -294,7 +365,7 @@ public class CorreoController {
             abrirCompose(null, "Fwd: " + m.getAsunto(),
                     "\n\n--- Mensaje reenviado ---\n" + m.getCuerpo());
         } else {
-            lblEstado.setText("Selecciona un mensaje para reenviar.");
+            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje para reenviar.");
         }
     }
 
@@ -305,12 +376,37 @@ public class CorreoController {
     private void usarRespuestaRapida(Button boton) {
         int idx = lstMensajes.getSelectionModel().getSelectedIndex();
         if (idx < 0) {
-            lblEstado.setText("Selecciona un mensaje primero.");
+            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje primero.");
             return;
         }
         Mensaje m = mensajes.get(idx);
         String texto = boton.getText();
         abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(),
                 texto + "\n\n--- Mensaje original ---\n" + m.getCuerpo());
+    }
+
+    // ===== Botón "Anular sub" =====
+
+    @FXML
+    private void onAnularSub() {
+        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
+        if (idx < 0) {
+            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje primero.");
+            return;
+        }
+        Mensaje m = mensajes.get(idx);
+
+        String cuerpo = """
+                Hola,
+
+                Quiero solicitar la anulación de mi suscripción a estos correos
+                y que se deje de tratar mi dirección para fines comerciales.
+
+                Gracias y un saludo.
+
+                --- Mensaje original ---
+                """ + m.getCuerpo();
+
+        abrirCompose(m.getRemitente(), "Baja de suscripción", cuerpo);
     }
 }

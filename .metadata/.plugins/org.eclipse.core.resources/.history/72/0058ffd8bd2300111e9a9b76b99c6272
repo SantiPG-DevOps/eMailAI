@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.CalendarioController">
+
+    <!-- Parte superior: mes y navegación -->
+    <top>
+        <HBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Button text="<" onAction="#onMesAnterior"/>
+            <Label fx:id="lblMesAnio"
+                   text="Marzo 2026"
+                   style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <Button text=">" onAction="#onMesSiguiente"/>
+        </HBox>
+    </top>
+
+    <!-- Centro: calendario tipo móvil -->
+    <center>
+        <VBox spacing="5">
+            <padding>
+                <Insets top="0" right="10" bottom="5" left="10"/>
+            </padding>
+
+            <!-- Cabecera días de la semana -->
+            <GridPane hgap="5" vgap="5">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                </columnConstraints>
+
+                <children>
+                    <Label text="L" GridPane.columnIndex="0"/>
+                    <Label text="M" GridPane.columnIndex="1"/>
+                    <Label text="X" GridPane.columnIndex="2"/>
+                    <Label text="J" GridPane.columnIndex="3"/>
+                    <Label text="V" GridPane.columnIndex="4"/>
+                    <Label text="S" GridPane.columnIndex="5"/>
+                    <Label text="D" GridPane.columnIndex="6"/>
+                </children>
+            </GridPane>
+
+            <!-- Grid de días -->
+            <GridPane fx:id="gridDias"
+                      hgap="5"
+                      vgap="5"
+                      prefHeight="300">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                    <ColumnConstraints percentWidth="14.28"/>
+                </columnConstraints>
+                <!-- Las filas las rellenamos desde el controller -->
+            </GridPane>
+        </VBox>
+    </center>
+
+    <!-- Inferior: panel para añadir evento -->
+    <bottom>
+        <VBox spacing="8" styleClass="event-panel">
+            <padding>
+                <Insets top="8" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <Label text="Nuevo evento" style="-fx-font-weight: bold;"/>
+
+            <HBox spacing="8">
+                <Label text="Fecha:"/>
+                <DatePicker fx:id="dpFecha"/>
+                <Label text="Hora:"/>
+                <TextField fx:id="txtHora" promptText="HH:MM"/>
+            </HBox>
+
+            <TextField fx:id="txtTitulo"
+                       promptText="Título del evento"
+                       maxWidth="Infinity"/>
+
+            <TextArea fx:id="txtDescripcion"
+                      promptText="Descripción"
+                      prefRowCount="2"
+                      maxWidth="Infinity"/>
+
+            <HBox spacing="8" alignment="CENTER_RIGHT">
+                <Button text="Guardar" onAction="#onGuardarEvento"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+</BorderPane>

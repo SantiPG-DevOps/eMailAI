@@ -10,45 +10,30 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/21.0.1"
             fx:controller="com.emailAI.controller.CorreoController">
 
-    <!-- BARRA SUPERIOR: acciones generales -->
     <top>
-        <HBox spacing="8" styleClass="top-bar">
-            <padding>
-                <Insets bottom="8" left="10" right="10" top="8" />
-            </padding>
-
-            <Button onAction="#onRedactar" text="Redactar" />
-
-            <!-- Separador flexible -->
-            <Pane HBox.hgrow="ALWAYS">
-                <children>
-                    <Button layoutX="264.0" layoutY="1.0"
-                            onAction="#onResponder"
-                            text="Responder" />
-                    <Button layoutX="362.0" layoutY="1.0"
-                            onAction="#onReenviar"
-                            text="Reenviar" />
-                </children>
-            </Pane>
-
-            <Label fx:id="lblEstado" styleClass="label-secondary" />
-        </HBox>
+        <Pane/>
     </top>
 
-    <!-- CONTENIDO CENTRAL -->
     <center>
         <SplitPane dividerPositions="0.3">
             <items>
-                <!-- Columna IZQUIERDA: bandeja de entrada -->
-                <VBox prefWidth="340" spacing="5">
+
+                <!-- Columna IZQUIERDA: Redactar + bandeja de entrada -->
+                <VBox prefWidth="340" spacing="8">
                     <padding>
                         <Insets bottom="10" left="10" right="5" top="10" />
                     </padding>
+
+                    <!-- Botón Redactar encima de la bandeja -->
+                    <HBox alignment="CENTER_LEFT">
+                        <Button onAction="#onRedactar" text="Redactar" />
+                    </HBox>
 
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label styleClass="section-label" text="Bandeja de entrada" />
@@ -58,26 +43,28 @@
                                 text="Enviar/Recibir" />
                     </HBox>
 
-                    <!-- Lista de mensajes (tarjetas) -->
                     <ListView fx:id="lstMensajes" VBox.vgrow="ALWAYS" />
                 </VBox>
 
-                <!-- Columna DERECHA: detalle + acciones + IA -->
+                <!-- Columna DERECHA: barra de acciones + detalle + IA -->
                 <VBox spacing="8">
                     <padding>
                         <Insets bottom="10" left="5" right="10" top="10" />
                     </padding>
 
-                    <!-- Cabecera del mensaje + acciones -->
-                    <HBox spacing="10">
-                        <!-- Bloque asunto + remitente ocupa el espacio sobrante -->
-                        <VBox spacing="3" HBox.hgrow="ALWAYS">
-                            <Label fx:id="lblAsunto" styleClass="message-subject" />
-                            <Label fx:id="lblRemitente" styleClass="label-secondary" />
-                        </VBox>
+                    <!-- Barra de acciones: Responder... a la izq, IA a la dcha -->
+                    <HBox spacing="6">
+                        <!-- Acciones de correo -->
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Button onAction="#onResponder" text="Responder" />
+                            <Button onAction="#onResponderTodos" text="Responder a todos" />
+                            <Button onAction="#onReenviar" text="Reenviar" />
+                        </HBox>
 
-                        <!-- Acciones sobre el mensaje actual (fijas) -->
-                        <HBox alignment="CENTER_RIGHT" spacing="6">
+                        <Pane HBox.hgrow="ALWAYS" />
+
+                        <!-- Acciones IA -->
+                        <HBox spacing="6" alignment="CENTER_RIGHT">
                             <Button fx:id="btnReentrenar"
                                     onAction="#onReentrenarModelo"
                                     text="Act IA"
@@ -95,13 +82,23 @@
                         </HBox>
                     </HBox>
 
+                    <!-- Cabecera del mensaje: asunto + remitente -->
+                    <VBox spacing="3">
+                        <Label fx:id="lblAsunto" styleClass="message-subject" />
+                        <Label fx:id="lblRemitente" styleClass="label-secondary" />
+                    </VBox>
+
                     <!-- Cuerpo del mensaje -->
-                    <TextArea fx:id="txtCuerpo"
-                              editable="false"
-                              wrapText="true"
-                              VBox.vgrow="ALWAYS"
-                              prefRowCount="18"
-                              styleClass="text-area" />
+                    <VBox spacing="6" VBox.vgrow="ALWAYS">
+                        <WebView fx:id="webViewCuerpo"
+                                 VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="txtCuerpo"
+                                  editable="false"
+                                  wrapText="true"
+                                  prefRowCount="18"
+                                  VBox.vgrow="ALWAYS"
+                                  styleClass="text-area" />
+                    </VBox>
 
                     <!-- Panel de respuestas IA -->
                     <VBox spacing="6" styleClass="ia-panel">
@@ -118,6 +115,11 @@
                                     HBox.hgrow="ALWAYS" />
                             <Button fx:id="btnSug3"
                                     onAction="#onUsarRespuesta3"
+                                    styleClass="chip"
+                                    HBox.hgrow="ALWAYS" />
+                            <Button fx:id="btnAnularSub"
+                                    text="Anular sub"
+                                    onAction="#onAnularSub"
                                     styleClass="chip"
                                     HBox.hgrow="ALWAYS" />
                         </HBox>

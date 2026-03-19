@@ -106,4 +106,14 @@ public class Mensaje {
     public void setHtml(String html) {
         this.html = html;
     }
+    
+    private String resumenIA;
+    private String sugerenciaIA;
+
+    public String getResumenIA() { return resumenIA; }
+    public void setResumenIA(String resumenIA) { this.resumenIA = resumenIA; }
+
+    public String getSugerenciaIA() { return sugerenciaIA; }
+    public void setSugerenciaIA(String sugerenciaIA) { this.sugerenciaIA = sugerenciaIA; }
+
 }

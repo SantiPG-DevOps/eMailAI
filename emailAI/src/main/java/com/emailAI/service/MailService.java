@@ -18,7 +18,22 @@ public class MailService {
     private String currentUser;
     private String currentPassword;
     private String smtpHost = null;
-    private String imapHost = null; // recordar el host IMAP
+    private String imapHost = null;
+
+    // Nuevo: servicio de IA basado en LangChain4j 1.x
+    private IAAsistenteService iaAsistenteService;
+
+    public MailService() {
+    }
+
+    // Opcional: inyectar IA desde fuera
+    public MailService(IAAsistenteService iaAsistenteService) {
+        this.iaAsistenteService = iaAsistenteService;
+    }
+
+    public void setIaAsistenteService(IAAsistenteService iaAsistenteService) {
+        this.iaAsistenteService = iaAsistenteService;
+    }
 
     /**
      * Establece la conexión IMAP para recibir y prepara los datos SMTP para enviar.
@@ -41,10 +56,13 @@ public class MailService {
     }
 
     /**
-     * Descarga los últimos mensajes y los clasifica mediante IA (Spam y Prioridad).
-     * Guarda texto plano en Mensaje.cuerpo y HTML (si lo hay) en Mensaje.html.
+     * Descarga los últimos mensajes, los mapea a Mensaje y los clasifica mediante IA (Weka + LLM).
      */
     public List<Mensaje> listInbox() throws Exception {
+        if (store == null || !store.isConnected()) {
+            throw new IllegalStateException("Store IMAP no conectado. Llama antes a connect().");
+        }
+
         List<Mensaje> resultado = new ArrayList<>();
 
         Folder inbox = store.getFolder("INBOX");
@@ -53,15 +71,14 @@ public class MailService {
         Message[] messages = inbox.getMessages();
 
         int total = messages.length;
-        int max = 20; // último bloque de correos para procesar
+        int max = 20;
         int inicio = Math.max(1, total - max + 1);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        for (int i = total; i >= inicio; i--) { // Iteramos de más reciente a más antiguo
+        for (int i = total; i >= inicio; i--) {
             Message msg = messages[i - 1];
 
-            // Identificador lógico (de momento messageNumber)
             String id = String.valueOf(msg.getMessageNumber());
 
             Address[] froms = msg.getFrom();
@@ -70,11 +87,7 @@ public class MailService {
                     : "desconocido";
 
             String asunto = msg.getSubject();
-
-            // Texto plano (para BD + IA)
             String cuerpo = extraerCuerpoTexto(msg);
-
-            // HTML (solo interfaz; si no hay, será null)
             String html = extraerCuerpoHtml(msg);
 
             Mensaje mensajeObj = new Mensaje(id, remitente, asunto, cuerpo);
@@ -88,10 +101,9 @@ public class MailService {
                 mensajeObj.setFecha("");
             }
 
-            // Guardamos el HTML solo para la UI
             mensajeObj.setHtml(html);
 
-            // --- INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL ---
+            // IA clásica (Weka): SPAM / PRIORIDAD
             try {
                 String categoria = GestorModelos.clasificarSpam(mensajeObj);
                 mensajeObj.setCategoria(categoria);
@@ -100,12 +112,24 @@ public class MailService {
                     String prioridad = GestorModelos.clasificarPrioridad(mensajeObj);
                     mensajeObj.setPrioridad(prioridad);
                 } else {
-                    mensajeObj.setPrioridad("NORMAL"); // El spam nunca es urgente
+                    mensajeObj.setPrioridad("NORMAL");
                 }
             } catch (Exception e) {
-                System.err.println("Error procesando IA para mensaje " + id + ": " + e.getMessage());
+                System.err.println("Error procesando IA clásica para mensaje " + id + ": " + e.getMessage());
                 mensajeObj.setCategoria("DESCONOCIDO");
                 mensajeObj.setPrioridad("NORMAL");
+            }
+
+            // IA LLM (LangChain4j 1.x): resumen + sugerencia
+            if (iaAsistenteService != null) {
+                try {
+                    String resumen = iaAsistenteService.generarResumen(cuerpo);
+                    String sugerencia = iaAsistenteService.sugerirRespuesta(cuerpo);
+                    mensajeObj.setResumenIA(resumen);
+                    mensajeObj.setSugerenciaIA(sugerencia);
+                } catch (Exception e) {
+                    System.err.println("Error llamando a IAAsistenteService para mensaje " + id + ": " + e.getMessage());
+                }
             }
 
             resultado.add(mensajeObj);
@@ -119,11 +143,12 @@ public class MailService {
      * Envía un correo electrónico utilizando el servidor SMTP configurado.
      */
     public void sendEmail(String to, String subject, String body) throws Exception {
-        if (session == null || currentUser == null || currentPassword == null) {
-            throw new IllegalStateException("No hay sesión de correo iniciada.");
+        if (currentUser == null || currentPassword == null || smtpHost == null) {
+            throw new IllegalStateException("No hay sesión SMTP/credenciales configuradas.");
         }
 
         Properties props = new Properties();
+        props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", smtpHost);
@@ -148,10 +173,8 @@ public class MailService {
         }
     }
 
-    /**
-     * Extrae contenido en texto plano del mensaje, manejando estructuras Multipart.
-     * Este texto se usa para BD y modelo IA.
-     */
+    // ===================== helpers de extracción =====================
+
     private String extraerCuerpoTexto(Message message) throws Exception {
         Object content = message.getContent();
 
@@ -179,10 +202,6 @@ public class MailService {
         return "";
     }
 
-    /**
-     * Extrae el cuerpo HTML principal del mensaje, si existe.
-     * Si no hay HTML, devuelve null.
-     */
     private String extraerCuerpoHtml(Message message) throws Exception {
         Object content = message.getContent();
 
@@ -208,7 +227,7 @@ public class MailService {
             if (tipo.startsWith("text/html")) {
                 Object pc = part.getContent();
                 if (pc instanceof String) {
-                    return (String) pc; // primer HTML que encontremos
+                    return (String) pc;
                 }
             } else if (part.getContent() instanceof Multipart inner) {
                 String innerHtml = extraerHtmlDeMultipart(inner);
@@ -220,7 +239,7 @@ public class MailService {
         return html;
     }
 
-    // ========== GETTERS PARA CorreoController ==========
+    // ===================== getters para controladores =====================
 
     public String getEmail() {
         return currentUser;

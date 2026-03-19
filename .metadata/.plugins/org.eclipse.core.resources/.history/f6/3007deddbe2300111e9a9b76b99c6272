@@ -1,0 +1,228 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOEventosCalendario;
+import com.emailAI.dao.DAOEventosCalendario.Evento;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+
+public class CalendarioController {
+
+    // Controles calendario mensual
+    @FXML private Label lblMesAnio;
+    @FXML private GridPane gridDias;
+
+    // Controles ya existentes
+    @FXML private DatePicker dpFecha;
+    @FXML private ListView<Evento> lstEventos;
+    @FXML private TextField txtNuevoEvento;
+
+    private DAOEventosCalendario dao;
+    private Evento eventoEnEdicion;
+
+    private YearMonth mesActual;
+
+    @FXML
+    private void initialize() {
+        try {
+            dao = new DAOEventosCalendario();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error inicializando calendario", e.getMessage());
+        }
+
+        // Mes actual
+        mesActual = YearMonth.now();
+
+        LocalDate hoy = LocalDate.now();
+        dpFecha.setValue(hoy);
+        dpFecha.valueProperty().addListener((obs, old, neu) -> {
+            if (neu != null) {
+                cargarEventos(neu);
+            }
+        });
+
+        // Lista: mostrar título del evento
+        lstEventos.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Evento ev, boolean empty) {
+                super.updateItem(ev, empty);
+                if (empty || ev == null) {
+                    setText(null);
+                } else {
+                    setText(ev.titulo());
+                }
+            }
+        });
+
+        // Doble clic para editar
+        lstEventos.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                onEditarEvento();
+            }
+        });
+
+        // Pintar calendario y cargar eventos de hoy
+        pintarCalendario();
+        cargarEventos(hoy);
+    }
+
+    // =================== Calendario mensual ===================
+
+    private void pintarCalendario() {
+        if (gridDias == null) return; // por si el FXML aún no lo tiene
+
+        gridDias.getChildren().clear();
+
+        LocalDate primerDiaMes = mesActual.atDay(1);
+        int diaSemanaIndex = (primerDiaMes.getDayOfWeek().getValue() + 6) % 7; // L=0...D=6
+        int diasMes = mesActual.lengthOfMonth();
+
+        lblMesAnio.setText(
+                mesActual.getMonth().toString().substring(0, 1).toUpperCase() +
+                mesActual.getMonth().toString().substring(1).toLowerCase() +
+                " " + mesActual.getYear()
+        );
+
+        int fila = 0;
+        int col = diaSemanaIndex;
+
+        for (int dia = 1; dia <= diasMes; dia++) {
+            LocalDate fecha = mesActual.atDay(dia);
+
+            Label lbl = new Label(String.valueOf(dia));
+            StackPane celda = new StackPane(lbl);
+            celda.getStyleClass().add("cal-dia");
+
+            if (fecha.equals(LocalDate.now())) {
+                celda.getStyleClass().add("cal-dia-hoy");
+            }
+
+            celda.setOnMouseClicked(e -> {
+                dpFecha.setValue(fecha);
+                cargarEventos(fecha);
+            });
+
+            GridPane.setRowIndex(celda, fila);
+            GridPane.setColumnIndex(celda, col);
+            gridDias.getChildren().add(celda);
+
+            col++;
+            if (col > 6) {
+                col = 0;
+                fila++;
+            }
+        }
+    }
+
+    @FXML
+    private void onMesAnterior() {
+        mesActual = mesActual.minusMonths(1);
+        pintarCalendario();
+    }
+
+    @FXML
+    private void onMesSiguiente() {
+        mesActual = mesActual.plusMonths(1);
+        pintarCalendario();
+    }
+
+    // =================== Eventos por fecha ===================
+
+    private void cargarEventos(LocalDate fecha) {
+        if (dao == null) return;
+        try {
+            List<Evento> lista = dao.listarPorFecha(fecha);
+            lstEventos.setItems(FXCollections.observableArrayList(lista));
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error cargando eventos", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onHoy() {
+        LocalDate hoy = LocalDate.now();
+        mesActual = YearMonth.from(hoy);
+        dpFecha.setValue(hoy);
+        pintarCalendario();
+        cargarEventos(hoy);
+    }
+
+    @FXML
+    private void onAgregarEvento() {
+        if (dao == null) return;
+        String texto = txtNuevoEvento.getText().trim();
+        LocalDate fecha = dpFecha.getValue();
+        if (texto.isEmpty() || fecha == null) {
+            return;
+        }
+
+        try {
+            if (eventoEnEdicion != null) {
+                Evento actualizado = new Evento(
+                        eventoEnEdicion.id(),
+                        fecha,
+                        texto,
+                        eventoEnEdicion.detalle(),
+                        eventoEnEdicion.origen()
+                );
+                dao.actualizarEvento(actualizado);
+                eventoEnEdicion = null;
+            } else {
+                dao.guardarEvento(fecha, texto, null, "local");
+            }
+
+            txtNuevoEvento.clear();
+            cargarEventos(fecha);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error guardando evento", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onEliminarEventoSeleccionado() {
+        if (dao == null) return;
+        Evento seleccionado = lstEventos.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+
+        try {
+            dao.borrarEvento(seleccionado.id());
+            if (eventoEnEdicion != null && eventoEnEdicion.id() == seleccionado.id()) {
+                eventoEnEdicion = null;
+                txtNuevoEvento.clear();
+            }
+            cargarEventos(dpFecha.getValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error borrando evento", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onEditarEvento() {
+        Evento seleccionado = lstEventos.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) {
+            return;
+        }
+
+        eventoEnEdicion = seleccionado;
+        dpFecha.setValue(seleccionado.fecha());
+        txtNuevoEvento.setText(seleccionado.titulo());
+    }
+
+    private void mostrarError(String titulo, String detalle) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(titulo);
+        alert.setContentText(detalle);
+        alert.showAndWait();
+    }
+}
