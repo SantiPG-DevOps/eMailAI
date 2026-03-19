@@ -17,6 +17,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -136,14 +137,14 @@ public class LoginController {
             return;
         }
 
-        String password = passwordField.getText();
-        if (password == null || password.isBlank()) {
+        String passwordMaestra = passwordField.getText();
+        if (passwordMaestra == null || passwordMaestra.isBlank()) {
             statusLabel.setText("Introduce la contraseña.");
             return;
         }
 
         // 1) Validar contraseña maestra con hash
-        String hashIntroducido = UtilidadCifrado.hash(password);
+        String hashIntroducido = UtilidadCifrado.hash(passwordMaestra);
         if (!hashIntroducido.equals(cuentaSeleccionada.passMaestraHash)) {
             statusLabel.setText("Contraseña incorrecta.");
             return;
@@ -158,18 +159,30 @@ public class LoginController {
             return;
         }
 
-        // 3) Derivar clave de cifrado por cuenta
-        String claveCuenta = UtilidadCifrado.hash(password + "|" + email);
+        // 3) Descifrar contraseña REAL del correo
+        String passCorreoReal;
+        try {
+            passCorreoReal = UtilidadCifrado.descifrar(cuentaSeleccionada.passCorreoCifrada);
+        } catch (Exception ex) {
+            statusLabel.setText("Error descifrando la contraseña del correo: " + ex.getMessage());
+            return;
+        }
+
+        // 4) Derivar clave de cifrado por cuenta (con la maestra + email)
+        String claveCuenta = UtilidadCifrado.hash(passwordMaestra + "|" + email);
 
         try {
+            System.out.println("DEBUG antes de connect");
             mailService.connect(
                     cuentaSeleccionada.servidorImap,
                     cuentaSeleccionada.servidorSmtp,
                     email,
-                    password
+                    passCorreoReal
             );
+            System.out.println("DEBUG después de connect OK para " + email);
             irAVentanaPrincipal(event, claveCuenta);
         } catch (Exception e) {
+            System.out.println("DEBUG excepción en connect");
             e.printStackTrace();
             statusLabel.setText("Error al conectar: " + e.getMessage());
         }
@@ -240,15 +253,24 @@ public class LoginController {
     @FXML
     private void onNewAccountClicked(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
-            Scene configScene = new Scene(loader.load());
+            // ventana modal para crear cuenta nueva
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/cuentanueva-view.fxml"));
+            Scene dialogScene = new Scene(loader.load());
 
-            aplicarTemaAScene(configScene);
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Nueva cuenta");
+            dialogStage.initModality(Modality.APPLICATION_MODAL);
 
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setTitle("eMailAI - Nueva cuenta");
-            stage.setScene(configScene);
-            stage.show();
+            // owner = ventana de login
+            Stage owner = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            dialogStage.initOwner(owner);
+
+            dialogStage.setScene(dialogScene);
+            dialogStage.showAndWait();
+
+            // al cerrar el diálogo, recargamos cuentas
+            cargarCuentasDesdeBD();
+            dibujarTarjetas();
         } catch (IOException e) {
             e.printStackTrace();
             statusLabel.setText("No se pudo abrir Nueva cuenta: " + e.getMessage());

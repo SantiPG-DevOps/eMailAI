@@ -1,0 +1,67 @@
+package com.emailAI.controller;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+
+public class MailViewController {
+
+    @FXML
+    private Label lblAsunto;
+
+    @FXML
+    private Label lblRemitente;
+
+    @FXML
+    private BorderPane container;   // definido en mail-view.fxml como <BorderPane fx:id="container"/>
+
+    private WebView webMensaje;
+    private WebEngine engine;
+
+    @FXML
+    private void initialize() {
+        // Crear WebView por código para evitar problemas de carga en FXML
+        webMensaje = new WebView();
+        engine = webMensaje.getEngine();
+
+        // Insertar el WebView en el centro del contenedor
+        if (container != null) {
+            container.setCenter(webMensaje);
+        }
+
+        // Página vacía inicial
+        engine.loadContent(
+                "<html><body style='font-family: sans-serif; font-size: 13px;'></body></html>",
+                "text/html"
+        );
+    }
+
+    /**
+     * Mostrar un mensaje en el visor HTML.
+     *
+     * @param remitente Texto para el remitente (ej: "Nombre <email@dominio>")
+     * @param asunto    Asunto del mensaje
+     * @param html      Contenido HTML completo del mensaje
+     */
+    public void mostrarMensaje(String remitente, String asunto, String html) {
+        if (lblRemitente != null) {
+            lblRemitente.setText(remitente != null ? remitente : "");
+        }
+        if (lblAsunto != null) {
+            lblAsunto.setText(asunto != null ? asunto : "");
+        }
+
+        if (engine != null) {
+            if (html == null || html.isBlank()) {
+                engine.loadContent(
+                        "<html><body style='font-family: sans-serif; font-size: 13px;'><i>(Mensaje vacío)</i></body></html>",
+                        "text/html"
+                );
+            } else {
+                engine.loadContent(html, "text/html");
+            }
+        }
+    }
+}

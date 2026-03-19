@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.emailAI.controller.NuevaCuentaController"
+      spacing="10">
+
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <children>
+        <Label text="Nueva cuenta de correo" styleClass="title-label"/>
+
+        <TextField fx:id="txtEmail" promptText="Correo electrónico"/>
+
+        <PasswordField fx:id="txtPassword" promptText="Contraseña de la cuenta"/>
+
+        <!-- ComboBox sin items en FXML; los cargamos en el controller -->
+        <ComboBox fx:id="cmbProveedor" promptText="Proveedor"/>
+
+        <!-- Contenedor para IMAP/SMTP personalizado -->
+        <VBox fx:id="boxPersonalizado" spacing="6">
+            <children>
+                <TextField fx:id="txtImap" promptText="Servidor IMAP"/>
+                <TextField fx:id="txtSmtp" promptText="Servidor SMTP"/>
+            </children>
+        </VBox>
+
+        <HBox spacing="8">
+            <children>
+                <Button text="Cancelar" onAction="#onCancelar"/>
+                <Button text="Guardar" onAction="#onGuardar" defaultButton="true"/>
+            </children>
+        </HBox>
+    </children>
+
+</VBox>

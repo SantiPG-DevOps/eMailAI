@@ -51,6 +51,7 @@ public class MailService {
         inbox.open(Folder.READ_ONLY);
 
         Message[] messages = inbox.getMessages();
+        System.out.println("DEBUG listInbox: mensajes totales = " + messages.length);
 
         int total = messages.length;
         int max = 20; // último bloque de correos para procesar
@@ -111,6 +112,8 @@ public class MailService {
             resultado.add(mensajeObj);
         }
 
+        System.out.println("DEBUG listInbox: resultado.size = " + resultado.size());
+
         inbox.close(false);
         return resultado;
     }
@@ -164,12 +167,12 @@ public class MailService {
                 String tipo = part.getContentType().toLowerCase();
 
                 if (tipo.startsWith("text/plain")) {
-                    sb.append(part.getContent().toString()).append("\n");
+                    sb.append(part.getContent().toString()).append("\\n");
                 } else if (part.getContent() instanceof Multipart innerMultipart) {
                     for (int j = 0; j < innerMultipart.getCount(); j++) {
                         BodyPart innerPart = innerMultipart.getBodyPart(j);
                         if (innerPart.getContentType().toLowerCase().startsWith("text/plain")) {
-                            sb.append(innerPart.getContent().toString()).append("\n");
+                            sb.append(innerPart.getContent().toString()).append("\\n");
                         }
                     }
                 }

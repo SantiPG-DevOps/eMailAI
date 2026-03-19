@@ -1,0 +1,81 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOCuentas;
+import com.emailAI.security.UtilidadCifrado;
+import javafx.fxml.FXML;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Alert;
+import javafx.stage.Stage;
+
+public class NuevaCuentaController {
+	
+	@FXML
+	private ComboBox<String> cmbProveedor;
+
+	@FXML
+	private VBox boxPersonalizado;
+
+	
+    @FXML
+    private TextField txtEmail;
+
+    @FXML
+    private PasswordField txtPassword;
+
+    @FXML
+    private TextField txtImap;
+
+    @FXML
+    private TextField txtSmtp;
+
+    @FXML
+    private void onGuardar() {
+        String email = txtEmail.getText();
+        String password = txtPassword.getText();
+        String imap = txtImap.getText();
+        String smtp = txtSmtp.getText();
+
+        if (email == null || email.isBlank()
+                || password == null || password.isBlank()
+                || imap == null || imap.isBlank()
+                || smtp == null || smtp.isBlank()) {
+            mostrarAlerta("Campos incompletos",
+                    "Rellena email, contraseña, IMAP y SMTP.");
+            return;
+        }
+
+        try {
+            // email con clave fija de app
+            String emailCifrado = UtilidadCifrado.cifrar(email);
+            // hash de la contraseña maestra (la del correo)
+            String passHash = UtilidadCifrado.hash(password);
+
+            DAOCuentas dao = new DAOCuentas();
+            dao.guardarCuenta(imap, smtp, emailCifrado, passHash);
+
+            cerrarVentana();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error al guardar", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onCancelar() {
+        cerrarVentana();
+    }
+
+    private void cerrarVentana() {
+        Stage stage = (Stage) txtEmail.getScene().getWindow();
+        stage.close();
+    }
+
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Nueva cuenta");
+        alert.setHeaderText(titulo);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+}

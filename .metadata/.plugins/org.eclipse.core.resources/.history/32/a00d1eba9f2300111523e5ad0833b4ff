@@ -1,0 +1,217 @@
+package com.emailAI.controller;
+
+import com.emailAI.model.Mensaje;
+import com.emailAI.security.UtilidadCifrado;
+import com.emailAI.service.MailService;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CorreoController {
+
+    // Barra superior
+    @FXML
+    private Label lblEstado;
+
+    // Bandeja izquierda
+    @FXML
+    private ListView<Mensaje> lstMensajes;
+
+    @FXML
+    private Button btnActualizar;
+
+    // Panel derecho
+    @FXML
+    private Label lblAsunto;
+
+    @FXML
+    private Label lblRemitente;
+
+    @FXML
+    private TextArea txtCuerpo;
+
+    @FXML
+    private Button btnReentrenar;
+
+    @FXML
+    private Button btnSpam;
+
+    @FXML
+    private Button btnLegitimo;
+
+    @FXML
+    private Button btnSug1;
+
+    @FXML
+    private Button btnSug2;
+
+    @FXML
+    private Button btnSug3;
+
+    private MailService mailService;
+    private List<Mensaje> mensajesActuales = new ArrayList<>();
+
+    // hash lógico de la cuenta (email+imapHost)
+    private String cuentaHash;
+
+    @FXML
+    private void initialize() {
+        if (lblEstado != null) {
+            lblEstado.setText("");
+        }
+
+        if (lstMensajes != null) {
+            lstMensajes.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(Mensaje item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        String prioridad = item.getPrioridad() != null ? item.getPrioridad() : "";
+                        String categoria = item.getCategoria() != null ? item.getCategoria() : "";
+                        setText(item.getRemitente() + "  |  " + item.getAsunto()
+                                + "  [" + prioridad + "/" + categoria + "]");
+                    }
+                }
+            });
+
+            lstMensajes.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, oldSel, newSel) -> mostrarMensaje(newSel)
+            );
+        }
+    }
+
+    /**
+     * Llamado desde MainController después de conectar MailService.
+     */
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+        try {
+            String email = mailService.getEmail();
+            String imapHost = mailService.getImapHost();
+            this.cuentaHash = UtilidadCifrado.hash(email + "@" + imapHost);
+
+            cargarDesdeBD();      // si tenías lógica de cargar reglas/etiquetas, etc.
+            onActualizarBandeja(); // primera carga de correos
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (lblEstado != null) {
+                lblEstado.setText("Error inicializando correo: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Aquí mantienes tu lógica antigua de cargar datos relacionados desde BD.
+     * Si no la necesitas, puedes dejarlo vacío.
+     */
+    private void cargarDesdeBD() {
+        // TODO: si tenías lógica de cargar filtros, IA entrenada por cuenta, etc.
+    }
+
+    @FXML
+    private void onActualizarBandeja() {
+        if (mailService == null) {
+            if (lblEstado != null) lblEstado.setText("Sin conexión de correo.");
+            return;
+        }
+
+        try {
+            if (lblEstado != null) lblEstado.setText("Cargando bandeja...");
+            List<Mensaje> lista = mailService.listInbox();
+            mensajesActuales = lista;
+
+            if (lstMensajes != null) {
+                lstMensajes.getItems().setAll(lista);
+                if (!lista.isEmpty()) {
+                    lstMensajes.getSelectionModel().select(0);
+                }
+            }
+
+            if (lblEstado != null) lblEstado.setText("Bandeja actualizada.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (lblEstado != null) {
+                lblEstado.setText("Error cargando bandeja: " + e.getMessage());
+            }
+        }
+    }
+
+    private void mostrarMensaje(Mensaje msg) {
+        if (msg == null) {
+            if (lblAsunto != null) lblAsunto.setText("");
+            if (lblRemitente != null) lblRemitente.setText("");
+            if (txtCuerpo != null) txtCuerpo.setText("");
+            return;
+        }
+
+        if (lblAsunto != null) lblAsunto.setText(msg.getAsunto());
+        if (lblRemitente != null) lblRemitente.setText(msg.getRemitente());
+
+        String cuerpo = msg.getCuerpo();
+        String html = msg.getHtml();
+
+        // De momento mostramos texto plano aquí; HTML lo veremos en MailView más adelante
+        if (txtCuerpo != null) {
+            if (cuerpo != null && !cuerpo.isBlank()) {
+                txtCuerpo.setText(cuerpo);
+            } else if (html != null && !html.isBlank()) {
+                txtCuerpo.setText("[Mensaje HTML sin versión de texto plano]");
+            } else {
+                txtCuerpo.setText("");
+            }
+        }
+
+        // TODO: aquí más adelante podemos activar sugerencias IA en btnSug1/2/3
+    }
+
+    // ==== Handlers de botones (por ahora placeholders) ====
+
+    @FXML
+    private void onRedactar() {
+        // TODO: abrir ventana de redacción
+    }
+
+    @FXML
+    private void onResponder() {
+        // TODO: preparar respuesta al mensaje seleccionado
+    }
+
+    @FXML
+    private void onReenviar() {
+        // TODO: preparar reenvío del mensaje seleccionado
+    }
+
+    @FXML
+    private void onReentrenarModelo() {
+        // TODO: reentrenar modelo IA con el mensaje actual
+    }
+
+    @FXML
+    private void onMarcarSpam() {
+        // TODO: marcar mensaje como spam y registrar feedback para IA
+    }
+
+    @FXML
+    private void onMarcarLegitimo() {
+        // TODO: marcar mensaje como legítimo y registrar feedback
+    }
+
+    @FXML
+    private void onUsarRespuesta1() {
+        // TODO: usar sugerencia IA 1
+    }
+
+    @FXML
+    private void onUsarRespuesta2() {
+        // TODO: usar sugerencia IA 2
+    }
+
+    @FXML
+    private void onUsarRespuesta3() {
+        // TODO: usar sugerencia IA 3
+    }
+}

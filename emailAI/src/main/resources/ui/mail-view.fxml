@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.MailViewController">
+
+    <top>
+        <VBox spacing="4">
+            <padding>
+                <Insets top="8" right="12" bottom="8" left="12"/>
+            </padding>
+            <children>
+                <Label fx:id="lblAsunto" styleClass="title-label"/>
+                <Label fx:id="lblRemitente"/>
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <WebView fx:id="webMensaje"/>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.MainController"
+            fx:id="rootPane">
+
+    <fx:define>
+        <ToggleGroup fx:id="grpSecciones"/>
+    </fx:define>
+
+    <!-- MENÚ LATERAL IZQUIERDO -->
+    <left>
+        <VBox spacing="10"
+              styleClass="sidebar">
+
+            <padding>
+                <Insets top="15" right="5" bottom="15" left="5"/>
+            </padding>
+
+            <children>
+                <!-- Cabecera: logo + eMail IA -->
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <children>
+                        <ImageView fitWidth="20" fitHeight="20" preserveRatio="true">
+                            <image>
+                                <Image url="@../logo.png"/>
+                            </image>
+                        </ImageView>
+
+                        <Label text="eMail IA"
+                               styleClass="title-label"/>
+                    </children>
+                </HBox>
+
+                <!-- Botones de secciones principales -->
+                <ToggleButton text="Correo" fx:id="btnCorreo"
+                              toggleGroup="$grpSecciones"
+                              onAction="#onSeccionCorreo"
+                              styleClass="sidebar-toggle"/>
+
+                <ToggleButton text="Calendario" fx:id="btnCalendario"
+                              toggleGroup="$grpSecciones"
+                              onAction="#onSeccionCalendario"
+                              styleClass="sidebar-toggle"/>
+
+                <ToggleButton text="Contactos" fx:id="btnContactos"
+                              toggleGroup="$grpSecciones"
+                              onAction="#onSeccionContactos"
+                              styleClass="sidebar-toggle"/>
+
+                <ToggleButton text="Tareas" fx:id="btnTareas"
+                              toggleGroup="$grpSecciones"
+                              onAction="#onSeccionTareas"
+                              styleClass="sidebar-toggle"/>
+
+                <!-- Espaciador para empujar lo de abajo -->
+                <Pane VBox.vgrow="ALWAYS"/>
+
+                <Separator/>
+
+                <ToggleButton text="Configuración" fx:id="btnConfiguracion"
+                              toggleGroup="$grpSecciones"
+                              onAction="#onSeccionConfiguracion"
+                              styleClass="sidebar-toggle"/>
+
+                <ToggleButton text="Chat IA" fx:id="btnChatIA"
+                              toggleGroup="$grpSecciones"
+                              onAction="#onSeccionChatIA"
+                              styleClass="sidebar-toggle"/>
+            </children>
+        </VBox>
+    </left>
+
+    <!-- CENTRO: contenedor donde se cargan las vistas -->
+    <center>
+        <StackPane fx:id="centerPane"/>
+    </center>
+
+</BorderPane>

@@ -19,12 +19,12 @@ public class ConfigController {
 
     // ====== Pestaña GENERAL ======
 
-    @FXML private TabPane tabPrincipal;   // por si lo necesitas más adelante
+    @FXML private TabPane tabPrincipal;
     @FXML private CheckBox chkTemaClaro;
     @FXML private CheckBox chkNotificaciones;
     @FXML private CheckBox chkComprobarInicio;
 
-    // ====== Pestaña CORREO (tu lógica antigua) ======
+    // ====== Pestaña CORREO (config avanzada de cuentas) ======
 
     @FXML private ComboBox<String> providerCombo;
     @FXML private TextField emailField;
@@ -47,7 +47,7 @@ public class ConfigController {
         if (mainController != null && chkTemaClaro != null) {
             chkTemaClaro.setSelected(mainController.isTemaClaro());
         } else if (chkTemaClaro != null) {
-            // si se abre desde login u otra vista, deducimos el tema por CSS
+            // si se abre desde otra escena, deducimos el tema por CSS
             Scene scene = chkTemaClaro.getScene();
             boolean light = false;
             if (scene != null) {
@@ -102,11 +102,8 @@ public class ConfigController {
         boolean claro = chkTemaClaro.isSelected();
 
         if (mainController != null) {
-            // estamos dentro de la app principal
             mainController.setTemaClaro(claro);
         } else {
-            // estamos en otra escena (por ejemplo, una ventana de config independiente)
-            // cambiamos estilos sobre la escena actual
             Scene scene = chkTemaClaro.getScene();
             if (scene == null) return;
 
@@ -209,11 +206,13 @@ public class ConfigController {
         }
 
         try {
+            // email cifrado con clave fija de app
             String emailCifrado = UtilidadCifrado.cifrar(email);
-            String passHash = UtilidadCifrado.hash(masterPass);
+            // hash de la contraseña maestra (igual que en NuevaCuentaController)
+            String passMaestraHash = UtilidadCifrado.hash(masterPass);
 
             DAOCuentas dao = new DAOCuentas();
-            dao.guardarCuenta(imap, smtp, emailCifrado, passHash);
+            dao.guardarCuenta(imap, smtp, emailCifrado, passMaestraHash);
 
             if (statusLabel != null) statusLabel.setText("Cuenta guardada correctamente.");
         } catch (Exception e) {

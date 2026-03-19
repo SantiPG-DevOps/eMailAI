@@ -12,17 +12,20 @@ public class DAOCuentas {
         public String servidorSmtp;
         public String emailCifrado;
         public String passMaestraHash;
+        public String passCorreoCifrada;   // NUEVO
 
         public CuentaGuardada(int id,
                               String servidorImap,
                               String servidorSmtp,
                               String emailCifrado,
-                              String passMaestraHash) {
+                              String passMaestraHash,
+                              String passCorreoCifrada) {
             this.id = id;
             this.servidorImap = servidorImap;
             this.servidorSmtp = servidorSmtp;
             this.emailCifrado = emailCifrado;
             this.passMaestraHash = passMaestraHash;
+            this.passCorreoCifrada = passCorreoCifrada;
         }
     }
 
@@ -34,10 +37,11 @@ public class DAOCuentas {
         String sql = """
                 CREATE TABLE IF NOT EXISTS cuentas (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    servidor_imap      TEXT NOT NULL,
-                    servidor_smtp      TEXT NOT NULL,
-                    email_cifrado      TEXT NOT NULL UNIQUE,
-                    pass_maestra_hash  TEXT NOT NULL
+                    servidor_imap       TEXT NOT NULL,
+                    servidor_smtp       TEXT NOT NULL,
+                    email_cifrado       TEXT NOT NULL UNIQUE,
+                    pass_maestra_hash   TEXT NOT NULL,
+                    pass_correo_cifrada TEXT NOT NULL
                 );
                 """;
 
@@ -50,11 +54,18 @@ public class DAOCuentas {
     public void guardarCuenta(String servidorImap,
                               String servidorSmtp,
                               String emailCifrado,
-                              String passMaestraHash) throws SQLException {
+                              String passMaestraHash,
+                              String passCorreoCifrada) throws SQLException {
 
         String sql = """
-                INSERT INTO cuentas(servidor_imap, servidor_smtp, email_cifrado, pass_maestra_hash)
-                VALUES (?, ?, ?, ?);
+                INSERT INTO cuentas(
+                    servidor_imap,
+                    servidor_smtp,
+                    email_cifrado,
+                    pass_maestra_hash,
+                    pass_correo_cifrada
+                )
+                VALUES (?, ?, ?, ?, ?);
                 """;
 
         try (Connection conn = ConexionBD.getConnection();
@@ -63,12 +74,23 @@ public class DAOCuentas {
             ps.setString(2, servidorSmtp);
             ps.setString(3, emailCifrado);
             ps.setString(4, passMaestraHash);
+            ps.setString(5, passCorreoCifrada);
             ps.executeUpdate();
         }
     }
 
     public List<CuentaGuardada> listarCuentas() throws SQLException {
-        String sql = "SELECT id, servidor_imap, servidor_smtp, email_cifrado, pass_maestra_hash FROM cuentas";
+        String sql = """
+                SELECT
+                    id,
+                    servidor_imap,
+                    servidor_smtp,
+                    email_cifrado,
+                    pass_maestra_hash,
+                    pass_correo_cifrada
+                FROM cuentas
+                """;
+
         List<CuentaGuardada> lista = new ArrayList<>();
 
         try (Connection conn = ConexionBD.getConnection();
@@ -81,7 +103,8 @@ public class DAOCuentas {
                         rs.getString("servidor_imap"),
                         rs.getString("servidor_smtp"),
                         rs.getString("email_cifrado"),
-                        rs.getString("pass_maestra_hash")
+                        rs.getString("pass_maestra_hash"),
+                        rs.getString("pass_correo_cifrada")
                 ));
             }
         }

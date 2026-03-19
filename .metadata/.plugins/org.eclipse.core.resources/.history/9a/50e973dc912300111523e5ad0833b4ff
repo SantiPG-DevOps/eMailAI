@@ -1,0 +1,5 @@
+package com.emailAI.controller;
+
+public class MailViewController {
+
+}

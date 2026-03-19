@@ -1,0 +1,210 @@
+package com.emailAI.controller;
+
+import com.emailAI.AppFX;
+import com.emailAI.dao.DAOContactos;
+import com.emailAI.dao.DAOTareas;
+import com.emailAI.service.MailService;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
+
+public class MainController {
+
+    @FXML
+    private BorderPane rootPane;
+
+    @FXML
+    private StackPane centerPane;
+
+    @FXML
+    private ToggleButton btnBandeja;
+
+    @FXML
+    private ToggleButton btnTareas;
+
+    @FXML
+    private ToggleButton btnContactos;
+
+    @FXML
+    private ToggleButton themeToggle;
+
+    private MailService mailService;
+
+    // clave derivada de password+email que nos pasa LoginController
+    private String claveCifrado;
+
+    // id de la cuenta actual (DAOCuentas.CuentaGuardada.id)
+    private int cuentaActualId;
+
+    @FXML
+    private void initialize() {
+        if (themeToggle != null) {
+            themeToggle.setSelected(false); // oscuro por defecto
+            themeToggle.setText("🌙");
+        }
+        // vista por defecto
+        cargarVistaBandeja();
+        if (btnBandeja != null) btnBandeja.setSelected(true);
+    }
+
+    // llamado desde LoginController tras login correcto
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+    }
+
+    // llamado desde LoginController: clave cifrado por cuenta + id
+    public void setupCuenta(String claveCifrado, int cuentaId) {
+        this.claveCifrado = claveCifrado;
+        this.cuentaActualId = cuentaId;
+    }
+
+    // --------- Navegación secciones ---------
+
+    @FXML
+    private void onSeccionBandeja(ActionEvent event) {
+        cargarVistaBandeja();
+        if (btnBandeja != null) {
+            btnBandeja.setSelected(true);
+            if (btnTareas != null) btnTareas.setSelected(false);
+            if (btnContactos != null) btnContactos.setSelected(false);
+        }
+    }
+
+    // alias para el handler antiguo del FXML
+    @FXML
+    private void onSeccionCorreo(ActionEvent event) {
+        onSeccionBandeja(event);
+    }
+
+    @FXML
+    private void onSeccionTareas(ActionEvent event) {
+        cargarVistaTareas();
+        if (btnTareas != null) {
+            btnTareas.setSelected(true);
+            if (btnBandeja != null) btnBandeja.setSelected(false);
+            if (btnContactos != null) btnContactos.setSelected(false);
+        }
+    }
+
+    @FXML
+    private void onSeccionContactos(ActionEvent event) {
+        cargarVistaContactos();
+        if (btnContactos != null) {
+            btnContactos.setSelected(true);
+            if (btnBandeja != null) btnBandeja.setSelected(false);
+            if (btnTareas != null) btnTareas.setSelected(false);
+        }
+    }
+
+    private void cargarVistaBandeja() {
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/mail-view.fxml"));
+            Node vista = loader.load();
+
+            MailViewController controller = loader.getController();
+            if (controller != null && mailService != null) {
+                controller.setMailService(mailService);
+                controller.setCuentaActual(cuentaActualId);
+            }
+
+            centerPane.getChildren().setAll(vista);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void cargarVistaTareas() {
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/tareas-view.fxml"));
+            Node vista = loader.load();
+
+            TareasController controller = loader.getController();
+            if (controller != null && claveCifrado != null && cuentaActualId > 0) {
+                DAOTareas dao = new DAOTareas(claveCifrado);
+                controller.configurar(dao, cuentaActualId);
+            }
+
+            centerPane.getChildren().setAll(vista);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void cargarVistaContactos() {
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/contactos-view.fxml"));
+            Node vista = loader.load();
+
+            ContactosController controller = loader.getController();
+            if (controller != null && claveCifrado != null && cuentaActualId > 0) {
+                DAOContactos dao = new DAOContactos(claveCifrado);
+                controller.configurar(dao, cuentaActualId);
+            }
+
+            centerPane.getChildren().setAll(vista);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // --------- Tema claro/oscuro ---------
+
+    @FXML
+    private void onThemeToggle(ActionEvent event) {
+        if (themeToggle != null) {
+            if (themeToggle.isSelected()) {
+                themeToggle.setText("☀");
+            } else {
+                themeToggle.setText("🌙");
+            }
+        }
+
+        Scene scene = themeToggle.getScene();
+        if (scene != null) {
+            aplicarTemaAScene(scene);
+        }
+    }
+
+    private void aplicarTemaAScene(Scene scene) {
+        scene.getStylesheets().clear();
+
+        scene.getStylesheets().add(
+                AppFX.class.getResource("/styles-basic.css").toExternalForm()
+        );
+
+        if (themeToggle != null && themeToggle.isSelected()) {
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-light.css").toExternalForm()
+            );
+        } else {
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
+            );
+        }
+    }
+
+    // --------- Logout / volver al login ---------
+
+    @FXML
+    private void onLogout(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
+            Scene loginScene = new Scene(loader.load());
+
+            aplicarTemaAScene(loginScene);
+
+            Stage stage = (Stage) rootPane.getScene().getWindow();
+            stage.setTitle("eMailAI - Login");
+            stage.setScene(loginScene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

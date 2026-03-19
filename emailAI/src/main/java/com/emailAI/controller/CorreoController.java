@@ -1,316 +1,218 @@
 package com.emailAI.controller;
 
-import com.emailAI.AppFX;
-import com.emailAI.dao.DAOEntrenamiento;
-import com.emailAI.dao.DAOMensajes;
-import com.emailAI.ia.ExtractorAtributos;
-import com.emailAI.ia.GestorModelos;
 import com.emailAI.model.Mensaje;
 import com.emailAI.security.UtilidadCifrado;
 import com.emailAI.service.MailService;
-import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CorreoController {
 
-    @FXML private ListView<String> lstMensajes;
-    @FXML private Label lblAsunto;
-    @FXML private Label lblRemitente;
-    @FXML private Label lblEstado;
-    @FXML private Button btnSug1, btnSug2, btnSug3;
-    @FXML private ProgressIndicator progressCargando; // si no está en FXML, puedes quitarlo
-    @FXML private TextArea txtCuerpo;
+    // Barra superior
+    @FXML
+    private Label lblEstado;
 
-    // Botones de acción fija
-    @FXML private Button btnReentrenar;
-    @FXML private Button btnSpam;
-    @FXML private Button btnLegitimo;
+    // Bandeja izquierda
+    @FXML
+    private ListView<Mensaje> lstMensajes;
+
+    @FXML
+    private Button btnActualizar;
+
+    // Panel derecho
+    @FXML
+    private Label lblAsunto;
+
+    @FXML
+    private Label lblRemitente;
+
+    @FXML
+    private TextArea txtCuerpo;
+
+    @FXML
+    private Button btnReentrenar;
+
+    @FXML
+    private Button btnSpam;
+
+    @FXML
+    private Button btnLegitimo;
+
+    @FXML
+    private Button btnSug1;
+
+    @FXML
+    private Button btnSug2;
+
+    @FXML
+    private Button btnSug3;
 
     private MailService mailService;
-    private List<Mensaje> mensajes = new ArrayList<>();
+    private List<Mensaje> mensajesActuales = new ArrayList<>();
 
-    private DAOMensajes daoMensajes;
+    // hash lógico de la cuenta (email+imapHost)
     private String cuentaHash;
 
-    public CorreoController() {
-        try {
-            daoMensajes = new DAOMensajes();
-        } catch (Exception e) {
-            e.printStackTrace();
+    @FXML
+    private void initialize() {
+        if (lblEstado != null) {
+            lblEstado.setText("");
+        }
+
+        if (lstMensajes != null) {
+            lstMensajes.setCellFactory(list -> new ListCell<>() {
+                @Override
+                protected void updateItem(Mensaje item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        String prioridad = item.getPrioridad() != null ? item.getPrioridad() : "";
+                        String categoria = item.getCategoria() != null ? item.getCategoria() : "";
+                        setText(item.getRemitente() + "  |  " + item.getAsunto()
+                                + "  [" + prioridad + "/" + categoria + "]");
+                    }
+                }
+            });
+
+            lstMensajes.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, oldSel, newSel) -> mostrarMensaje(newSel)
+            );
         }
     }
 
     /**
-     * Llamado desde MainController después de que se haya conectado MailService.
+     * Llamado desde MainController después de conectar MailService.
      */
-    public void setMailService(MailService mailService) throws Exception {
+    public void setMailService(MailService mailService) {
         this.mailService = mailService;
-
-        String email = mailService.getEmail();
-        String imapHost = mailService.getImapHost();
-        this.cuentaHash = UtilidadCifrado.hash(email + "@" + imapHost);
-
-        cargarDesdeBD();
-        onActualizarBandeja();
-    }
-
-    @FXML
-    private void initialize() {
-        lstMensajes.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
-            int idx = newVal.intValue();
-            if (idx >= 0 && idx < mensajes.size()) {
-                mostrarDetalle(mensajes.get(idx));
-            }
-        });
-
-        lstMensajes.setCellFactory(list -> new ListCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    getStyleClass().remove("message-card");
-                } else {
-                    setText(item);
-                    if (!getStyleClass().contains("message-card")) {
-                        getStyleClass().add("message-card");
-                    }
-                }
-            }
-        });
-
-        // Fijar textos de los botones de acción por si acaso
-        if (btnReentrenar != null) btnReentrenar.setText("Act IA");
-        if (btnSpam != null)       btnSpam.setText("SPAM");
-        if (btnLegitimo != null)   btnLegitimo.setText("Legit");
-    }
-
-    // ===================== Carga desde BD =====================
-
-    private void cargarDesdeBD() {
-        if (cuentaHash == null || daoMensajes == null) return;
-
         try {
-            mensajes = daoMensajes.listarPorCuenta(cuentaHash);
-            actualizarListaVisual();
-            lblEstado.setText("Bandeja local cargada.");
-            if (!mensajes.isEmpty()) {
-                lstMensajes.getSelectionModel().select(0);
-            }
+            String email = mailService.getEmail();
+            String imapHost = mailService.getImapHost();
+            this.cuentaHash = UtilidadCifrado.hash(email + "@" + imapHost);
+
+            cargarDesdeBD();      // si tenías lógica de cargar reglas/etiquetas, etc.
+            onActualizarBandeja(); // primera carga de correos
         } catch (Exception e) {
-            lblEstado.setText("Error al cargar bandeja local: " + e.getMessage());
+            e.printStackTrace();
+            if (lblEstado != null) {
+                lblEstado.setText("Error inicializando correo: " + e.getMessage());
+            }
         }
     }
 
-    // ===================== Sincronización en segundo plano =====================
+    /**
+     * Aquí mantienes tu lógica antigua de cargar datos relacionados desde BD.
+     * Si no la necesitas, puedes dejarlo vacío.
+     */
+    private void cargarDesdeBD() {
+        // TODO: si tenías lógica de cargar filtros, IA entrenada por cuenta, etc.
+    }
 
     @FXML
     private void onActualizarBandeja() {
-        if (mailService == null) return;
-
-        lblEstado.setText("Sincronizando correos...");
-        if (progressCargando != null) progressCargando.setVisible(true);
-
-        Task<List<Mensaje>> tareaDescarga = new Task<>() {
-            @Override
-            protected List<Mensaje> call() throws Exception {
-                List<Mensaje> descargados = mailService.listInbox();
-                if (cuentaHash != null && daoMensajes != null) {
-                    daoMensajes.guardarOModificar(cuentaHash, descargados);
-                }
-                return descargados;
-            }
-        };
-
-        tareaDescarga.setOnSucceeded(event -> {
-            mensajes = tareaDescarga.getValue();
-            actualizarListaVisual();
-            if (progressCargando != null) progressCargando.setVisible(false);
-            lblEstado.setText("Bandeja actualizada.");
-            if (!mensajes.isEmpty()) {
-                lstMensajes.getSelectionModel().select(0);
-            }
-        });
-
-        tareaDescarga.setOnFailed(event -> {
-            if (progressCargando != null) progressCargando.setVisible(false);
-            lblEstado.setText("Error al sincronizar correos (modo offline).");
-            tareaDescarga.getException().printStackTrace();
-        });
-
-        Thread hilo = new Thread(tareaDescarga);
-        hilo.setDaemon(true);
-        hilo.start();
-    }
-
-    private void actualizarListaVisual() {
-        var items = FXCollections.<String>observableArrayList();
-        for (Mensaje m : mensajes) {
-            String linea1 = m.getRemitente();
-            String prefijo = "";
-            if ("SPAM".equalsIgnoreCase(m.getCategoria())) {
-                prefijo = "[SPAM]";
-            }
-            if ("URGENTE".equalsIgnoreCase(m.getPrioridad())) {
-                prefijo = "[URGENTE]";
-            }
-            String linea2 = (prefijo + " " + m.getAsunto()).trim();
-            items.add(linea1 + "\n" + linea2);
-        }
-        lstMensajes.setItems(items);
-    }
-
-    // ===================== Mostrar detalle =====================
-
-    private void mostrarDetalle(Mensaje m) {
-        // Asunto recortado para que la cabecera no crezca
-        String asunto = m.getAsunto();
-        int maxLen = 60;
-        if (asunto != null && asunto.length() > maxLen) {
-            asunto = asunto.substring(0, maxLen) + "...";
-        }
-        lblAsunto.setText(asunto);
-        lblRemitente.setText("De: " + m.getRemitente());
-
-        // Si tenemos HTML, hacemos una limpieza simple para verlo legible
-        if (m.getHtml() != null && !m.getHtml().isBlank()) {
-            String texto = m.getHtml()
-                    .replaceAll("(?is)<br\\s*/?>", "\n")
-                    .replaceAll("(?is)</p>", "\n\n")
-                    .replaceAll("(?is)<a[^>]*>(.*?)</a>", "$1")
-                    .replaceAll("(?is)<[^>]+>", "");
-            txtCuerpo.setText(texto.trim());
-        } else {
-            txtCuerpo.setText(m.getCuerpo() != null ? m.getCuerpo() : "");
+        if (mailService == null) {
+            if (lblEstado != null) lblEstado.setText("Sin conexión de correo.");
+            return;
         }
 
-        generarSugerencias(m);
-    }
-
-    // ===== Entrenamiento IA =====
-
-    @FXML private void onMarcarSpam()      { marcarConEtiqueta("SPAM", "SPAM"); }
-    @FXML private void onMarcarLegitimo()  { marcarConEtiqueta("LEGITIMO", "SPAM"); }
-    @FXML private void onMarcarUrgente()   { marcarConEtiqueta("URGENTE", "PRIORIDAD"); }
-
-    private void marcarConEtiqueta(String etiqueta, String tipoModelo) {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx < 0) return;
-
-        Mensaje m = mensajes.get(idx);
         try {
-            DAOEntrenamiento dao = new DAOEntrenamiento();
-            dao.guardarEjemplo(m, etiqueta, tipoModelo);
-            lblEstado.setText("Aprendido: " + etiqueta + " en " + tipoModelo);
+            if (lblEstado != null) lblEstado.setText("Cargando bandeja...");
+            List<Mensaje> lista = mailService.listInbox();
+            System.out.println("DEBUG onActualizarBandeja: recibidos = " + lista.size());
+            mensajesActuales = lista;
+
+            if (lstMensajes != null) {
+                lstMensajes.getItems().setAll(lista);
+                if (!lista.isEmpty()) {
+                    lstMensajes.getSelectionModel().select(0);
+                }
+            }
+
+            if (lblEstado != null) lblEstado.setText("Bandeja actualizada.");
         } catch (Exception e) {
-            lblEstado.setText("Error al guardar entrenamiento.");
+            e.printStackTrace();
+            if (lblEstado != null) {
+                lblEstado.setText("Error cargando bandeja: " + e.getMessage());
+            }
         }
     }
+
+    private void mostrarMensaje(Mensaje msg) {
+        if (msg == null) {
+            if (lblAsunto != null) lblAsunto.setText("");
+            if (lblRemitente != null) lblRemitente.setText("");
+            if (txtCuerpo != null) txtCuerpo.setText("");
+            return;
+        }
+
+        if (lblAsunto != null) lblAsunto.setText(msg.getAsunto());
+        if (lblRemitente != null) lblRemitente.setText(msg.getRemitente());
+
+        String cuerpo = msg.getCuerpo();
+        String html = msg.getHtml();
+
+        // De momento mostramos texto plano aquí; HTML lo veremos en MailView más adelante
+        if (txtCuerpo != null) {
+            if (cuerpo != null && !cuerpo.isBlank()) {
+                txtCuerpo.setText(cuerpo);
+            } else if (html != null && !html.isBlank()) {
+                txtCuerpo.setText("[Mensaje HTML sin versión de texto plano]");
+            } else {
+                txtCuerpo.setText("");
+            }
+        }
+
+        // TODO: aquí más adelante podemos activar sugerencias IA en btnSug1/2/3
+    }
+
+    // ==== Handlers de botones (por ahora placeholders) ====
 
     @FXML
-    private void onReentrenarModelo() {
-        lblEstado.setText("Reentrenando IA...");
-        Task<Void> tareaEntrenamiento = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                DAOEntrenamiento dao = new DAOEntrenamiento();
-
-                var eSpam = dao.listarEjemplosPorTipo("SPAM");
-                if (!eSpam.isEmpty()) {
-                    GestorModelos.entrenarYGuardar(ExtractorAtributos.convertirAEstructura(eSpam), "SPAM");
-                }
-
-                var ePrio = dao.listarEjemplosPorTipo("PRIORIDAD");
-                if (!ePrio.isEmpty()) {
-                    GestorModelos.entrenarYGuardar(ExtractorAtributos.convertirAEstructuraPrioridad(ePrio), "PRIORIDAD");
-                }
-                return null;
-            }
-        };
-
-        tareaEntrenamiento.setOnSucceeded(e -> {
-            lblEstado.setText("IA reentrenada con éxito.");
-            onActualizarBandeja();
-        });
-
-        new Thread(tareaEntrenamiento).start();
+    private void onRedactar() {
+        // TODO: abrir ventana de redacción
     }
-
-    // ===== Sugerencias IA y redacción =====
-
-    private void generarSugerencias(Mensaje m) {
-        String texto = (m.getAsunto() + m.getCuerpo()).toLowerCase();
-        if (texto.contains("reunión")) {
-            btnSug1.setText("Confirmar asistencia");
-            btnSug2.setText("No puedo asistir");
-            btnSug3.setText("Pedir agenda");
-        } else {
-            btnSug1.setText("Gracias por el correo");
-            btnSug2.setText("Lo reviso luego");
-            btnSug3.setText("Necesito más info");
-        }
-    }
-
-    private void abrirCompose(String para, String asunto, String cuerpo) {
-        try {
-            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/compose-view.fxml"));
-            Scene scene = new Scene(loader.load(), 600, 400);
-            ComposeController controller = loader.getController();
-            controller.setMailService(mailService);
-            if (para != null) controller.precargarDatos(para, asunto, cuerpo);
-
-            Stage stage = new Stage();
-            stage.setTitle("Redactar");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    @FXML private void onRedactar() { abrirCompose(null, null, null); }
 
     @FXML
     private void onResponder() {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx >= 0) {
-            Mensaje m = mensajes.get(idx);
-            abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(),
-                    "\n\n--- Original ---\n" + m.getCuerpo());
-        }
+        // TODO: preparar respuesta al mensaje seleccionado
     }
 
     @FXML
     private void onReenviar() {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx >= 0) {
-            Mensaje m = mensajes.get(idx);
-            abrirCompose(null, "Fwd: " + m.getAsunto(),
-                    "\n\n--- Mensaje reenviado ---\n" + m.getCuerpo());
-        } else {
-            lblEstado.setText("Selecciona un mensaje para reenviar.");
-        }
+        // TODO: preparar reenvío del mensaje seleccionado
     }
 
-    @FXML private void onUsarRespuesta1() { usarRespuestaRapida(btnSug1); }
-    @FXML private void onUsarRespuesta2() { usarRespuestaRapida(btnSug2); }
-    @FXML private void onUsarRespuesta3() { usarRespuestaRapida(btnSug3); }
+    @FXML
+    private void onReentrenarModelo() {
+        // TODO: reentrenar modelo IA con el mensaje actual
+    }
 
-    private void usarRespuestaRapida(Button boton) {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx < 0) {
-            lblEstado.setText("Selecciona un mensaje primero.");
-            return;
-        }
-        Mensaje m = mensajes.get(idx);
-        String texto = boton.getText();
-        abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(),
-                texto + "\n\n--- Mensaje original ---\n" + m.getCuerpo());
+    @FXML
+    private void onMarcarSpam() {
+        // TODO: marcar mensaje como spam y registrar feedback para IA
+    }
+
+    @FXML
+    private void onMarcarLegitimo() {
+        // TODO: marcar mensaje como legítimo y registrar feedback
+    }
+
+    @FXML
+    private void onUsarRespuesta1() {
+        // TODO: usar sugerencia IA 1
+    }
+
+    @FXML
+    private void onUsarRespuesta2() {
+        // TODO: usar sugerencia IA 2
+    }
+
+    @FXML
+    private void onUsarRespuesta3() {
+        // TODO: usar sugerencia IA 3
     }
 }
