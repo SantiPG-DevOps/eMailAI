@@ -57,6 +57,32 @@
     -fx-font-weight: bold;
 }
 
+/* Tarjetas de contactos (mismo estilo que mensajes) */
+.list-cell.contact-card-cell {
+    -fx-padding: 4 6 4 6;
+    -fx-background-color: transparent;
+}
+
+.contact-card {
+    -fx-padding: 8 10 8 10;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.contact-name {
+    -fx-font-weight: bold;
+}
+
+.contact-email {
+    -fx-font-size: 11px;
+    -fx-opacity: 0.85;
+}
+
+.contact-phone {
+    -fx-font-weight: normal;
+}
+
 /* Chips IA */
 .chip {
     -fx-background-radius: 999;
@@ -105,6 +131,8 @@
     -fx-border-radius: 999;
     -fx-padding: 4 10 4 10;
 }
+
+/* Calendario */
 .cal-dia {
     -fx-border-color: #cccccc;
     -fx-border-radius: 6;
@@ -122,3 +150,12 @@
 .cal-dia-seleccionado {
     -fx-background-color: #d0eaff;
 }
+
+/* Botones de filtro de tareas (Hoy, Mañana, etc.) */
+.task-filter-btn {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 4 12 4 12;
+    -fx-font-size: 11px;
+}
+

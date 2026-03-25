@@ -4,44 +4,65 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.emailAI.controller.ComposeController">
 
+    <!-- Zona superior: Para / CC / Asunto -->
     <top>
-        <GridPane hgap="5" vgap="5">
-            <columnConstraints>
-                <ColumnConstraints prefWidth="60"/>
-                <ColumnConstraints prefWidth="400"/>
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints/>
-                <RowConstraints/>
-                <RowConstraints/>
-            </rowConstraints>
-
-            <children>
-                <Label text="Para:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtPara" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                <Label text="Asunto:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtAsunto" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                <Button text="Enviar" onAction="#onEnviar"
-                        GridPane.rowIndex="2" GridPane.columnIndex="1"
-                        GridPane.halignment="RIGHT"/>
-            </children>
+        <VBox spacing="6">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
-        </GridPane>
+
+            <children>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Para:" minWidth="60"/>
+                        <TextField fx:id="txtPara" HBox.hgrow="ALWAYS"/>
+                    </children>
+                </HBox>
+
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="CC:" minWidth="60"/>
+                        <TextField fx:id="txtCc" HBox.hgrow="ALWAYS"/>
+                    </children>
+                </HBox>
+
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Asunto:" minWidth="60"/>
+                        <TextField fx:id="txtAsunto" HBox.hgrow="ALWAYS"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
     </top>
 
+    <!-- Centro: cuerpo del correo -->
     <center>
-        <TextArea fx:id="txtCuerpo" wrapText="true"/>
+        <TextArea fx:id="txtCuerpo"
+                  wrapText="true"
+                  BorderPane.alignment="CENTER"/>
     </center>
 
+    <!-- Barra inferior: estado + botones -->
     <bottom>
-        <Label fx:id="lblEstado" />
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="6" right="10" bottom="6" left="10"/>
+            </padding>
+
+            <children>
+                <Label fx:id="lblEstado"
+                       HBox.hgrow="ALWAYS"
+                       maxWidth="Infinity"/>
+
+                <Button text="Cancelar" onAction="#onCancelar"/>
+                <Button text="Enviar" onAction="#onEnviar" defaultButton="true"/>
+            </children>
+        </HBox>
     </bottom>
 
 </BorderPane>

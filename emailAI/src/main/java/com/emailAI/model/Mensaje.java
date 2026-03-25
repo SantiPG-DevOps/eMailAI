@@ -2,22 +2,29 @@ package com.emailAI.model;
 
 public class Mensaje {
 
-    private String id;         // identificador lógico (messageNumber / UID)
+    // id lógico (puede ser messageNumber, etc.)
+    private String id;
+
     private String remitente;
     private String asunto;
-    private String cuerpo;     // texto plano (para BD + IA)
+    private String cuerpo;      // texto plano (para BD + IA)
     private String fecha;
-    private String uidImap;
-    private String categoria;  // SPAM / LEGITIMO / DESCONOCIDO
-    private String prioridad;  // URGENTE / NORMAL
-    private String cuentaHash; // hash de la cuenta
-    private String html;       // cuerpo HTML solo para interfaz
+    private String uidImap;     // UID real IMAP
+    // valores esperados: LEGITIMO / SPAM / PHISHING / DESCONOCIDO
+    private String categoria;
+    private String prioridad;   // URGENTE / NORMAL / etc.
+    private String cuentaHash;  // hash de la cuenta
+    private String html;        // cuerpo HTML solo para interfaz
 
-    // Constructor vacío (necesario para DAOMensajes)
+    // Campos IA extra
+    private String resumenIA;
+    private String sugerenciaIA;
+
+    // ===== CONSTRUCTORES =====
+
     public Mensaje() {
     }
 
-    // Constructor que ya usas al crear desde MailService
     public Mensaje(String id, String remitente, String asunto, String cuerpo) {
         this.id = id;
         this.remitente = remitente;
@@ -106,14 +113,29 @@ public class Mensaje {
     public void setHtml(String html) {
         this.html = html;
     }
-    
-    private String resumenIA;
-    private String sugerenciaIA;
 
-    public String getResumenIA() { return resumenIA; }
-    public void setResumenIA(String resumenIA) { this.resumenIA = resumenIA; }
+    public String getResumenIA() {
+        return resumenIA;
+    }
 
-    public String getSugerenciaIA() { return sugerenciaIA; }
-    public void setSugerenciaIA(String sugerenciaIA) { this.sugerenciaIA = sugerenciaIA; }
+    public void setResumenIA(String resumenIA) {
+        this.resumenIA = resumenIA;
+    }
 
+    public String getSugerenciaIA() {
+        return sugerenciaIA;
+    }
+
+    public void setSugerenciaIA(String sugerenciaIA) {
+        this.sugerenciaIA = sugerenciaIA;
+    }
+
+    // ===== PARA LISTVIEW (opcional pero útil) =====
+
+    @Override
+    public String toString() {
+        String r = remitente != null ? remitente : "";
+        String a = asunto != null ? asunto : "";
+        return r + " - " + a;
+    }
 }

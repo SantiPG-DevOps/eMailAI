@@ -58,6 +58,10 @@ public class MainController {
     // Lo llama LoginController después de conectar
     public void setMailService(MailService mailService) throws Exception {
         this.mailService = mailService;
+
+        // Aplica tema por defecto después de tener la escena
+        aplicarTema(temaClaro);
+
         seleccionarCorreo();
     }
 
@@ -79,7 +83,7 @@ public class MainController {
             correoController = loader.getController();
             if (mailService != null) {
                 correoController.setMailService(mailService);
-                correoController.cargarBandejaEntradaAsync(); // solo primera vez
+                // cargarBandejaEntradaAsync ya se llama desde setMailService, no hace falta repetir
             }
         }
         centerPane.getChildren().setAll(vistaCorreo);
@@ -166,10 +170,12 @@ public class MainController {
 
         scene.getStylesheets().clear();
 
+        // CSS base siempre
         scene.getStylesheets().add(
                 AppFX.class.getResource("/styles-basic.css").toExternalForm()
         );
 
+        // Tema claro/oscuro
         if (light) {
             scene.getStylesheets().add(
                     AppFX.class.getResource("/styles-light.css").toExternalForm()

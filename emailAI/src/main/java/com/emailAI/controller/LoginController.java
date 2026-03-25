@@ -189,16 +189,16 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/main-view.fxml"));
             Scene mainScene = new Scene(loader.load());
 
+            // Aplica mismo tema que había en login
             aplicarTemaAScene(mainScene);
 
             MainController mainController = loader.getController();
             if (mainController != null) {
-                try {
-                    mainController.aplicarTema(temaClaro);
-                    mainController.setMailService(mailService);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                // Registrar mainController globalmente para que CorreoController/compose puedan leer el tema
+                AppFX.setMainController(mainController);
+
+                mainController.aplicarTema(temaClaro);
+                mainController.setMailService(mailService);
             }
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -207,7 +207,7 @@ public class LoginController {
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
-            statusLabel.setText("Error al conectar: " + e.getMessage());
+            statusLabel.setText("Error al abrir la ventana principal: " + e.getMessage());
         }
     }
 

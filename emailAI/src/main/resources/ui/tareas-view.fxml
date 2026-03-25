@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.TareasController">
+
+    <center>
+        <SplitPane dividerPositions="0.28">
+
+            <!-- COLUMNA IZQUIERDA: filtros + lista -->
+            <items>
+                <VBox spacing="10" minWidth="260">
+                    <padding>
+                        <Insets top="10" left="10" right="6" bottom="10"/>
+                    </padding>
+
+                    <!-- Bloque filtros (tres filas) -->
+                    <VBox spacing="6">
+
+                        <!-- Fila 1: Hoy / Mañana -->
+                        <HBox spacing="6">
+                            <children>
+                                <ToggleButton fx:id="btnHoy" text="Hoy"    onAction="#onFiltroHoy"    styleClass="task-filter-btn"/>
+                                <ToggleButton fx:id="btnManana" text="Mañana" onAction="#onFiltroManana" styleClass="task-filter-btn"/>
+                            </children>
+                        </HBox>
+
+                        <!-- Fila 2: Semana / Mes -->
+                        <HBox spacing="6">
+                            <children>
+                                <ToggleButton fx:id="btnSemana" text="Semana" onAction="#onFiltroSemana" styleClass="task-filter-btn"/>
+                                <ToggleButton fx:id="btnMes" text="Mes"       onAction="#onFiltroMes"    styleClass="task-filter-btn"/>
+                            </children>
+                        </HBox>
+
+                        <!-- Fila 3: Planificado / Etiquetas -->
+                        <HBox spacing="6">
+                            <children>
+                                <ToggleButton fx:id="btnPlanificado" text="Planificado" onAction="#onFiltroPlanificado" styleClass="task-filter-btn"/>
+                                <ToggleButton fx:id="btnEtiquetas"   text="Etiquetas"   onAction="#onFiltroEtiquetas"   styleClass="task-filter-btn"/>
+                            </children>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Cabecera lista + botón Nueva/Borrar -->
+                    <HBox spacing="6">
+                        <children>
+                            <Label text="Bandeja de tareas" styleClass="section-label"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Button text="Nueva"  onAction="#onNuevaTarea"  styleClass="small-button"/>
+                            <Button text="Borrar" onAction="#onBorrarTarea" styleClass="small-button"/>
+                        </children>
+                    </HBox>
+
+                    <!-- Lista de tareas (tarjetas) -->
+                    <ListView fx:id="lstTareas" VBox.vgrow="ALWAYS"/>
+
+                </VBox>
+
+                <!-- COLUMNA DERECHA: timeline por días -->
+                <VBox spacing="8" minWidth="400">
+                    <padding>
+                        <Insets top="10" left="6" right="10" bottom="10"/>
+                    </padding>
+
+                    <Label text="Calendario de tareas" styleClass="section-label"/>
+
+                    <!-- Lista de días con tareas (solo lectura) -->
+                    <ListView fx:id="lstDias" VBox.vgrow="ALWAYS"/>
+
+                    <!-- Pie: integraciones (placeholder) -->
+                    <VBox spacing="4">
+                        <Label text="Integraciones (pendiente implementar)" styleClass="label-secondary"/>
+                        <HBox spacing="8">
+                            <children>
+                                <Label text="Todoist" styleClass="label-secondary"/>
+                                <Label text="·" styleClass="label-secondary"/>
+                                <Label text="Calendario" styleClass="label-secondary"/>
+                            </children>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </items>
+        </SplitPane>
+    </center>
+
+</BorderPane>

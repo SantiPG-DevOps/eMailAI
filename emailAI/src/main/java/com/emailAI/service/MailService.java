@@ -1,11 +1,12 @@
 package com.emailAI.service;
 
-import com.emailAI.ia.GestorModelos;
 import com.emailAI.model.Mensaje;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import weka.core.WekaException;
 
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,9 @@ public class MailService {
 
     // IA LLM opcional
     private IAAsistenteService iaAsistenteService;
+
+    // IA clásica (Weka)
+    private SpamIaService spamIaService;
 
     public MailService() {
     }
@@ -61,6 +65,15 @@ public class MailService {
 
         // de momento usamos el email como hash de cuenta
         this.cuentaHash = user;
+
+        // directorio para modelos por cuenta (carpeta "modelos" en el directorio de trabajo)
+        Path modelosDir = Path.of("modelos");
+        try {
+            this.spamIaService = new SpamIaService(modelosDir);
+        } catch (Exception e) {
+            System.err.println("No se pudo inicializar SpamIaService: " + e.getMessage());
+            this.spamIaService = null;
+        }
     }
 
     // ========================= Bandeja de entrada =========================
@@ -111,22 +124,34 @@ public class MailService {
             mensajeObj.setHtml(html);
             mensajeObj.setCuentaHash(cuentaHash);
 
+            // ========== IA clásica (Weka) ==========
             try {
-                String categoria = GestorModelos.clasificarSpam(mensajeObj);
-                mensajeObj.setCategoria(categoria);
+                if (spamIaService != null) {
+                    SpamIaService.ClaseCorreo clase = spamIaService.clasificar(cuentaHash, mensajeObj);
+                    String categoria = clase.name(); // LEGITIMO / SPAM / PHISHING
+                    mensajeObj.setCategoria(categoria);
 
-                if (!"SPAM".equalsIgnoreCase(categoria)) {
-                    String prioridad = GestorModelos.clasificarPrioridad(mensajeObj);
-                    mensajeObj.setPrioridad(prioridad);
+                    if (!"SPAM".equalsIgnoreCase(categoria)) {
+                        // de momento prioridad simple; luego afinamos
+                        mensajeObj.setPrioridad("NORMAL");
+                    } else {
+                        mensajeObj.setPrioridad("NORMAL");
+                    }
                 } else {
+                    mensajeObj.setCategoria("DESCONOCIDO");
                     mensajeObj.setPrioridad("NORMAL");
                 }
+            } catch (WekaException we) {
+                System.err.println("Modelo Weka aún no entrenado, marcando como LEGITIMO por defecto.");
+                mensajeObj.setCategoria("LEGITIMO");
+                mensajeObj.setPrioridad("NORMAL");
             } catch (Exception e) {
                 System.err.println("Error procesando IA clásica para mensaje " + id + ": " + e.getMessage());
                 mensajeObj.setCategoria("DESCONOCIDO");
                 mensajeObj.setPrioridad("NORMAL");
             }
 
+            // ========== IA LLM opcional ==========
             if (iaAsistenteService != null) {
                 try {
                     String resumen = iaAsistenteService.generarResumen(cuerpo);
@@ -266,5 +291,9 @@ public class MailService {
 
     public String getImapHost() {
         return imapHost;
+    }
+    
+    public SpamIaService getSpamIaService() {
+        return spamIaService;
     }
 }

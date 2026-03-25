@@ -1,0 +1,235 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOTareas;
+import com.emailAI.model.Tarea;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Predicate;
+
+public class TareasController {
+
+    @FXML private ListView<Tarea> lstTareas;
+    @FXML private ListView<String> lstDias;
+
+    @FXML private ToggleButton btnHoy;
+    @FXML private ToggleButton btnManana;
+    @FXML private ToggleButton btnSemana;
+    @FXML private ToggleButton btnMes;
+    @FXML private ToggleButton btnPlanificado;
+    @FXML private ToggleButton btnEtiquetas;
+
+    private DAOTareas daoTareas;
+    private final ObservableList<Tarea> modeloTareas = FXCollections.observableArrayList();
+    private FilteredList<Tarea> tareasFiltradas;
+
+    @FXML
+    private void initialize() {
+        daoTareas = new DAOTareas("jdbc:sqlite:emailAI.db");
+
+        tareasFiltradas = new FilteredList<>(modeloTareas, t -> true);
+        lstTareas.setItems(tareasFiltradas);
+
+        // Tarjetas tipo contactos
+        lstTareas.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Tarea t, boolean empty) {
+                super.updateItem(t, empty);
+
+                if (empty || t == null) {
+                    setText(null);
+                    setGraphic(null);
+                    getStyleClass().removeAll("contact-card-cell");
+                    return;
+                }
+
+                HBox root = new HBox(10);
+                root.getStyleClass().add("contact-card");
+                root.setPickOnBounds(false);
+
+                VBox left = new VBox(2);
+                String titulo = t.getTitulo() != null ? t.getTitulo() : "";
+                String etiquetas = t.getEtiquetas() != null ? t.getEtiquetas() : "";
+
+                Label lblTitulo = new Label(titulo);
+                lblTitulo.getStyleClass().add("contact-name");
+
+                Label lblEti = new Label(etiquetas);
+                lblEti.getStyleClass().add("contact-email");
+
+                left.getChildren().add(lblTitulo);
+                if (!etiquetas.isBlank()) {
+                    left.getChildren().add(lblEti);
+                }
+
+                String fechaStr = t.getFechaVencimiento() != null ? t.getFechaVencimiento().toString() : "";
+                Label lblFecha = new Label(fechaStr);
+                lblFecha.getStyleClass().add("contact-phone");
+
+                HBox.setHgrow(left, Priority.ALWAYS);
+
+                root.getChildren().addAll(left, lblFecha);
+
+                setText(null);
+                setGraphic(root);
+
+                getStyleClass().removeAll("contact-card-cell");
+                getStyleClass().add("contact-card-cell");
+            }
+        });
+
+        lstTareas.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> { /* si quieres abrir dialog al hacer doble click más adelante */ }
+        );
+
+        cargarTareas();
+    }
+
+    private void cargarTareas() {
+        List<Tarea> lista = daoTareas.listarTodas();
+        modeloTareas.setAll(lista);
+        actualizarTimelineDias();
+    }
+
+    private void actualizarTimelineDias() {
+        // agrupamos tareas por fecha
+        Map<LocalDate, List<Tarea>> mapa = new TreeMap<>();
+        for (Tarea t : modeloTareas) {
+            LocalDate f = t.getFechaVencimiento();
+            if (f == null) continue;
+            mapa.computeIfAbsent(f, k -> new ArrayList<>()).add(t);
+        }
+
+        List<String> lineas = new ArrayList<>();
+        for (Map.Entry<LocalDate, List<Tarea>> e : mapa.entrySet()) {
+            LocalDate fecha = e.getKey();
+            List<Tarea> tareasDia = e.getValue();
+            lineas.add(fecha.toString() + " (" + tareasDia.size() + " tareas)");
+            for (Tarea t : tareasDia) {
+                lineas.add("  • " + t.getTitulo());
+            }
+            lineas.add(""); // línea en blanco entre días
+        }
+
+        lstDias.setItems(FXCollections.observableArrayList(lineas));
+    }
+
+    // ================== CRUD via dialog ==================
+
+    @FXML
+    private void onNuevaTarea() {
+        Tarea nueva = mostrarDialogoTarea(null);
+        if (nueva != null) {
+            daoTareas.guardarOActualizar(nueva);
+            modeloTareas.add(nueva);
+            actualizarTimelineDias();
+        }
+    }
+
+    @FXML
+    private void onBorrarTarea() {
+        Tarea seleccionada = lstTareas.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) {
+            return;
+        }
+        daoTareas.borrar(seleccionada);
+        modeloTareas.remove(seleccionada);
+        actualizarTimelineDias();
+    }
+
+    private Tarea mostrarDialogoTarea(Tarea original) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/ui/tarea-dialog.fxml")
+            );
+            Scene scene = new Scene(loader.load());
+
+            // heredar estilos de la escena principal
+            Scene mainScene = lstTareas.getScene();
+            if (mainScene != null) {
+                scene.getStylesheets().addAll(mainScene.getStylesheets());
+            }
+
+            TareaDialogController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.setTitle(original == null ? "Nueva tarea" : "Editar tarea");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+
+            controller.setStage(stage);
+            controller.inicializarEstados();
+            controller.setTarea(original);
+
+            stage.showAndWait();
+
+            if (controller.isGuardado()) {
+                return controller.getTarea();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // ================== Filtros ==================
+
+    @FXML private void onFiltroHoy()         { actualizarFiltro(); }
+    @FXML private void onFiltroManana()      { actualizarFiltro(); }
+    @FXML private void onFiltroSemana()      { actualizarFiltro(); }
+    @FXML private void onFiltroMes()         { actualizarFiltro(); }
+    @FXML private void onFiltroPlanificado() { actualizarFiltro(); }
+    @FXML private void onFiltroEtiquetas()   { actualizarFiltro(); }
+
+    private void actualizarFiltro() {
+        if (!btnHoy.isSelected() && !btnManana.isSelected() &&
+            !btnSemana.isSelected() && !btnMes.isSelected() &&
+            !btnPlanificado.isSelected() && !btnEtiquetas.isSelected()) {
+            tareasFiltradas.setPredicate(t -> true);
+            return;
+        }
+        tareasFiltradas.setPredicate(this::cumpleFiltros);
+    }
+
+    private boolean cumpleFiltros(Tarea t) {
+        LocalDate f = t.getFechaVencimiento();
+
+        if (btnHoy.isSelected()) {
+            if (f == null || !f.equals(LocalDate.now())) return false;
+        }
+        if (btnManana.isSelected()) {
+            if (f == null || !f.equals(LocalDate.now().plusDays(1))) return false;
+        }
+        if (btnSemana.isSelected()) {
+            if (f == null) return false;
+            LocalDate hoy = LocalDate.now();
+            LocalDate finSemana = hoy.plusDays(7);
+            if (f.isBefore(hoy) || f.isAfter(finSemana)) return false;
+        }
+        if (btnMes.isSelected()) {
+            if (f == null) return false;
+            LocalDate hoy = LocalDate.now();
+            if (f.getYear() != hoy.getYear() || f.getMonth() != hoy.getMonth()) return false;
+        }
+        if (btnPlanificado.isSelected()) {
+            if (f == null) return false;
+        }
+        if (btnEtiquetas.isSelected()) {
+            String et = t.getEtiquetas();
+            if (et == null || et.isBlank()) return false;
+        }
+        return true;
+    }
+}

@@ -1,0 +1,257 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOTareas;
+import com.emailAI.model.Tarea;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.function.Predicate;
+
+public class TareasController {
+
+    @FXML private ListView<Tarea> lstTareas;
+
+    @FXML private ToggleButton btnHoy;
+    @FXML private ToggleButton btnManana;
+    @FXML private ToggleButton btnSemana;
+    @FXML private ToggleButton btnMes;
+    @FXML private ToggleButton btnPlanificado;
+    @FXML private ToggleButton btnEtiquetas;
+
+    @FXML private TextField txtTitulo;
+    @FXML private DatePicker dpFecha;
+    @FXML private ComboBox<String> cmbEstado;
+    @FXML private TextField txtEtiquetas;
+    @FXML private TextArea txtDescripcion;
+    @FXML private Label lblEstado;
+
+    private DAOTareas daoTareas;
+    private final ObservableList<Tarea> modeloTareas = FXCollections.observableArrayList();
+    private FilteredList<Tarea> tareasFiltradas;
+
+    @FXML
+    private void initialize() {
+        daoTareas = new DAOTareas("jdbc:sqlite:emailAI.db");
+
+        // Estados básicos
+        cmbEstado.setItems(FXCollections.observableArrayList(
+                "PENDIENTE", "EN_PROGRESO", "COMPLETADA"
+        ));
+        cmbEstado.getSelectionModel().selectFirst();
+
+        // Lista + filtro
+        tareasFiltradas = new FilteredList<>(modeloTareas, t -> true);
+        lstTareas.setItems(tareasFiltradas);
+
+        // Tarjetas estilo contactos
+        lstTareas.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Tarea t, boolean empty) {
+                super.updateItem(t, empty);
+
+                if (empty || t == null) {
+                    setText(null);
+                    setGraphic(null);
+                    getStyleClass().removeAll("contact-card-cell");
+                    return;
+                }
+
+                HBox root = new HBox(10);
+                root.getStyleClass().add("contact-card");
+                root.setPickOnBounds(false);
+
+                VBox left = new VBox(2);
+                String titulo = t.getTitulo() != null ? t.getTitulo() : "";
+                String etiquetas = t.getEtiquetas() != null ? t.getEtiquetas() : "";
+
+                Label lblTitulo = new Label(titulo);
+                lblTitulo.getStyleClass().add("contact-name");
+
+                Label lblEti = new Label(etiquetas);
+                lblEti.getStyleClass().add("contact-email");
+
+                left.getChildren().add(lblTitulo);
+                if (!etiquetas.isBlank()) {
+                    left.getChildren().add(lblEti);
+                }
+
+                String fechaStr = t.getFechaVencimiento() != null ? t.getFechaVencimiento().toString() : "";
+                Label lblFecha = new Label(fechaStr);
+                lblFecha.getStyleClass().add("contact-phone");
+
+                HBox.setHgrow(left, Priority.ALWAYS);
+
+                root.getChildren().addAll(left, lblFecha);
+
+                setText(null);
+                setGraphic(root);
+
+                getStyleClass().removeAll("contact-card-cell");
+                getStyleClass().add("contact-card-cell");
+            }
+        });
+
+        lstTareas.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> mostrarTarea(newSel)
+        );
+
+        cargarTareas();
+    }
+
+    private void cargarTareas() {
+        List<Tarea> lista = daoTareas.listarTodas();
+        modeloTareas.setAll(lista);
+        if (!modeloTareas.isEmpty()) {
+            lstTareas.getSelectionModel().selectFirst();
+        } else {
+            limpiarFormulario();
+        }
+    }
+
+    private void mostrarTarea(Tarea t) {
+        if (t == null) {
+            limpiarFormulario();
+            return;
+        }
+        txtTitulo.setText(t.getTitulo());
+        txtDescripcion.setText(t.getDescripcion());
+        dpFecha.setValue(t.getFechaVencimiento());
+        if (t.getEstado() != null && cmbEstado.getItems().contains(t.getEstado())) {
+            cmbEstado.getSelectionModel().select(t.getEstado());
+        } else {
+            cmbEstado.getSelectionModel().selectFirst();
+        }
+        txtEtiquetas.setText(t.getEtiquetas());
+        lblEstado.setText("");
+    }
+
+    private void limpiarFormulario() {
+        txtTitulo.clear();
+        txtDescripcion.clear();
+        dpFecha.setValue(null);
+        if (!cmbEstado.getItems().isEmpty()) {
+            cmbEstado.getSelectionModel().selectFirst();
+        }
+        txtEtiquetas.clear();
+        lblEstado.setText("");
+    }
+
+    // ================== Acciones CRUD ==================
+
+    @FXML
+    private void onNuevaTarea() {
+        lstTareas.getSelectionModel().clearSelection();
+        limpiarFormulario();
+    }
+
+    @FXML
+    private void onGuardarTarea() {
+        String titulo = txtTitulo.getText();
+        if (titulo == null || titulo.isBlank()) {
+            lblEstado.setText("El título es obligatorio.");
+            return;
+        }
+
+        Tarea seleccionada = lstTareas.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) {
+            Tarea nueva = new Tarea(
+                    null,
+                    titulo.trim(),
+                    safe(txtDescripcion.getText()),
+                    dpFecha.getValue(),
+                    cmbEstado.getValue(),
+                    safe(txtEtiquetas.getText())
+            );
+            daoTareas.guardarOActualizar(nueva);
+            modeloTareas.add(nueva);
+            lstTareas.getSelectionModel().select(nueva);
+            lblEstado.setText("Tarea creada.");
+        } else {
+            seleccionada.setTitulo(titulo.trim());
+            seleccionada.setDescripcion(safe(txtDescripcion.getText()));
+            seleccionada.setFechaVencimiento(dpFecha.getValue());
+            seleccionada.setEstado(cmbEstado.getValue());
+            seleccionada.setEtiquetas(safe(txtEtiquetas.getText()));
+
+            daoTareas.guardarOActualizar(seleccionada);
+            lstTareas.refresh();
+            lblEstado.setText("Tarea actualizada.");
+        }
+    }
+
+    @FXML
+    private void onBorrarTarea() {
+        Tarea seleccionada = lstTareas.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) {
+            lblEstado.setText("Selecciona una tarea para borrar.");
+            return;
+        }
+        daoTareas.borrar(seleccionada);
+        modeloTareas.remove(seleccionada);
+        limpiarFormulario();
+        lblEstado.setText("Tarea borrada.");
+    }
+
+    // ================== Filtros ==================
+
+    @FXML private void onFiltroHoy()         { actualizarFiltro(); }
+    @FXML private void onFiltroManana()      { actualizarFiltro(); }
+    @FXML private void onFiltroSemana()      { actualizarFiltro(); }
+    @FXML private void onFiltroMes()         { actualizarFiltro(); }
+    @FXML private void onFiltroPlanificado() { actualizarFiltro(); }
+    @FXML private void onFiltroEtiquetas()   { actualizarFiltro(); }
+
+    private void actualizarFiltro() {
+        // Si no hay ningún botón activo, mostramos todo
+        if (!btnHoy.isSelected() && !btnManana.isSelected() &&
+            !btnSemana.isSelected() && !btnMes.isSelected() &&
+            !btnPlanificado.isSelected() && !btnEtiquetas.isSelected()) {
+            tareasFiltradas.setPredicate(t -> true);
+            return;
+        }
+
+        tareasFiltradas.setPredicate(this::cumpleFiltros);
+    }
+
+    private boolean cumpleFiltros(Tarea t) {
+        LocalDate f = t.getFechaVencimiento();
+
+        if (btnHoy.isSelected()) {
+            if (f == null || !f.equals(LocalDate.now())) return false;
+        }
+        if (btnManana.isSelected()) {
+            if (f == null || !f.equals(LocalDate.now().plusDays(1))) return false;
+        }
+        if (btnSemana.isSelected()) {
+            if (f == null) return false;
+            LocalDate hoy = LocalDate.now();
+            LocalDate finSemana = hoy.plusDays(7);
+            if (f.isBefore(hoy) || f.isAfter(finSemana)) return false;
+        }
+        if (btnMes.isSelected()) {
+            if (f == null) return false;
+            LocalDate hoy = LocalDate.now();
+            if (f.getYear() != hoy.getYear() || f.getMonth() != hoy.getMonth()) return false;
+        }
+        if (btnPlanificado.isSelected()) {
+            if (f == null) return false;
+        }
+        if (btnEtiquetas.isSelected()) {
+            String et = t.getEtiquetas();
+            if (et == null || et.isBlank()) return false;
+        }
+        return true;
+    }
+
+    private String safe(String s) {
+        return s != null ? s.trim() : "";
+    }
+}

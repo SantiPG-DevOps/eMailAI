@@ -303,6 +303,7 @@
     -fx-background-color: #22D3EE55;   /* azul translúcido */
     -fx-border-color: #22D3EE;
 }
+
 /* Tarjeta SPAM */
 .list-cell.message-card-spam {
     -fx-background-color: #1F2933;
@@ -319,3 +320,35 @@
     -fx-border-radius: 8;
 }
 
+/* ========= CONTACTOS ========= */
+
+.list-cell.contact-card-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F1F5F9;
+}
+
+.contact-card {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.list-cell:filled:selected .contact-card,
+.list-cell:filled:selected:focused .contact-card {
+    -fx-background-color: #38BDF8;
+    -fx-border-color: #0F172A;
+}
+
+.contact-name {
+    -fx-text-fill: #F1F5F9;
+}
+
+.contact-email {
+    -fx-text-fill: #94A3B8;
+}
+
+.contact-phone {
+    -fx-text-fill: #F1F5F9;
+}

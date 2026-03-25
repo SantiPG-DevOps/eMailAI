@@ -1,0 +1,150 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOContactos;
+import com.emailAI.model.Contacto;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+
+import java.util.List;
+
+public class ContactosController {
+
+    @FXML
+    private ListView<Contacto> lstContactos;
+
+    @FXML
+    private TextField txtNombre;
+
+    @FXML
+    private TextField txtEmail;
+
+    @FXML
+    private TextField txtTelefono;
+
+    @FXML
+    private TextArea txtNotas;
+
+    @FXML
+    private Label lblEstado;
+
+    private DAOContactos daoContactos;
+    private final ObservableList<Contacto> modeloContactos = FXCollections.observableArrayList();
+
+    @FXML
+    private void initialize() {
+        daoContactos = new DAOContactos("jdbc:sqlite:emailAI.db");
+
+        lstContactos.setItems(modeloContactos);
+        lstContactos.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Contacto c, boolean empty) {
+                super.updateItem(c, empty);
+                if (empty || c == null) {
+                    setText(null);
+                } else {
+                    String nombre = c.getNombre() != null ? c.getNombre() : "";
+                    String email  = c.getEmail() != null ? c.getEmail() : "";
+                    setText(nombre + (email.isBlank() ? "" : "\n" + email));
+                }
+            }
+        });
+
+        lstContactos.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> mostrarContacto(newSel)
+        );
+
+        cargarContactos();
+    }
+
+    private void cargarContactos() {
+        List<Contacto> lista = daoContactos.listarTodos();
+        modeloContactos.setAll(lista);
+        if (!modeloContactos.isEmpty()) {
+            lstContactos.getSelectionModel().selectFirst();
+        } else {
+            limpiarFormulario();
+        }
+    }
+
+    private void mostrarContacto(Contacto c) {
+        if (c == null) {
+            limpiarFormulario();
+            return;
+        }
+        txtNombre.setText(c.getNombre());
+        txtEmail.setText(c.getEmail());
+        txtTelefono.setText(c.getTelefono());
+        txtNotas.setText(c.getNotas());
+        lblEstado.setText("");
+    }
+
+    private void limpiarFormulario() {
+        txtNombre.clear();
+        txtEmail.clear();
+        txtTelefono.clear();
+        txtNotas.clear();
+        lblEstado.setText("");
+    }
+
+    // ================== Acciones ==================
+
+    @FXML
+    private void onNuevoContacto() {
+        lstContactos.getSelectionModel().clearSelection();
+        limpiarFormulario();
+    }
+
+    @FXML
+    private void onGuardarContacto() {
+        String nombre = txtNombre.getText();
+        if (nombre == null || nombre.isBlank()) {
+            lblEstado.setText("El nombre es obligatorio.");
+            return;
+        }
+
+        Contacto seleccionado = lstContactos.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) {
+            // nuevo
+            Contacto nuevo = new Contacto(
+                    null,
+                    nombre.trim(),
+                    safe(txtEmail.getText()),
+                    safe(txtTelefono.getText()),
+                    safe(txtNotas.getText())
+            );
+            daoContactos.guardarOActualizar(nuevo);
+            modeloContactos.add(nuevo);
+            lstContactos.getSelectionModel().select(nuevo);
+            lblEstado.setText("Contacto creado.");
+        } else {
+            // actualizar
+            seleccionado.setNombre(nombre.trim());
+            seleccionado.setEmail(safe(txtEmail.getText()));
+            seleccionado.setTelefono(safe(txtTelefono.getText()));
+            seleccionado.setNotas(safe(txtNotas.getText()));
+
+            daoContactos.guardarOActualizar(seleccionado);
+            lstContactos.refresh();
+            lblEstado.setText("Contacto actualizado.");
+        }
+    }
+
+    @FXML
+    private void onBorrarContacto() {
+        Contacto seleccionado = lstContactos.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) {
+            lblEstado.setText("Selecciona un contacto para borrar.");
+            return;
+        }
+        daoContactos.borrar(seleccionado);
+        modeloContactos.remove(seleccionado);
+        limpiarFormulario();
+        lblEstado.setText("Contacto borrado.");
+    }
+
+    private String safe(String s) {
+        return s != null ? s.trim() : "";
+    }
+}

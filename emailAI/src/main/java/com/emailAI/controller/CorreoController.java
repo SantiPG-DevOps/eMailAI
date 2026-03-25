@@ -1,16 +1,24 @@
 package com.emailAI.controller;
 
+import com.emailAI.AppFX;
 import com.emailAI.dao.DAOMensajes;
 import com.emailAI.model.Mensaje;
 import com.emailAI.service.MailService;
+import com.emailAI.service.SpamIaService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class CorreoController {
 
@@ -22,6 +30,12 @@ public class CorreoController {
 
     @FXML
     private Label lblRemitente;
+
+    @FXML
+    private Label lblEstadoApp;
+
+    @FXML
+    private Label lblEstadoIA;
 
     @FXML
     private WebView webViewCuerpo;
@@ -57,6 +71,7 @@ public class CorreoController {
     private Button btnBorrarSeleccionado;
 
     private MailService mailService;
+    private SpamIaService spamIaService;
     private DAOMensajes daoMensajes;
     private String cuentaHash;
 
@@ -83,7 +98,8 @@ public class CorreoController {
                 setText(remitente + "\n" + asunto);
 
                 getStyleClass().removeAll("message-card", "message-card-spam");
-                if ("SPAM".equalsIgnoreCase(msg.getCategoria())) {
+                if ("SPAM".equalsIgnoreCase(msg.getCategoria())
+                        || "PHISHING".equalsIgnoreCase(msg.getCategoria())) {
                     getStyleClass().add("message-card-spam");
                 } else {
                     getStyleClass().add("message-card");
@@ -101,8 +117,8 @@ public class CorreoController {
         this.mailService = mailService;
         if (mailService != null) {
             this.cuentaHash = mailService.getCuentaHash();
+            this.spamIaService = mailService.getSpamIaService();
 
-            // Usa la BD en el directorio del proyecto (mismo que estás abriendo en DBeaver)
             String url = "jdbc:sqlite:emailAI.db";
             this.daoMensajes = new DAOMensajes(url);
 
@@ -222,35 +238,102 @@ public class CorreoController {
         }
     }
 
+    // ================== COMPOSE WINDOW ==================
+
+    private void abrirVentanaCompose(Consumer<ComposeController> init) {
+        try {
+            var url = getClass().getResource("/ui/compose-view.fxml");
+            if (url == null) {
+                System.err.println("No se encontró /ui/compose-view.fxml en el classpath");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Scene scene = new Scene(loader.load());
+
+            // Aplicar tema según MainController registrado en AppFX
+            MainController main = AppFX.getMainController();
+            if (main != null) {
+                scene.getStylesheets().clear();
+                scene.getStylesheets().add(
+                        AppFX.class.getResource("/styles-basic.css").toExternalForm()
+                );
+                if (main.isTemaClaro()) {
+                    scene.getStylesheets().add(
+                            AppFX.class.getResource("/styles-light.css").toExternalForm()
+                    );
+                } else {
+                    scene.getStylesheets().add(
+                            AppFX.class.getResource("/styles-dark.css").toExternalForm()
+                    );
+                }
+            } else {
+                // Fallback: copiar estilos de la escena donde está la lista
+                Scene mainScene = lstMensajes.getScene();
+                if (mainScene != null) {
+                    scene.getStylesheets().clear();
+                    scene.getStylesheets().addAll(mainScene.getStylesheets());
+                }
+            }
+
+            ComposeController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.setTitle("Redactar correo");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+
+            controller.setMailService(mailService);
+            controller.setStage(stage);
+
+            if (init != null) {
+                init.accept(controller);
+            }
+
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // ================== ACCIONES DE CORREO ==================
 
     @FXML
     private void onRedactar() {
-        // pendiente compose
+        if (mailService == null) return;
+        abrirVentanaCompose(ComposeController::inicializarNuevo);
     }
 
     @FXML
     private void onActualizarBandeja() {
-        cargarDesdeBD();            // muestra lo último guardado
-        cargarBandejaEntradaAsync(); // luego sincroniza con IMAP
+        cargarDesdeBD();
+        cargarBandejaEntradaAsync();
     }
 
     @FXML
     private void onResponder() {
+        if (mailService == null) return;
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
         if (seleccionado == null) return;
+
+        abrirVentanaCompose(c -> c.inicializarResponder(seleccionado));
     }
 
     @FXML
     private void onResponderTodos() {
+        if (mailService == null) return;
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
         if (seleccionado == null) return;
+
+        abrirVentanaCompose(c -> c.inicializarResponderTodos(seleccionado));
     }
 
     @FXML
     private void onReenviar() {
+        if (mailService == null) return;
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
         if (seleccionado == null) return;
+
+        abrirVentanaCompose(c -> c.inicializarReenviar(seleccionado));
     }
 
     @FXML
@@ -269,11 +352,68 @@ public class CorreoController {
         }
     }
 
-    // ================== IA (placeholder) ==================
+    // ================== IA: MARCAR SPAM / LEGÍTIMO ==================
 
-    @FXML private void onReentrenarModelo() {}
-    @FXML private void onMarcarSpam() {}
-    @FXML private void onMarcarLegitimo() {}
+    @FXML
+    private void onMarcarSpam() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null || daoMensajes == null) return;
+
+        seleccionado.setCategoria("SPAM");
+        seleccionado.setPrioridad("NORMAL");
+
+        lstMensajes.refresh();
+
+        entrenarConEjemplos();
+    }
+
+    @FXML
+    private void onMarcarLegitimo() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null || daoMensajes == null) return;
+
+        seleccionado.setCategoria("LEGITIMO");
+        seleccionado.setPrioridad("NORMAL");
+
+        lstMensajes.refresh();
+
+        entrenarConEjemplos();
+    }
+
+    @FXML
+    private void onReentrenarModelo() {
+        entrenarConEjemplos();
+    }
+
+    private void entrenarConEjemplos() {
+        if (spamIaService == null || daoMensajes == null || cuentaHash == null) return;
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                try {
+                    List<Mensaje> todos = daoMensajes.listarPorCuentaHash(cuentaHash);
+                    List<Mensaje> etiquetados = todos.stream()
+                            .filter(m -> m.getCategoria() != null &&
+                                         !m.getCategoria().isBlank() &&
+                                         !"DESCONOCIDO".equalsIgnoreCase(m.getCategoria()))
+                            .collect(Collectors.toList());
+
+                    spamIaService.entrenarModelo(cuentaHash, etiquetados);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+
+        Thread t = new Thread(task, "entrenar-spam-model");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ================== IA RESPUESTAS (placeholder) ==================
+
     @FXML private void onUsarRespuesta1() {}
     @FXML private void onUsarRespuesta2() {}
     @FXML private void onUsarRespuesta3() {}

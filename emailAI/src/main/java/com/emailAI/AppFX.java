@@ -1,5 +1,6 @@
 package com.emailAI;
 
+import com.emailAI.controller.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -7,16 +8,16 @@ import javafx.stage.Stage;
 
 public class AppFX extends Application {
 
+    private static MainController mainController;
+
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
         Scene scene = new Scene(loader.load(), 800, 650);
 
-        // Siempre cargamos primero el CSS básico
         scene.getStylesheets().add(
                 AppFX.class.getResource("/styles-basic.css").toExternalForm()
         );
-        // Tema por defecto: oscuro
         scene.getStylesheets().add(
                 AppFX.class.getResource("/styles-dark.css").toExternalForm()
         );
@@ -24,6 +25,14 @@ public class AppFX extends Application {
         stage.setTitle("Cliente de Correo IA - Login");
         stage.setScene(scene);
         stage.show();
+    }
+
+    public static void setMainController(MainController controller) {
+        mainController = controller;
+    }
+
+    public static MainController getMainController() {
+        return mainController;
     }
 
     public static void main(String[] args) {
