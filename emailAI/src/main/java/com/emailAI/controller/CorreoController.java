@@ -1,11 +1,16 @@
 package com.emailAI.controller;
 
+import com.emailAI.dao.DAOMensajes;
 import com.emailAI.model.Mensaje;
 import com.emailAI.service.MailService;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.web.WebView;
+
+import java.util.List;
 
 public class CorreoController {
 
@@ -52,21 +57,36 @@ public class CorreoController {
     private Button btnBorrarSeleccionado;
 
     private MailService mailService;
+    private DAOMensajes daoMensajes;
+    private String cuentaHash;
 
-    // ===================== Inicialización =====================
+    private final ObservableList<Mensaje> modeloMensajes = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
+        lstMensajes.setItems(modeloMensajes);
+
         lstMensajes.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Mensaje msg, boolean empty) {
                 super.updateItem(msg, empty);
+
                 if (empty || msg == null) {
                     setText(null);
+                    getStyleClass().removeAll("message-card", "message-card-spam");
+                    return;
+                }
+
+                String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
+                String asunto    = msg.getAsunto() != null ? msg.getAsunto() : "";
+
+                setText(remitente + "\n" + asunto);
+
+                getStyleClass().removeAll("message-card", "message-card-spam");
+                if ("SPAM".equalsIgnoreCase(msg.getCategoria())) {
+                    getStyleClass().add("message-card-spam");
                 } else {
-                    String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
-                    String asunto = msg.getAsunto() != null ? msg.getAsunto() : "";
-                    setText(remitente + " - " + asunto);
+                    getStyleClass().add("message-card");
                 }
             }
         });
@@ -76,41 +96,114 @@ public class CorreoController {
         );
     }
 
+    // Lo llama MainController después de crear la vista
     public void setMailService(MailService mailService) {
         this.mailService = mailService;
-        cargarBandejaEntrada();
+        if (mailService != null) {
+            this.cuentaHash = mailService.getCuentaHash();
+
+            // Usa la BD en el directorio del proyecto (mismo que estás abriendo en DBeaver)
+            String url = "jdbc:sqlite:emailAI.db";
+            this.daoMensajes = new DAOMensajes(url);
+
+            cargarDesdeBD();
+            cargarBandejaEntradaAsync();
+        }
     }
 
-    // ===================== Bandeja de entrada =====================
+    // ================== CARGA DESDE BD ==================
 
-    private void cargarBandejaEntrada() {
-        if (mailService == null) return;
-        try {
-            var mensajes = mailService.listInbox();
-            lstMensajes.setItems(FXCollections.observableArrayList(mensajes));
-            if (!mensajes.isEmpty()) {
-                lstMensajes.getSelectionModel().selectFirst();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            // aquí podrías mostrar un Alert si quieres
+    private void cargarDesdeBD() {
+        if (daoMensajes == null || cuentaHash == null) return;
+
+        List<Mensaje> lista = daoMensajes.listarPorCuentaHash(cuentaHash);
+        modeloMensajes.setAll(lista);
+
+        if (!modeloMensajes.isEmpty()) {
+            lstMensajes.getSelectionModel().selectFirst();
+        } else {
+            limpiarDetalle();
         }
+    }
+
+    // ================== CARGA DESDE IMAP (ASYNC) ==================
+
+    public void cargarBandejaEntradaAsync() {
+        if (mailService == null || daoMensajes == null || cuentaHash == null) return;
+
+        String uidSeleccionado = null;
+        Mensaje actual = lstMensajes.getSelectionModel().getSelectedItem();
+        if (actual != null) {
+            uidSeleccionado = actual.getUidImap();
+        }
+        final String uidSelFinal = uidSeleccionado;
+
+        Task<List<Mensaje>> task = new Task<>() {
+            @Override
+            protected List<Mensaje> call() {
+                try {
+                    List<Mensaje> mensajesImap = mailService.listInbox();
+                    daoMensajes.guardarOModificar(mensajesImap, cuentaHash);
+                    return mensajesImap;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        };
+
+        task.setOnSucceeded(ev -> {
+            List<Mensaje> nuevos = task.getValue();
+            if (nuevos == null) return;
+
+            modeloMensajes.setAll(nuevos);
+
+            if (uidSelFinal != null) {
+                for (Mensaje m : modeloMensajes) {
+                    if (uidSelFinal.equals(m.getUidImap())) {
+                        lstMensajes.getSelectionModel().select(m);
+                        return;
+                    }
+                }
+            }
+
+            if (!modeloMensajes.isEmpty()) {
+                lstMensajes.getSelectionModel().selectFirst();
+            } else {
+                limpiarDetalle();
+            }
+        });
+
+        task.setOnFailed(ev -> {
+            Throwable ex = task.getException();
+            if (ex != null) ex.printStackTrace();
+        });
+
+        Thread t = new Thread(task, "cargar-bandeja-imap");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ================== UI DETALLE ==================
+
+    private void limpiarDetalle() {
+        lblAsunto.setText("");
+        lblRemitente.setText("");
+        webViewCuerpo.getEngine().loadContent("");
+        txtCuerpo.clear();
     }
 
     private void mostrarMensaje(Mensaje msg) {
         if (msg == null) {
-            lblAsunto.setText("");
-            lblRemitente.setText("");
-            webViewCuerpo.getEngine().loadContent("");
-            txtCuerpo.clear();
+            limpiarDetalle();
             return;
         }
 
         lblAsunto.setText(msg.getAsunto());
         lblRemitente.setText(msg.getRemitente());
 
-        String html = msg.getHtml();
-        String texto = msg.getCuerpo();   // ajusta si tu getter se llama distinto
+        String html  = msg.getHtml();
+        String texto = msg.getCuerpo();
 
         if (html != null && !html.isBlank()) {
             webViewCuerpo.setVisible(true);
@@ -127,27 +220,25 @@ public class CorreoController {
             webViewCuerpo.setVisible(false);
             webViewCuerpo.setManaged(false);
         }
-
-        // aquí más adelante podrás actualizar sugerencias IA
     }
 
-    // ===================== Acciones de correo =====================
+    // ================== ACCIONES DE CORREO ==================
 
     @FXML
     private void onRedactar() {
-        // aquí abriremos compose-view.fxml cuando lo ataquemos
+        // pendiente compose
     }
 
     @FXML
     private void onActualizarBandeja() {
-        cargarBandejaEntrada();
+        cargarDesdeBD();            // muestra lo último guardado
+        cargarBandejaEntradaAsync(); // luego sincroniza con IMAP
     }
 
     @FXML
     private void onResponder() {
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
         if (seleccionado == null) return;
-        // lo implementamos cuando montemos la pantalla de redacción
     }
 
     @FXML
@@ -171,38 +262,20 @@ public class CorreoController {
 
         try {
             mailService.eliminarMensaje(seleccionado);
-            lstMensajes.getItems().remove(seleccionado);
-
-            lblAsunto.setText("");
-            lblRemitente.setText("");
-            webViewCuerpo.getEngine().loadContent("");
-            txtCuerpo.clear();
-
+            modeloMensajes.remove(seleccionado);
+            limpiarDetalle();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // ===================== IA (lo haremos después) =====================
+    // ================== IA (placeholder) ==================
 
-    @FXML
-    private void onReentrenarModelo() {}
-
-    @FXML
-    private void onMarcarSpam() {}
-
-    @FXML
-    private void onMarcarLegitimo() {}
-
-    @FXML
-    private void onUsarRespuesta1() {}
-
-    @FXML
-    private void onUsarRespuesta2() {}
-
-    @FXML
-    private void onUsarRespuesta3() {}
-
-    @FXML
-    private void onAnularSub() {}
+    @FXML private void onReentrenarModelo() {}
+    @FXML private void onMarcarSpam() {}
+    @FXML private void onMarcarLegitimo() {}
+    @FXML private void onUsarRespuesta1() {}
+    @FXML private void onUsarRespuesta2() {}
+    @FXML private void onUsarRespuesta3() {}
+    @FXML private void onAnularSub() {}
 }

@@ -1,0 +1,322 @@
+/* =========================
+   eMailAI - MODO OSCURO
+   Paleta de Santiago
+   ========================= */
+
+/* Fondo principal de la app */
+.root {
+    -fx-background-color: #0F172A;      /* Fondo Principal */
+    -fx-base: #0F172A;
+    -fx-text-fill: #F1F5F9;             /* Texto Principal */
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+}
+
+/* ========= CONTENEDORES Y PANELES ========= */
+
+.main-background {
+    -fx-background-color: #0F172A;
+}
+
+.sidebar {
+    -fx-background-color: #1E293B;      /* Fondo Secundario */
+}
+
+.card {
+    -fx-background-color: #1E293B;      /* Fondo Secundario */
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #334155;          /* Fondo Elevado como borde */
+    -fx-border-width: 1;
+}
+
+.elevated {
+    -fx-background-color: #334155;      /* Fondo Elevado */
+    -fx-background-radius: 16;
+}
+
+.top-bar {
+    -fx-background-color: #1E293B;
+}
+
+.ia-panel {
+    -fx-background-color: #1E293B;
+    -fx-background-radius: 10;
+    -fx-padding: 8 10 8 10;
+}
+
+/* ========= TEXTOS ========= */
+
+.label {
+    -fx-text-fill: #F1F5F9;
+}
+
+.label-secondary {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 12px;
+}
+
+.section-label {
+    -fx-text-fill: #F1F5F9;
+    -fx-font-weight: bold;
+}
+
+.message-subject {
+    -fx-text-fill: #38BDF8;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-max-width: 400;
+}
+
+.status-label {
+    -fx-text-fill: #22D3EE;
+    -fx-font-size: 12px;
+}
+
+/* ========= CAMPOS DE TEXTO ========= */
+
+.text-field {
+    -fx-background-color: #0F172A;
+    -fx-control-inner-background: #0F172A;
+    -fx-text-fill: #F1F5F9;
+    -fx-prompt-text-fill: #94A3B8;
+    -fx-border-color: #334155;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.text-field:focused {
+    -fx-border-color: #22D3EE;
+}
+
+.text-area {
+    -fx-control-inner-background: #0F172A;
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #F1F5F9;
+    -fx-border-color: #334155;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+/* ========= LISTA DE MENSAJES ========= */
+
+.list-view {
+    -fx-background-color: #0F172A;
+    -fx-control-inner-background: #1E293B;
+    -fx-text-fill: #F1F5F9;
+    -fx-padding: 4;
+}
+
+.list-cell.message-card {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #F1F5F9;
+    -fx-padding: 6 10 6 10;
+}
+
+.list-cell:empty {
+    -fx-background-color: transparent;
+}
+
+.list-cell.message-card:selected {
+    -fx-background-color: #38BDF8;
+    -fx-text-fill: #0F172A;
+}
+
+.list-cell.message-card.footer {
+    -fx-background-color: #334155;
+    -fx-text-fill: #F1F5F9;
+}
+
+/* ========= BOTONES GENERALES ========= */
+
+.button {
+    -fx-background-color: #22D3EE;
+    -fx-text-fill: #0F172A;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-border-color: transparent;
+}
+
+.button:hover {
+    -fx-background-color: #67E8F9;
+}
+
+/* Botones pequeños tipo "Enviar/Recibir" */
+.small-button {
+    -fx-font-size: 11px;
+    -fx-padding: 4 10 4 10;
+}
+
+/* ========= BOTONES DE ACCIÓN ========= */
+
+.action-button {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #F1F5F9;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #22D3EE;
+    -fx-border-width: 1;
+    -fx-pref-height: 28;
+    -fx-min-height: 28;
+    -fx-max-height: 28;
+    -fx-pref-width: 70;
+    -fx-min-width: 70;
+    -fx-max-width: 70;
+    -fx-font-size: 11px;
+    -fx-padding: 2 8 2 8;
+}
+
+.action-button:hover {
+    -fx-background-color: #334155;
+}
+
+/* ========= BOTONES CHIPS IA ========= */
+
+.chip {
+    -fx-background-color: #22D3EE;
+    -fx-text-fill: #0F172A;
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+    -fx-font-size: 11px;
+    -fx-padding: 4 12 4 12;
+    -fx-wrap-text: true;
+    -fx-pref-height: 30;
+    -fx-min-width: 120;
+}
+
+.chip:hover {
+    -fx-background-color: #67E8F9;
+}
+
+/* ========= SPLITPANE ========= */
+
+.split-pane {
+    -fx-background-color: transparent;
+}
+
+.split-pane-divider {
+    -fx-background-color: #0F172A;
+}
+
+/* ========= SCROLLBARS ========= */
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #334155;
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #38BDF8;
+}
+
+/* ========= OTROS ========= */
+
+.tab-pane {
+    -fx-background-color: #0F172A;
+}
+
+.tab {
+    -fx-background-color: #1E293B;
+    -fx-text-base-color: #F1F5F9;
+}
+
+.tab:selected {
+    -fx-background-color: #38BDF8;
+    -fx-text-base-color: #0F172A;
+}
+
+.glow-ia {
+    -fx-effect: dropshadow(gaussian, #00F0FF, 20, 0.5, 0, 0);
+}
+
+/* LOGIN: Scroll de cuentas sin marco */
+
+.accounts-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.accounts-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Tarjetas de cuenta en modo oscuro */
+
+.account-card {
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-border-color: #334155;
+    -fx-background-color: #1E293B;
+    -fx-cursor: hand;
+}
+
+.account-card-selected {
+    -fx-border-color: #38BDF8;
+    -fx-background-color: #0B1220;
+}
+
+.account-email {
+    -fx-text-fill: #F1F5F9;
+    -fx-font-weight: bold;
+}
+
+.account-server {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 11px;
+}
+
+/* Toggle sol/luna oscuro */
+
+.theme-toggle {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #F1F5F9;
+    -fx-border-color: #334155;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+}
+
+/* ========= CALENDARIO ========= */
+
+/* Día normal */
+.cal-dia {
+    -fx-background-color: transparent;
+    -fx-border-color: #475569;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 4;
+}
+
+/* Hoy */
+.cal-dia-hoy {
+    -fx-border-color: #22D3EE;
+}
+
+/* Seleccionado: más contraste */
+.cal-dia-seleccionado {
+    -fx-background-color: #22D3EE55;   /* azul translúcido */
+    -fx-border-color: #22D3EE;
+}
+/* Tarjeta SPAM */
+* Tarjeta SPAM */
+.list-cell.message-card-spam {
+    -fx-background-color: #1F2933;
+    -fx-text-fill: #FCA5A5;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.list-cell.message-card-spam:selected {
+    -fx-background-color: #DC2626;
+    -fx-text-fill: #F9FAFB;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+

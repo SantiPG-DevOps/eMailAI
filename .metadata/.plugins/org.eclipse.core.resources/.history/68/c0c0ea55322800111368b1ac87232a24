@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+	xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="com.emailAI.controller.CorreoController">
+
+	<top>
+		<Pane />
+	</top>
+
+	<center>
+		<SplitPane dividerPositions="0.3">
+			<items>
+
+				<!-- Columna IZQUIERDA: Redactar + bandeja de entrada -->
+				<VBox prefWidth="340" spacing="8">
+					<padding>
+						<Insets bottom="10" left="10" right="5" top="10" />
+					</padding>
+
+					<!-- Botón Redactar y borrar encima de la bandeja -->
+					<HBox alignment="CENTER_LEFT" spacing="8">
+						<Button onAction="#onRedactar" text="Redactar" />
+						<Button fx:id="btnBorrarSeleccionado"
+							onAction="#onBorrarMensajeSeleccionado" text="Borrar"
+							HBox.hgrow="ALWAYS" />
+					</HBox>
+
+					<!-- Etiqueta de la bandeja -->
+					<HBox alignment="CENTER_LEFT" spacing="8">
+						<Label styleClass="section-label" text="Bandeja de entrada" />
+						<Button fx:id="btnActualizar"
+							onAction="#onActualizarBandeja" styleClass="small-button"
+							text="Enviar/Recibir" HBox.hgrow="ALWAYS" />
+					</HBox>
+
+					<!-- Lista de mensajes -->
+					<ListView fx:id="lstMensajes" VBox.vgrow="ALWAYS" />
+				</VBox>
+
+				<!-- Columna DERECHA: barra de acciones + detalle + IA -->
+				<VBox spacing="8">
+					<padding>
+						<Insets bottom="10" left="5" right="10" top="10" />
+					</padding>
+
+					<!-- Barra de acciones -->
+					<HBox spacing="6">
+						<!-- Acciones de correo -->
+						<HBox alignment="CENTER_LEFT" spacing="6">
+							<Button onAction="#onResponder" text="Responder" />
+							<Button onAction="#onResponderTodos"
+								text="Responder a todos" />
+							<Button onAction="#onReenviar" text="Reenviar" />
+						</HBox>
+
+						<!-- Acciones IA -->
+						<HBox alignment="CENTER_RIGHT" spacing="6">
+							<Button fx:id="btnReentrenar"
+								onAction="#onReentrenarModelo" styleClass="action-button"
+								text="Act IA" />
+							<Button fx:id="btnSpam" onAction="#onMarcarSpam"
+								prefWidth="70" styleClass="action-button" text="SPAM" />
+							<Button fx:id="btnLegitimo" onAction="#onMarcarLegitimo"
+								prefWidth="70" styleClass="action-button" text="Legit" />
+						</HBox>
+					</HBox>
+
+					<!-- Cabecera del mensaje: asunto + remitente -->
+					<VBox spacing="3">
+						<Label fx:id="lblAsunto" styleClass="message-subject" />
+						<Label fx:id="lblRemitente" styleClass="label-secondary" />
+					</VBox>
+
+					<!-- Cuerpo del mensaje -->
+					<VBox spacing="6" VBox.vgrow="ALWAYS">
+						<WebView fx:id="webViewCuerpo" VBox.vgrow="ALWAYS" />
+						<TextArea fx:id="txtCuerpo" editable="false"
+							prefRowCount="18" styleClass="text-area" wrapText="true"
+							VBox.vgrow="ALWAYS" />
+					</VBox>
+
+					<!-- Panel de respuestas IA -->
+					<VBox spacing="6" styleClass="ia-panel">
+						<Label styleClass="label-secondary"
+							text="Respuestas sugeridas por IA" />
+						<HBox spacing="8">
+							<Button fx:id="btnSug1" onAction="#onUsarRespuesta1"
+								styleClass="chip" HBox.hgrow="ALWAYS" />
+							<Button fx:id="btnSug2" onAction="#onUsarRespuesta2"
+								styleClass="chip" HBox.hgrow="ALWAYS" />
+							<Button fx:id="btnSug3" onAction="#onUsarRespuesta3"
+								styleClass="chip" HBox.hgrow="ALWAYS" />
+							<Button fx:id="btnAnularSub" onAction="#onAnularSub"
+								styleClass="chip" text="Anular sub" HBox.hgrow="ALWAYS" />
+						</HBox>
+					</VBox>
+
+				</VBox>
+			</items>
+		</SplitPane>
+	</center>
+
+</BorderPane>

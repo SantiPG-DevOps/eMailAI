@@ -37,9 +37,14 @@ public class MainController {
     private ToggleGroup grpSecciones;
 
     @FXML
-    private ToggleButton btnTema;   // botón ☾/☼ del sidebar
+    private ToggleButton btnTema;
 
     private MailService mailService;
+    private boolean temaClaro = false;
+
+    // cache de vistas/controladores
+    private Node vistaCorreo;
+    private CorreoController correoController;
 
     // ===================== Inicialización =====================
 
@@ -68,14 +73,15 @@ public class MainController {
     }
 
     private void seleccionarCorreo() throws Exception {
-        FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/correo-view.fxml"));
-        Node vistaCorreo = loader.load();
-
-        CorreoController controller = loader.getController();
-        if (mailService != null) {
-            controller.setMailService(mailService);
+        if (vistaCorreo == null) {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/correo-view.fxml"));
+            vistaCorreo = loader.load();
+            correoController = loader.getController();
+            if (mailService != null) {
+                correoController.setMailService(mailService);
+                correoController.cargarBandejaEntradaAsync(); // solo primera vez
+            }
         }
-
         centerPane.getChildren().setAll(vistaCorreo);
         if (btnCorreo != null) {
             btnCorreo.setSelected(true);
@@ -146,21 +152,20 @@ public class MainController {
         }
     }
 
-    // ===================== Tema claro/oscuro reutilizable =====================
-    private boolean temaClaro = false;
+    // ===================== Tema claro/oscuro =====================
 
     public boolean isTemaClaro() {
         return temaClaro;
     }
-    
-    
+
     public void aplicarTema(boolean light) {
-        this.temaClaro = light;   // guardar estado
+        this.temaClaro = light;
 
         Scene scene = centerPane != null ? centerPane.getScene() : null;
         if (scene == null) return;
 
         scene.getStylesheets().clear();
+
         scene.getStylesheets().add(
                 AppFX.class.getResource("/styles-basic.css").toExternalForm()
         );

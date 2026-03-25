@@ -20,6 +20,9 @@ public class MailService {
     private String smtpHost = null;
     private String imapHost = null;
 
+    // identificador de cuenta para la BD (por ahora usamos el email)
+    private String cuentaHash;
+
     // IA LLM opcional
     private IAAsistenteService iaAsistenteService;
 
@@ -32,6 +35,10 @@ public class MailService {
 
     public void setIaAsistenteService(IAAsistenteService iaAsistenteService) {
         this.iaAsistenteService = iaAsistenteService;
+    }
+
+    public String getCuentaHash() {
+        return cuentaHash;
     }
 
     // ========================= Conexión =========================
@@ -51,11 +58,13 @@ public class MailService {
         this.currentPassword = password;
         this.smtpHost = smtpHost;
         this.imapHost = imapHost;
+
+        // de momento usamos el email como hash de cuenta
+        this.cuentaHash = user;
     }
 
     // ========================= Bandeja de entrada =========================
 
-    /** Descarga últimos mensajes y los mapea a Mensaje con IA. */
     public List<Mensaje> listInbox() throws Exception {
         if (store == null || !store.isConnected()) {
             throw new IllegalStateException("Store IMAP no conectado. Llama antes a connect().");
@@ -100,8 +109,8 @@ public class MailService {
             }
 
             mensajeObj.setHtml(html);
+            mensajeObj.setCuentaHash(cuentaHash);
 
-            // IA clásica (Weka): SPAM / PRIORIDAD
             try {
                 String categoria = GestorModelos.clasificarSpam(mensajeObj);
                 mensajeObj.setCategoria(categoria);
@@ -118,7 +127,6 @@ public class MailService {
                 mensajeObj.setPrioridad("NORMAL");
             }
 
-            // IA LLM (LangChain4j): resumen + sugerencia
             if (iaAsistenteService != null) {
                 try {
                     String resumen = iaAsistenteService.generarResumen(cuerpo);
@@ -137,7 +145,6 @@ public class MailService {
         return resultado;
     }
 
-    /** Elimina (marca como DELETED) un mensaje de la INBOX usando su messageNumber. */
     public void eliminarMensaje(Mensaje mensaje) throws Exception {
         if (store == null || !store.isConnected()) {
             throw new IllegalStateException("Store IMAP no conectado.");
@@ -151,7 +158,7 @@ public class MailService {
         Message msg = inbox.getMessage(msgNumber);
 
         msg.setFlag(Flags.Flag.DELETED, true);
-        inbox.close(true); // expunge = true
+        inbox.close(true);
     }
 
     // ========================= Envío =========================
@@ -252,8 +259,6 @@ public class MailService {
         }
         return html;
     }
-
-    // ===================== getters para controladores =====================
 
     public String getEmail() {
         return currentUser;

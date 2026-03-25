@@ -153,4 +153,18 @@
 #accountsList {
     -fx-background-color: transparent;
 }
+/* Tarjeta SPAM */
+.list-cell.message-card-spam {
+    -fx-background-color: #1F2933;
+    -fx-text-fill: #FCA5A5;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
 
+.list-cell.message-card-spam:selected {
+    -fx-background-color: #DC2626;
+    -fx-text-fill: #F9FAFB;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}

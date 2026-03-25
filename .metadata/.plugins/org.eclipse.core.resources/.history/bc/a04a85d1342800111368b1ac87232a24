@@ -1,0 +1,239 @@
+package com.emailAI.controller;
+
+import com.emailAI.model.Mensaje;
+import com.emailAI.service.MailService;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.web.WebView;
+import javafx.concurrent.Task;
+import javafx.application.Platform;
+
+public class CorreoController {
+
+    @FXML
+    private ListView<Mensaje> lstMensajes;
+
+    @FXML
+    private Label lblAsunto;
+
+    @FXML
+    private Label lblRemitente;
+
+    @FXML
+    private WebView webViewCuerpo;
+
+    @FXML
+    private TextArea txtCuerpo;
+
+    @FXML
+    private Button btnReentrenar;
+
+    @FXML
+    private Button btnSpam;
+
+    @FXML
+    private Button btnLegitimo;
+
+    @FXML
+    private Button btnSug1;
+
+    @FXML
+    private Button btnSug2;
+
+    @FXML
+    private Button btnSug3;
+
+    @FXML
+    private Button btnAnularSub;
+
+    @FXML
+    private Button btnActualizar;
+
+    @FXML
+    private Button btnBorrarSeleccionado;
+
+    private MailService mailService;
+
+    // ===================== Inicialización =====================
+
+    @FXML
+    private void initialize() {
+        lstMensajes.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Mensaje msg, boolean empty) {
+                super.updateItem(msg, empty);
+
+                if (empty || msg == null) {
+                    setText(null);
+                    getStyleClass().removeAll("message-card", "message-card-spam");
+                    return;
+                }
+
+                String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
+                String asunto    = msg.getAsunto() != null ? msg.getAsunto() : "";
+
+                setText(remitente + "\n" + asunto);
+
+                // limpiar estilos previos
+                getStyleClass().removeAll("message-card", "message-card-spam");
+
+                // SPAM => tarjeta especial
+                if ("SPAM".equalsIgnoreCase(msg.getCategoria())) {
+                    getStyleClass().add("message-card-spam");
+                } else {
+                    getStyleClass().add("message-card");
+                }
+            }
+        });
+
+        lstMensajes.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> mostrarMensaje(newSel)
+        );
+    }
+
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+    }
+
+    // ===================== Bandeja de entrada =====================
+
+     private void cargarBandejaEntrada() {
+        if (mailService == null) return;
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                try {
+                    var mensajes = mailService.listInbox();
+
+                    Platform.runLater(() -> {
+                        lstMensajes.setItems(FXCollections.observableArrayList(mensajes));
+                        if (!mensajes.isEmpty()) {
+                            lstMensajes.getSelectionModel().selectFirst();
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Platform.runLater(() ->
+                            System.err.println("Error cargando bandeja: " + e.getMessage())
+                    );
+                }
+                return null;
+            }
+        };
+
+        Thread t = new Thread(task);
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void mostrarMensaje(Mensaje msg) {
+        if (msg == null) {
+            lblAsunto.setText("");
+            lblRemitente.setText("");
+            webViewCuerpo.getEngine().loadContent("");
+            txtCuerpo.clear();
+            return;
+        }
+
+        lblAsunto.setText(msg.getAsunto());
+        lblRemitente.setText(msg.getRemitente());
+
+        String html = msg.getHtml();
+        String texto = msg.getCuerpo();   // ajusta si tu getter se llama distinto
+
+        if (html != null && !html.isBlank()) {
+            webViewCuerpo.setVisible(true);
+            webViewCuerpo.setManaged(true);
+            webViewCuerpo.getEngine().loadContent(html, "text/html");
+
+            txtCuerpo.setVisible(false);
+            txtCuerpo.setManaged(false);
+        } else {
+            txtCuerpo.setVisible(true);
+            txtCuerpo.setManaged(true);
+            txtCuerpo.setText(texto != null ? texto : "");
+
+            webViewCuerpo.setVisible(false);
+            webViewCuerpo.setManaged(false);
+        }
+
+        // aquí más adelante podrás actualizar sugerencias IA
+    }
+
+    // ===================== Acciones de correo =====================
+
+    @FXML
+    private void onRedactar() {
+        // aquí abriremos compose-view.fxml cuando lo ataquemos
+    }
+
+    @FXML
+    private void onActualizarBandeja() {
+        cargarBandejaEntrada();
+    }
+
+    @FXML
+    private void onResponder() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+        // lo implementamos cuando montemos la pantalla de redacción
+    }
+
+    @FXML
+    private void onResponderTodos() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+    }
+
+    @FXML
+    private void onReenviar() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+    }
+
+    @FXML
+    private void onBorrarMensajeSeleccionado() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null || mailService == null) {
+            return;
+        }
+
+        try {
+            mailService.eliminarMensaje(seleccionado);
+            lstMensajes.getItems().remove(seleccionado);
+
+            lblAsunto.setText("");
+            lblRemitente.setText("");
+            webViewCuerpo.getEngine().loadContent("");
+            txtCuerpo.clear();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ===================== IA (lo haremos después) =====================
+
+    @FXML
+    private void onReentrenarModelo() {}
+
+    @FXML
+    private void onMarcarSpam() {}
+
+    @FXML
+    private void onMarcarLegitimo() {}
+
+    @FXML
+    private void onUsarRespuesta1() {}
+
+    @FXML
+    private void onUsarRespuesta2() {}
+
+    @FXML
+    private void onUsarRespuesta3() {}
+
+    @FXML
+    private void onAnularSub() {}
+}
