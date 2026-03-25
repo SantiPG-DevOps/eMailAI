@@ -1,412 +1,208 @@
 package com.emailAI.controller;
 
-import com.emailAI.AppFX;
-import com.emailAI.dao.DAOEntrenamiento;
-import com.emailAI.dao.DAOMensajes;
-import com.emailAI.ia.ExtractorAtributos;
-import com.emailAI.ia.GestorModelos;
 import com.emailAI.model.Mensaje;
-import com.emailAI.security.UtilidadCifrado;
 import com.emailAI.service.MailService;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javafx.stage.Stage;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CorreoController {
 
-    @FXML private ListView<String> lstMensajes;
-    @FXML private Label lblAsunto;
-    @FXML private Label lblRemitente;
-    @FXML private Label lblEstado;            // puede ser null si no hay Label en FXML
-    @FXML private Button btnSug1, btnSug2, btnSug3, btnAnularSub;
-    @FXML private ProgressIndicator progressCargando;
+    @FXML
+    private ListView<Mensaje> lstMensajes;
 
-    @FXML private TextArea txtCuerpo;
-    @FXML private WebView webViewCuerpo;
+    @FXML
+    private Label lblAsunto;
 
-    @FXML private Button btnReentrenar;
-    @FXML private Button btnSpam;
-    @FXML private Button btnLegitimo;
+    @FXML
+    private Label lblRemitente;
+
+    @FXML
+    private WebView webViewCuerpo;
+
+    @FXML
+    private TextArea txtCuerpo;
+
+    @FXML
+    private Button btnReentrenar;
+
+    @FXML
+    private Button btnSpam;
+
+    @FXML
+    private Button btnLegitimo;
+
+    @FXML
+    private Button btnSug1;
+
+    @FXML
+    private Button btnSug2;
+
+    @FXML
+    private Button btnSug3;
+
+    @FXML
+    private Button btnAnularSub;
+
+    @FXML
+    private Button btnActualizar;
+
+    @FXML
+    private Button btnBorrarSeleccionado;
 
     private MailService mailService;
-    private List<Mensaje> mensajes = new ArrayList<>();
 
-    private DAOMensajes daoMensajes;
-    private String cuentaHash;
-
-    public CorreoController() {
-        try {
-            daoMensajes = new DAOMensajes();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Llamado desde MainController después de que se haya conectado MailService.
-     */
-    public void setMailService(MailService mailService) throws Exception {
-        this.mailService = mailService;
-
-        String email = mailService.getEmail();
-        String imapHost = mailService.getImapHost();
-        this.cuentaHash = UtilidadCifrado.hash(email + "@" + imapHost);
-
-        // Primero carga local, luego dispara la actualización online
-        javafx.application.Platform.runLater(() -> {
-            cargarDesdeBD();
-            onActualizarBandeja();
-        });
-    }
+    // ===================== Inicialización =====================
 
     @FXML
     private void initialize() {
-        lstMensajes.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
-            int idx = newVal.intValue();
-            if (idx >= 0 && idx < mensajes.size()) {
-                mostrarDetalle(mensajes.get(idx));
-            }
-        });
-
         lstMensajes.setCellFactory(list -> new ListCell<>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
+            protected void updateItem(Mensaje msg, boolean empty) {
+                super.updateItem(msg, empty);
+                if (empty || msg == null) {
                     setText(null);
-                    getStyleClass().remove("message-card");
                 } else {
-                    setText(item);
-                    if (!getStyleClass().contains("message-card")) {
-                        getStyleClass().add("message-card");
-                    }
+                    String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
+                    String asunto = msg.getAsunto() != null ? msg.getAsunto() : "";
+                    setText(remitente + " - " + asunto);
                 }
             }
         });
 
-        if (btnReentrenar != null) btnReentrenar.setText("Act IA");
-        if (btnSpam != null)       btnSpam.setText("SPAM");
-        if (btnLegitimo != null)   btnLegitimo.setText("Legit");
-
-        if (webViewCuerpo != null) {
-            WebEngine engine = webViewCuerpo.getEngine();
-            engine.setJavaScriptEnabled(false);
-        }
+        lstMensajes.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> mostrarMensaje(newSel)
+        );
     }
 
-    // ===================== Carga desde BD =====================
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+        cargarBandejaEntrada();
+    }
 
-    private void cargarDesdeBD() {
-        if (cuentaHash == null || daoMensajes == null) return;
+    // ===================== Bandeja de entrada =====================
 
+    private void cargarBandejaEntrada() {
+        if (mailService == null) return;
         try {
-            mensajes = daoMensajes.listarPorCuenta(cuentaHash);
-            actualizarListaVisual();
-            if (lblEstado != null) {
-                lblEstado.setText("Bandeja local cargada.");
-            }
-
+            var mensajes = mailService.listInbox();
+            lstMensajes.setItems(FXCollections.observableArrayList(mensajes));
             if (!mensajes.isEmpty()) {
-                lstMensajes.getSelectionModel().select(0);
-                mostrarDetalle(mensajes.get(0));
+                lstMensajes.getSelectionModel().selectFirst();
             }
         } catch (Exception e) {
-            if (lblEstado != null) {
-                lblEstado.setText("Error al cargar bandeja local: " + e.getMessage());
-            }
+            e.printStackTrace();
+            // aquí podrías mostrar un Alert si quieres
         }
     }
 
-    // ===================== Sincronización en segundo plano =====================
+    private void mostrarMensaje(Mensaje msg) {
+        if (msg == null) {
+            lblAsunto.setText("");
+            lblRemitente.setText("");
+            webViewCuerpo.getEngine().loadContent("");
+            txtCuerpo.clear();
+            return;
+        }
+
+        lblAsunto.setText(msg.getAsunto());
+        lblRemitente.setText(msg.getRemitente());
+
+        String html = msg.getHtml();
+        String texto = msg.getCuerpo();   // ajusta si tu getter se llama distinto
+
+        if (html != null && !html.isBlank()) {
+            webViewCuerpo.setVisible(true);
+            webViewCuerpo.setManaged(true);
+            webViewCuerpo.getEngine().loadContent(html, "text/html");
+
+            txtCuerpo.setVisible(false);
+            txtCuerpo.setManaged(false);
+        } else {
+            txtCuerpo.setVisible(true);
+            txtCuerpo.setManaged(true);
+            txtCuerpo.setText(texto != null ? texto : "");
+
+            webViewCuerpo.setVisible(false);
+            webViewCuerpo.setManaged(false);
+        }
+
+        // aquí más adelante podrás actualizar sugerencias IA
+    }
+
+    // ===================== Acciones de correo =====================
+
+    @FXML
+    private void onRedactar() {
+        // aquí abriremos compose-view.fxml cuando lo ataquemos
+    }
 
     @FXML
     private void onActualizarBandeja() {
-        if (mailService == null) return;
-
-        if (lblEstado != null) {
-            lblEstado.setText("Sincronizando correos...");
-        }
-        if (progressCargando != null) progressCargando.setVisible(true);
-
-        Task<List<Mensaje>> tareaDescarga = new Task<>() {
-            @Override
-            protected List<Mensaje> call() throws Exception {
-                List<Mensaje> descargados = mailService.listInbox();
-
-                if (cuentaHash != null) {
-                    for (Mensaje m : descargados) {
-                        m.setCuentaHash(cuentaHash);
-                    }
-                }
-
-                if (cuentaHash != null && daoMensajes != null) {
-                    daoMensajes.guardarOModificar(cuentaHash, descargados);
-                }
-                return descargados;
-            }
-        };
-
-        tareaDescarga.setOnSucceeded(event -> {
-            mensajes = tareaDescarga.getValue();
-            actualizarListaVisual();
-            if (progressCargando != null) progressCargando.setVisible(false);
-            if (lblEstado != null) {
-                lblEstado.setText("Bandeja actualizada.");
-            }
-        });
-
-        tareaDescarga.setOnFailed(event -> {
-            if (progressCargando != null) progressCargando.setVisible(false);
-            if (lblEstado != null) {
-                lblEstado.setText("Error al sincronizar correos (modo offline).");
-            }
-            tareaDescarga.getException().printStackTrace();
-        });
-
-        Thread hilo = new Thread(tareaDescarga);
-        hilo.setDaemon(true);
-        hilo.start();
+        cargarBandejaEntrada();
     }
-
-    private void actualizarListaVisual() {
-        var items = FXCollections.<String>observableArrayList();
-        for (Mensaje m : mensajes) {
-            String linea1 = m.getRemitente();
-            String prefijo = "";
-            if ("SPAM".equalsIgnoreCase(m.getCategoria())) {
-                prefijo = "[SPAM]";
-            }
-            if ("URGENTE".equalsIgnoreCase(m.getPrioridad())) {
-                prefijo = "[URGENTE]";
-            }
-            String linea2 = (prefijo + " " + m.getAsunto()).trim();
-            items.add(linea1 + "\n" + linea2);
-        }
-        lstMensajes.setItems(items);
-    }
-
-    // ===================== Mostrar detalle =====================
-
-    private void mostrarDetalle(Mensaje m) {
-        if (m == null) return;
-
-        String asunto = m.getAsunto();
-        int maxLen = 60;
-        if (asunto != null && asunto.length() > maxLen) {
-            asunto = asunto.substring(0, maxLen) + "...";
-        }
-        lblAsunto.setText(asunto);
-        lblRemitente.setText("De: " + m.getRemitente());
-
-        String html = m.getHtml();
-        boolean hayHtml = html != null && !html.isBlank();
-
-        webViewCuerpo.setVisible(true);
-        webViewCuerpo.setManaged(true);
-        txtCuerpo.setVisible(false);
-        txtCuerpo.setManaged(false);
-
-        String contenidoHtml;
-        if (hayHtml) {
-            contenidoHtml = html;
-        } else {
-            String cuerpo = m.getCuerpo() != null ? m.getCuerpo() : "";
-            contenidoHtml = "<html><body><pre style='font-family: sans-serif; white-space: pre-wrap;'>"
-                    + escapeHtml(cuerpo)
-                    + "</pre></body></html>";
-        }
-
-        final String htmlFinal = contenidoHtml;
-        javafx.application.Platform.runLater(() ->
-                webViewCuerpo.getEngine().loadContent(htmlFinal, "text/html")
-        );
-
-        generarSugerencias(m);
-    }
-
-    private String escapeHtml(String text) {
-        return text.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;");
-    }
-
-    // ===== Entrenamiento IA =====
-
-    @FXML private void onMarcarSpam()      { marcarConEtiqueta("SPAM", "SPAM"); }
-    @FXML private void onMarcarLegitimo()  { marcarConEtiqueta("LEGITIMO", "SPAM"); }
-    @FXML private void onMarcarUrgente()   { marcarConEtiqueta("URGENTE", "PRIORIDAD"); }
-
-    private void marcarConEtiqueta(String etiqueta, String tipoModelo) {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx < 0) return;
-
-        Mensaje m = mensajes.get(idx);
-        try {
-            DAOEntrenamiento dao = new DAOEntrenamiento();
-            dao.guardarEjemplo(m, etiqueta, tipoModelo);
-            if (lblEstado != null) {
-                lblEstado.setText("Aprendido: " + etiqueta + " en " + tipoModelo);
-            }
-        } catch (Exception e) {
-            if (lblEstado != null) {
-                lblEstado.setText("Error al guardar entrenamiento.");
-            }
-        }
-    }
-
-    @FXML
-    private void onReentrenarModelo() {
-        if (lblEstado != null) {
-            lblEstado.setText("Reentrenando IA...");
-        }
-
-        Task<Void> tareaEntrenamiento = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                DAOEntrenamiento dao = new DAOEntrenamiento();
-
-                var eSpam = dao.listarEjemplosPorTipo("SPAM");
-                if (!eSpam.isEmpty()) {
-                    GestorModelos.entrenarYGuardar(
-                            ExtractorAtributos.convertirAEstructura(eSpam), "SPAM");
-                }
-
-                var ePrio = dao.listarEjemplosPorTipo("PRIORIDAD");
-                if (!ePrio.isEmpty()) {
-                    GestorModelos.entrenarYGuardar(
-                            ExtractorAtributos.convertirAEstructuraPrioridad(ePrio), "PRIORIDAD");
-                }
-                return null;
-            }
-        };
-
-        tareaEntrenamiento.setOnSucceeded(e -> {
-            if (lblEstado != null) {
-                lblEstado.setText("IA reentrenada con éxito.");
-            }
-            onActualizarBandeja();
-        });
-
-        new Thread(tareaEntrenamiento).start();
-    }
-
-    // ===== Sugerencias IA y redacción =====
-
-    private void generarSugerencias(Mensaje m) {
-        String texto = (m.getAsunto() + m.getCuerpo()).toLowerCase();
-        if (texto.contains("reunión")) {
-            btnSug1.setText("Confirmar asistencia");
-            btnSug2.setText("No puedo asistir");
-            btnSug3.setText("Pedir agenda");
-        } else {
-            btnSug1.setText("Gracias por el correo");
-            btnSug2.setText("Lo reviso luego");
-            btnSug3.setText("Necesito más info");
-        }
-    }
-
-    private void abrirCompose(String para, String asunto, String cuerpo) {
-        try {
-            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/compose-view.fxml"));
-            Scene scene = new Scene(loader.load(), 600, 400);
-            ComposeController controller = loader.getController();
-            controller.setMailService(mailService);
-            if (para != null) controller.precargarDatos(para, asunto, cuerpo);
-
-            Stage stage = new Stage();
-            stage.setTitle("Redactar");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // ===== Botones barra de acciones =====
-
-    @FXML private void onRedactar() { abrirCompose(null, null, null); }
 
     @FXML
     private void onResponder() {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx >= 0) {
-            Mensaje m = mensajes.get(idx);
-            abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(),
-                    "\n\n--- Original ---\n" + m.getCuerpo());
-        }
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+        // lo implementamos cuando montemos la pantalla de redacción
     }
 
     @FXML
     private void onResponderTodos() {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx < 0) {
-            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje primero.");
-            return;
-        }
-        Mensaje m = mensajes.get(idx);
-        abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(),
-                "\n\n--- Responder a todos (pendiente CC/CCO) ---\n" + m.getCuerpo());
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
     }
 
     @FXML
     private void onReenviar() {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx >= 0) {
-            Mensaje m = mensajes.get(idx);
-            abrirCompose(null, "Fwd: " + m.getAsunto(),
-                    "\n\n--- Mensaje reenviado ---\n" + m.getCuerpo());
-        } else {
-            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje para reenviar.");
-        }
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
     }
-
-    @FXML private void onUsarRespuesta1() { usarRespuestaRapida(btnSug1); }
-    @FXML private void onUsarRespuesta2() { usarRespuestaRapida(btnSug2); }
-    @FXML private void onUsarRespuesta3() { usarRespuestaRapida(btnSug3); }
-
-    private void usarRespuestaRapida(Button boton) {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx < 0) {
-            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje primero.");
-            return;
-        }
-        Mensaje m = mensajes.get(idx);
-        String texto = boton.getText();
-        abrirCompose(m.getRemitente(), "Re: " + m.getAsunto(),
-                texto + "\n\n--- Mensaje original ---\n" + m.getCuerpo());
-    }
-
-    // ===== Botón "Anular sub" =====
 
     @FXML
-    private void onAnularSub() {
-        int idx = lstMensajes.getSelectionModel().getSelectedIndex();
-        if (idx < 0) {
-            if (lblEstado != null) lblEstado.setText("Selecciona un mensaje primero.");
+    private void onBorrarMensajeSeleccionado() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null || mailService == null) {
             return;
         }
-        Mensaje m = mensajes.get(idx);
 
-        String cuerpo = """
-                Hola,
+        try {
+            mailService.eliminarMensaje(seleccionado);
+            lstMensajes.getItems().remove(seleccionado);
 
-                Quiero solicitar la anulación de mi suscripción a estos correos
-                y que se deje de tratar mi dirección para fines comerciales.
+            lblAsunto.setText("");
+            lblRemitente.setText("");
+            webViewCuerpo.getEngine().loadContent("");
+            txtCuerpo.clear();
 
-                Gracias y un saludo.
-
-                --- Mensaje original ---
-                """ + m.getCuerpo();
-
-        abrirCompose(m.getRemitente(), "Baja de suscripción", cuerpo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    // ===================== IA (lo haremos después) =====================
+
+    @FXML
+    private void onReentrenarModelo() {}
+
+    @FXML
+    private void onMarcarSpam() {}
+
+    @FXML
+    private void onMarcarLegitimo() {}
+
+    @FXML
+    private void onUsarRespuesta1() {}
+
+    @FXML
+    private void onUsarRespuesta2() {}
+
+    @FXML
+    private void onUsarRespuesta3() {}
+
+    @FXML
+    private void onAnularSub() {}
 }

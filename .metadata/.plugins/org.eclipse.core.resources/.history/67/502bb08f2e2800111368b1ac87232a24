@@ -1,0 +1,242 @@
+package com.emailAI.controller;
+
+import com.emailAI.model.Mensaje;
+import com.emailAI.service.MailService;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.web.WebView;
+
+public class CorreoController {
+
+    @FXML
+    private ListView<Mensaje> lstMensajes;
+
+    @FXML
+    private Label lblAsunto;
+
+    @FXML
+    private Label lblRemitente;
+
+    @FXML
+    private WebView webViewCuerpo;
+
+    @FXML
+    private TextArea txtCuerpo;
+
+    @FXML
+    private Button btnReentrenar;
+
+    @FXML
+    private Button btnSpam;
+
+    @FXML
+    private Button btnLegitimo;
+
+    @FXML
+    private Button btnSug1;
+
+    @FXML
+    private Button btnSug2;
+
+    @FXML
+    private Button btnSug3;
+
+    @FXML
+    private Button btnAnularSub;
+
+    @FXML
+    private Button btnActualizar;
+
+    @FXML
+    private Button btnBorrarSeleccionado;
+
+    private MailService mailService;
+
+    // ======================================================
+    // Inicialización
+    // ======================================================
+
+    @FXML
+    private void initialize() {
+        // Render sencillo de la lista: asunto y remitente
+        lstMensajes.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Mensaje msg, boolean empty) {
+                super.updateItem(msg, empty);
+                if (empty || msg == null) {
+                    setText(null);
+                } else {
+                    String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
+                    String asunto = msg.getAsunto() != null ? msg.getAsunto() : "";
+                    setText(remitente + " - " + asunto);
+                }
+            }
+        });
+
+        lstMensajes.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> mostrarMensaje(newSel)
+        );
+    }
+
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+        cargarBandejaEntrada();
+    }
+
+    // ======================================================
+    // Carga y visualización de mensajes
+    // ======================================================
+
+    private void cargarBandejaEntrada() {
+        if (mailService == null) return;
+        try {
+            var mensajes = mailService.obtenerBandejaEntrada(); // TODO: ajustar al nombre real
+            lstMensajes.setItems(FXCollections.observableArrayList(mensajes));
+            if (!mensajes.isEmpty()) {
+                lstMensajes.getSelectionModel().selectFirst();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: mostrar error en UI si tienes método util
+        }
+    }
+
+    private void mostrarMensaje(Mensaje msg) {
+        if (msg == null) {
+            lblAsunto.setText("");
+            lblRemitente.setText("");
+            webViewCuerpo.getEngine().loadContent("");
+            txtCuerpo.clear();
+            return;
+        }
+
+        lblAsunto.setText(msg.getAsunto());
+        lblRemitente.setText(msg.getRemitente());
+
+        String html = msg.getHtml();   // TODO: ajusta a tu modelo (getHtml/getCuerpoHtml)
+        String texto = msg.getTexto(); // TODO: ajusta a tu modelo
+
+        if (html != null && !html.isBlank()) {
+            webViewCuerpo.setVisible(true);
+            webViewCuerpo.setManaged(true);
+            webViewCuerpo.getEngine().loadContent(html, "text/html");
+
+            txtCuerpo.setVisible(false);
+            txtCuerpo.setManaged(false);
+        } else {
+            txtCuerpo.setVisible(true);
+            txtCuerpo.setManaged(true);
+            txtCuerpo.setText(texto != null ? texto : "");
+
+            webViewCuerpo.setVisible(false);
+            webViewCuerpo.setManaged(false);
+        }
+
+        // TODO: aquí podrías actualizar sugerencias IA, etc.
+    }
+
+    // ======================================================
+    // Acciones de correo
+    // ======================================================
+
+    @FXML
+    private void onRedactar() {
+        // TODO: abrir ventana compose-view.fxml
+    }
+
+    @FXML
+    private void onActualizarBandeja() {
+        cargarBandejaEntrada();
+    }
+
+    @FXML
+    private void onResponder() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+        // TODO: abrir compose en modo Responder
+    }
+
+    @FXML
+    private void onResponderTodos() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+        // TODO: abrir compose en modo Responder a todos
+    }
+
+    @FXML
+    private void onReenviar() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+        // TODO: abrir compose en modo Reenviar
+    }
+
+    @FXML
+    private void onBorrarMensajeSeleccionado() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null || mailService == null) {
+            return;
+        }
+
+        try {
+            // eliminar del servidor
+            mailService.eliminarMensaje(seleccionado); // TODO: implementa en MailService
+
+            // quitar de la lista
+            lstMensajes.getItems().remove(seleccionado);
+
+            // limpiar detalle
+            lblAsunto.setText("");
+            lblRemitente.setText("");
+            webViewCuerpo.getEngine().loadContent("");
+            txtCuerpo.clear();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: mostrar error en UI
+        }
+    }
+
+    // ======================================================
+    // Acciones IA (marcar spam, reentrenar, etc.)
+    // ======================================================
+
+    @FXML
+    private void onReentrenarModelo() {
+        // TODO: llamar a servicio IA para reentrenar
+    }
+
+    @FXML
+    private void onMarcarSpam() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+        // TODO: marcar como spam vía MailService / IA
+    }
+
+    @FXML
+    private void onMarcarLegitimo() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+        // TODO: marcar como legítimo vía MailService / IA
+    }
+
+    @FXML
+    private void onUsarRespuesta1() {
+        // TODO: aplicar sugerencia 1
+    }
+
+    @FXML
+    private void onUsarRespuesta2() {
+        // TODO: aplicar sugerencia 2
+    }
+
+    @FXML
+    private void onUsarRespuesta3() {
+        // TODO: aplicar sugerencia 3
+    }
+
+    @FXML
+    private void onAnularSub() {
+        // TODO: cancelar suscripción / baja, según diseño
+    }
+}

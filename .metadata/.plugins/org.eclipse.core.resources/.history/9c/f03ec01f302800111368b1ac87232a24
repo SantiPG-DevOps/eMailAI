@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="555.0" prefWidth="900.0"
+            xmlns="http://javafx.com/javafx/24.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.LoginController">
+
+    <!-- CENTRO: HBox con izquierda (cuentas) + derecha (login app) -->
+    <center>
+        <HBox prefHeight="532.0" prefWidth="900.0" spacing="0">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+
+            <!-- COLUMNA IZQUIERDA: cuentas guardadas -->
+            <VBox prefWidth="280" spacing="10">
+                <Label styleClass="section-label" text="Cuentas guardadas" />
+
+                <Button fx:id="newAccountButton"
+                        onAction="#onNewAccountClicked"
+                        styleClass="small-button"
+                        text="+ Añadir cuenta" />
+
+                <ScrollPane fx:id="accountsScroll"
+                            fitToWidth="true"
+                            prefViewportHeight="420"
+                            VBox.vgrow="ALWAYS"
+                            styleClass="accounts-scroll">
+                    <content>
+                        <VBox fx:id="accountsList"
+                              alignment="TOP_LEFT"
+                              maxWidth="260"
+                              spacing="8">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </VBox>
+
+            <!-- SEPARADOR FLEXIBLE ENTRE IZQUIERDA Y DERECHA -->
+            <Pane HBox.hgrow="ALWAYS" />
+
+            <!-- COLUMNA DERECHA: logo grande + contraseña app -->
+            <VBox alignment="CENTER" prefWidth="520" spacing="20">
+                <!-- Solo logo, sin texto -->
+                <ImageView fx:id="logoImage"
+                           fitHeight="220"
+                           fitWidth="480"
+                           preserveRatio="true" />
+
+                <!-- Bloque contraseña app -->
+                <VBox alignment="CENTER" maxWidth="360" spacing="8">
+                    <Label styleClass="section-label"
+                           text="Contraseña de la aplicación" />
+
+                    <PasswordField fx:id="passwordField"
+                                   maxWidth="360"
+                                   promptText="Introduce la contraseña de la app"
+                                   styleClass="text-field login-password"
+                                   onKeyReleased="#onAppPasswordChanged" />
+
+                    <VBox spacing="4" maxWidth="360">
+                        <ProgressBar fx:id="strengthBar"
+                                     prefWidth="360"
+                                     progress="0.0" />
+                        <Label fx:id="strengthLabel"
+                               text="Contraseña débil" />
+                    </VBox>
+
+                    <Button fx:id="loginButton"
+                            defaultButton="true"
+                            maxWidth="360"
+                            onAction="#onLoginClicked"
+                            styleClass="primary-button"
+                            text="Entrar" />
+
+                    <Label fx:id="statusLabel"
+                           styleClass="status-label"
+                           text="" />
+                </VBox>
+            </VBox>
+
+            <Pane prefWidth="20" />
+        </HBox>
+    </center>
+
+    <!-- ABAJO: botón de tema pegado abajo y centrado -->
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="40.0" spacing="10">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="0" />
+            </padding>
+
+            <ToggleButton fx:id="themeToggle"
+                          onAction="#onThemeToggle"
+                          styleClass="theme-toggle"
+                          text="Tema" />
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -95,4 +95,14 @@ public class DAOCuentas {
         PreparedStatement ps = conn.prepareStatement(sql);
         return ps.executeQuery();
     }
+    
+    public void eliminarCuentaPorId(int id) throws SQLException {
+        String sql = "DELETE FROM cuentas WHERE id = ?";
+
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
 }

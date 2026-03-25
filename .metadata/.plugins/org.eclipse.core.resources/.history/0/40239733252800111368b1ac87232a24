@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.ConfigController">
+
+    <fx:define>
+        <ToggleGroup fx:id="themeGroup"/>
+    </fx:define>
+
+    <!-- ZONA SUPERIOR: tabs + título -->
+    <top>
+        <VBox spacing="10">
+            <!-- Barra de pestañas de configuración -->
+            <TabPane fx:id="tabConfig"
+                     tabClosingPolicy="UNAVAILABLE">
+                <tabs>
+                    <Tab text="General"/>
+                    <Tab text="Correo"    fx:id="tabCorreo"/>
+                    <Tab text="Calendario" fx:id="tabCalendario"/>
+                    <Tab text="Contactos" fx:id="tabContactos"/>
+                    <Tab text="Tareas"    fx:id="tabTareas"/>
+                    <Tab text="IA"        fx:id="tabIA"/>
+                </tabs>
+            </TabPane>
+
+            <!-- Título sección actual -->
+            <VBox alignment="CENTER_LEFT" spacing="4">
+                <padding>
+                    <Insets top="10" right="20" bottom="10" left="20"/>
+                </padding>
+
+                <Label text="Configuración de cuenta"
+                       styleClass="title-label"/>
+
+                <Label text="Selecciona un proveedor o configura un servidor personalizado"
+                       styleClass="section-label"/>
+            </VBox>
+        </VBox>
+    </top>
+
+    <!-- ZONA CENTRAL: formulario + apariencia -->
+    <center>
+        <VBox spacing="12">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <!-- Formulario de cuenta -->
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="140"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <!-- Proveedor -->
+                <Label text="Proveedor:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="providerCombo"
+                          onAction="#onProviderChanged"
+                          GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <!-- Correo electrónico -->
+                <Label text="Correo electrónico:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="emailField"
+                           promptText="usuario@dominio.com"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <!-- Contraseña maestra -->
+                <Label text="Contraseña maestra:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="masterPassField"
+                               promptText="Contraseña para proteger la cuenta"
+                               GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <!-- Servidor IMAP -->
+                <Label text="Servidor IMAP:"
+                       fx:id="imapLabel"
+                       GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="imapField"
+                           promptText="imap.midominio.com"
+                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <!-- Servidor SMTP -->
+                <Label text="Servidor SMTP:"
+                       fx:id="smtpLabel"
+                       GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="smtpField"
+                           promptText="smtp.midominio.com"
+                           GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <!-- Mensaje de estado -->
+            <Label fx:id="statusLabel"
+                   text=""
+                   styleClass="status-label"/>
+
+            <!-- Apariencia -->
+            <Separator/>
+
+            <VBox spacing="8">
+                <Label text="Apariencia" styleClass="section-label"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Tema:"/>
+
+                    <RadioButton fx:id="rbTemaClaro"
+                                 text="Claro"
+                                 toggleGroup="$themeGroup"
+                                 onAction="#onTemaClaro"/>
+
+                    <RadioButton fx:id="rbTemaOscuro"
+                                 text="Oscuro"
+                                 toggleGroup="$themeGroup"
+                                 onAction="#onTemaOscuro"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- ZONA INFERIOR: botones -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Button text="Cancelar"
+                    onAction="#onCancelClicked"/>
+
+            <Button text="Guardar cuenta"
+                    fx:id="saveButton"
+                    defaultButton="true"
+                    onAction="#onSaveClicked"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

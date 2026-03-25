@@ -37,7 +37,7 @@ public class MainController {
     private ToggleGroup grpSecciones;
 
     @FXML
-    private ToggleButton btnTema;   // botón ☾ del sidebar
+    private ToggleButton btnTema;   // botón ☾/☼ del sidebar
 
     private MailService mailService;
 
@@ -123,6 +123,10 @@ public class MainController {
         try {
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
             Node vista = loader.load();
+
+            ConfigController controller = loader.getController();
+            controller.setMainController(this);
+
             centerPane.getChildren().setAll(vista);
             if (btnConfiguracion != null) btnConfiguracion.setSelected(true);
         } catch (Exception e) {
@@ -142,28 +146,24 @@ public class MainController {
         }
     }
 
-    // ===================== Tema claro/oscuro desde sidebar =====================
+    // ===================== Tema claro/oscuro reutilizable =====================
+    private boolean temaClaro = false;
 
-    @FXML
-    private void onToggleTema() {
-        if (btnTema == null) return;
+    public boolean isTemaClaro() {
+        return temaClaro;
+    }
+    
+    
+    public void aplicarTema(boolean light) {
+        this.temaClaro = light;   // guardar estado
 
-        Scene scene = btnTema.getScene();
+        Scene scene = centerPane != null ? centerPane.getScene() : null;
         if (scene == null) return;
 
-        aplicarTemaAScene(scene);
-    }
-
-    private void aplicarTemaAScene(Scene scene) {
         scene.getStylesheets().clear();
-
-        // Siempre CSS básico
         scene.getStylesheets().add(
                 AppFX.class.getResource("/styles-basic.css").toExternalForm()
         );
-
-        boolean light = btnTema.isSelected();
-        btnTema.setText(light ? "☼" : "☾");
 
         if (light) {
             scene.getStylesheets().add(
@@ -174,5 +174,16 @@ public class MainController {
                     AppFX.class.getResource("/styles-dark.css").toExternalForm()
             );
         }
+
+        if (btnTema != null) {
+            btnTema.setSelected(light);
+            btnTema.setText(light ? "☼" : "☾");
+        }
+    }
+
+    @FXML
+    private void onToggleTema() {
+        if (btnTema == null) return;
+        aplicarTema(btnTema.isSelected());
     }
 }

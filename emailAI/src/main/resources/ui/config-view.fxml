@@ -8,79 +8,145 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.emailAI.controller.ConfigController">
 
-    <!-- ZONA SUPERIOR: título -->
+    <fx:define>
+        <ToggleGroup fx:id="themeGroup"/>
+    </fx:define>
+
+    <!-- TOP: título genérico -->
     <top>
         <VBox alignment="CENTER_LEFT" spacing="4">
             <padding>
                 <Insets top="20" right="20" bottom="10" left="20"/>
             </padding>
 
-            <Label text="Nueva cuenta"
+            <Label text="Configuración"
                    styleClass="title-label"/>
 
-            <Label text="Selecciona un proveedor o configura un servidor personalizado"
+            <Label text="Ajustes generales y cuentas de correo"
                    styleClass="section-label"/>
         </VBox>
     </top>
 
-    <!-- ZONA CENTRAL: formulario -->
+    <!-- CENTER: TabPane con General / Correo / resto -->
     <center>
-        <VBox spacing="12">
-            <padding>
-                <Insets top="10" right="20" bottom="10" left="20"/>
-            </padding>
+        <TabPane fx:id="tabContenido" tabClosingPolicy="UNAVAILABLE">
 
-            <GridPane hgap="10" vgap="10">
-                <columnConstraints>
-                    <ColumnConstraints halignment="RIGHT" minWidth="140"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
-                </columnConstraints>
+            <!-- TAB GENERAL: Apariencia -->
+            <Tab text="General">
+                <content>
+                    <VBox spacing="12">
+                        <padding>
+                            <Insets top="10" right="20" bottom="10" left="20"/>
+                        </padding>
 
-                <!-- Proveedor -->
-                <Label text="Proveedor:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <ComboBox fx:id="providerCombo"
-                          onAction="#onProviderChanged"
-                          GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label text="Ajustes generales" styleClass="section-label"/>
 
-                <!-- Correo electrónico -->
-                <Label text="Correo electrónico:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <TextField fx:id="emailField"
-                           promptText="usuario@dominio.com"
-                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Separator/>
 
-                <!-- Contraseña maestra -->
-                <Label text="Contraseña maestra:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                <PasswordField fx:id="masterPassField"
-                               promptText="Contraseña para proteger la cuenta"
-                               GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <VBox spacing="8">
+                            <Label text="Apariencia" styleClass="section-label"/>
 
-                <!-- SERVIDORES PERSONALIZADOS (se mostrarán solo si el proveedor es 'Personalizado') -->
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Tema:"/>
 
-                <!-- Servidor IMAP -->
-                <Label text="Servidor IMAP:"
-                       fx:id="imapLabel"
-                       GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                <TextField fx:id="imapField"
-                           promptText="imap.midominio.com"
-                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                <RadioButton fx:id="rbTemaClaro"
+                                             text="Claro"
+                                             toggleGroup="$themeGroup"
+                                             onAction="#onTemaClaro"/>
 
-                <!-- Servidor SMTP -->
-                <Label text="Servidor SMTP:"
-                       fx:id="smtpLabel"
-                       GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <TextField fx:id="smtpField"
-                           promptText="smtp.midominio.com"
-                           GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-            </GridPane>
+                                <RadioButton fx:id="rbTemaOscuro"
+                                             text="Oscuro"
+                                             toggleGroup="$themeGroup"
+                                             onAction="#onTemaOscuro"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </content>
+            </Tab>
 
-            <!-- Mensaje de estado -->
-            <Label fx:id="statusLabel"
-                   text=""
-                   styleClass="status-label"/>
-        </VBox>
+            <!-- TAB CORREO: cuentas nuevas + olvidar -->
+            <Tab text="Correo">
+                <content>
+                    <VBox spacing="12">
+                        <padding>
+                            <Insets top="10" right="20" bottom="10" left="20"/>
+                        </padding>
+
+                        <Label text="Cuentas de correo"
+                               styleClass="section-label"/>
+
+                        <!-- Formulario de cuenta nueva -->
+                        <GridPane hgap="10" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints halignment="RIGHT" minWidth="140"/>
+                                <ColumnConstraints hgrow="ALWAYS"/>
+                            </columnConstraints>
+
+                            <!-- Proveedor -->
+                            <Label text="Proveedor:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="providerCombo"
+                                      onAction="#onProviderChanged"
+                                      GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                            <!-- Correo electrónico -->
+                            <Label text="Correo electrónico:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <TextField fx:id="emailField"
+                                       promptText="usuario@dominio.com"
+                                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <!-- Contraseña maestra -->
+                            <Label text="Contraseña maestra:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <PasswordField fx:id="masterPassField"
+                                           promptText="Contraseña para proteger la cuenta"
+                                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                            <!-- Servidor IMAP -->
+                            <Label text="Servidor IMAP:"
+                                   fx:id="imapLabel"
+                                   GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <TextField fx:id="imapField"
+                                       promptText="imap.midominio.com"
+                                       GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                            <!-- Servidor SMTP -->
+                            <Label text="Servidor SMTP:"
+                                   fx:id="smtpLabel"
+                                   GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <TextField fx:id="smtpField"
+                                       promptText="smtp.midominio.com"
+                                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        </GridPane>
+
+                        <!-- Mensaje de estado -->
+                        <Label fx:id="statusLabel"
+                               text=""
+                               styleClass="status-label"/>
+
+                        <!-- Bloque olvidar cuentas -->
+                        <Separator/>
+                        <Label text="Olvidar cuentas" styleClass="section-label"/>
+
+                        <HBox spacing="8">
+                            <ComboBox fx:id="comboCuentasExistentes"
+                                      promptText="Selecciona una cuenta a olvidar"
+                                      HBox.hgrow="ALWAYS"/>
+                            <Button text="Olvidar"
+                                    onAction="#onOlvidarCuentaClicked"/>
+                        </HBox>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <!-- Tabs vacías por ahora -->
+            <Tab text="Calendario"/>
+            <Tab text="Contactos"/>
+            <Tab text="Tareas"/>
+            <Tab text="IA"/>
+
+        </TabPane>
     </center>
 
-    <!-- ZONA INFERIOR: botones -->
+    <!-- BOTTOM: botones generales -->
     <bottom>
         <HBox spacing="10" alignment="CENTER_RIGHT">
             <padding>

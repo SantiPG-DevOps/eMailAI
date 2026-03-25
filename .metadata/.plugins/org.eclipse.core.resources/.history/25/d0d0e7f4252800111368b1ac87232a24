@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.ConfigController">
+
+    <fx:define>
+        <ToggleGroup fx:id="themeGroup"/>
+    </fx:define>
+
+    <!-- TOP: título genérico -->
+    <top>
+        <VBox alignment="CENTER_LEFT" spacing="4">
+            <padding>
+                <Insets top="20" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Label text="Configuración"
+                   styleClass="title-label"/>
+
+            <Label text="Ajustes generales y cuentas de correo"
+                   styleClass="section-label"/>
+        </VBox>
+    </top>
+
+    <!-- CENTER: TabPane con General / Correo / resto -->
+    <center>
+        <TabPane fx:id="tabContenido" tabClosingPolicy="UNAVAILABLE">
+
+            <!-- TAB GENERAL: Apariencia -->
+            <Tab text="General">
+                <content>
+                    <VBox spacing="

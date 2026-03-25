@@ -9,11 +9,14 @@
             fx:controller="com.emailAI.controller.CalendarioController">
 
     <center>
-        <SplitPane dividerPositions="0.5">
+        <SplitPane dividerPositions="0.5"
+                   prefHeight="0.0">
             <items>
 
                 <!-- IZQUIERDA: Calendario mensual -->
-                <VBox spacing="8">
+                <VBox spacing="8"
+                      VBox.vgrow="ALWAYS"
+                      prefHeight="0.0">
                     <padding>
                         <Insets top="10" right="10" bottom="10" left="10"/>
                     </padding>
@@ -56,11 +59,13 @@
                         </children>
                     </GridPane>
 
-                    <!-- Grid de días (clicable y responsive) -->
+                    <!-- Grid de días (se estira a todo el alto) -->
                     <GridPane fx:id="gridDias"
                               hgap="5"
                               vgap="5"
-                              VBox.vgrow="ALWAYS">
+                              VBox.vgrow="ALWAYS"
+                              BorderPane.alignment="CENTER"
+                              prefHeight="0.0">
                         <columnConstraints>
                             <ColumnConstraints percentWidth="14.28"/>
                             <ColumnConstraints percentWidth="14.28"/>
@@ -70,11 +75,23 @@
                             <ColumnConstraints percentWidth="14.28"/>
                             <ColumnConstraints percentWidth="14.28"/>
                         </columnConstraints>
+
+                        <!-- 6 filas para un mes completo -->
+                        <rowConstraints>
+                            <RowConstraints percentHeight="16.6"/>
+                            <RowConstraints percentHeight="16.6"/>
+                            <RowConstraints percentHeight="16.6"/>
+                            <RowConstraints percentHeight="16.6"/>
+                            <RowConstraints percentHeight="16.6"/>
+                            <RowConstraints percentHeight="16.6"/>
+                        </rowConstraints>
                     </GridPane>
                 </VBox>
 
                 <!-- DERECHA: eventos del día seleccionado -->
-                <VBox spacing="8">
+                <VBox spacing="8"
+                      VBox.vgrow="ALWAYS"
+                      prefHeight="0.0">
                     <padding>
                         <Insets top="10" right="10" bottom="10" left="0"/>
                     </padding>

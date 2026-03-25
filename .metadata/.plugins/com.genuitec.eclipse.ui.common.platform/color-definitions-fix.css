@@ -961,17 +961,6 @@ IEclipsePreferences#eclihx-ui {
 		'hx_editor_number_color=189,147,249'
 		'hx_editor_multiline_comment_color=109,109,159'
 }
-IEclipsePreferences#goclipse {
-	preferences:
-		'syntax_highlighting_primitive_color=189,147,249'
-		'syntax_highlighting_multiline_string_color=255,230,109'
-		'syntax_highlighting_comment_color=109,109,159'
-		'syntax_highlighting_text_color=229,223,248'
-		'syntax_highlighting_keyword_color=255,106,193'
-		'syntax_highlighting_string_color=255,230,109'
-		'syntax_highlighting_value_color=189,147,249'
-		'syntax_highlighting_builtin_function_color=169,220,118'
-}
 IEclipsePreferences#jp-gr-java_conf-ussiy-app-propedit {
 	preferences:
 		'separatorColor=229,223,248'

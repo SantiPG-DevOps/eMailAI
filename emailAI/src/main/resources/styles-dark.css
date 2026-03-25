@@ -281,3 +281,25 @@
     -fx-border-radius: 999;
     -fx-background-radius: 999;
 }
+
+/* ========= CALENDARIO ========= */
+
+/* Día normal */
+.cal-dia {
+    -fx-background-color: transparent;
+    -fx-border-color: #475569;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 4;
+}
+
+/* Hoy */
+.cal-dia-hoy {
+    -fx-border-color: #22D3EE;
+}
+
+/* Seleccionado: más contraste */
+.cal-dia-seleccionado {
+    -fx-background-color: #22D3EE55;   /* azul translúcido */
+    -fx-border-color: #22D3EE;
+}

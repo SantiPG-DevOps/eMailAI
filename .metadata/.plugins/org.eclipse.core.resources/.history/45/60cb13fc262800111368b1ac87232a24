@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.CalendarioController">
+
+    <center>
+        <SplitPane dividerPositions="0.5">
+            <items>
+
+                <!-- IZQUIERDA: Calendario mensual -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+
+                    <!-- Barra de mes -->
+                    <HBox spacing="10">
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <Button text="«" onAction="#onMesAnterior"/>
+                            <Label fx:id="lblMesAnio"
+                                   text="Mes Año"
+                                   style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                            <Button text="»" onAction="#onMesSiguiente"/>
+                        </HBox>
+
+                        <Pane HBox.hgrow="ALWAYS"/>
+
+                        <Button text="Hoy" onAction="#onHoy"/>
+                    </HBox>
+
+                    <!-- Cabecera días de la semana -->
+                    <GridPane hgap="5" vgap="5">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                        </columnConstraints>
+
+                        <children>
+                            <Label text="L" GridPane.columnIndex="0"/>
+                            <Label text="M" GridPane.columnIndex="1"/>
+                            <Label text="X" GridPane.columnIndex="2"/>
+                            <Label text="J" GridPane.columnIndex="3"/>
+                            <Label text="V" GridPane.columnIndex="4"/>
+                            <Label text="S" GridPane.columnIndex="5"/>
+                            <Label text="D" GridPane.columnIndex="6"/>
+                        </children>
+                    </GridPane>
+
+                    <!-- Grid de días (clicable y responsive) -->
+                    <GridPane fx:id="gridDias"
+                              hgap="5"
+                              vgap="5"
+                              VBox.vgrow="ALWAYS">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28"/>
+                        </columnConstraints>
+                    </GridPane>
+                </VBox>
+
+                <!-- DERECHA: eventos del día seleccionado -->
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="0"/>
+                    </padding>
+
+                    <Label fx:id="lblFechaSeleccionada"
+                           text="Eventos de hoy"
+                           style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+                    <ListView fx:id="lstEventos" VBox.vgrow="ALWAYS"/>
+
+                    <HBox spacing="8">
+                        <TextField fx:id="txtNuevoEvento"
+                                   promptText="Nuevo evento o editar seleccionado"
+                                   HBox.hgrow="ALWAYS"/>
+                        <Button text="Guardar" onAction="#onAgregarEvento"/>
+                        <Button text="Eliminar" onAction="#onEliminarEventoSeleccionado"/>
+                    </HBox>
+                </VBox>
+
+            </items>
+        </SplitPane>
+    </center>
+
+</BorderPane>

@@ -4,11 +4,7 @@ import com.emailAI.dao.DAOEventosCalendario;
 import com.emailAI.dao.DAOEventosCalendario.Evento;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
@@ -101,6 +97,11 @@ public class CalendarioController {
             if (fecha.equals(fechaSeleccionada)) {
                 celda.getStyleClass().add("cal-dia-seleccionado");
             }
+
+            // que la celda rellene toda la casilla del GridPane
+            celda.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            GridPane.setFillHeight(celda, true);
+            GridPane.setFillWidth(celda, true);
 
             celda.setOnMouseClicked(e -> {
                 fechaSeleccionada = fecha;

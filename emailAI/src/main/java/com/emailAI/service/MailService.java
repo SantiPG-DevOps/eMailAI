@@ -20,13 +20,12 @@ public class MailService {
     private String smtpHost = null;
     private String imapHost = null;
 
-    // Nuevo: servicio de IA basado en LangChain4j 1.x
+    // IA LLM opcional
     private IAAsistenteService iaAsistenteService;
 
     public MailService() {
     }
 
-    // Opcional: inyectar IA desde fuera
     public MailService(IAAsistenteService iaAsistenteService) {
         this.iaAsistenteService = iaAsistenteService;
     }
@@ -35,9 +34,8 @@ public class MailService {
         this.iaAsistenteService = iaAsistenteService;
     }
 
-    /**
-     * Establece la conexión IMAP para recibir y prepara los datos SMTP para enviar.
-     */
+    // ========================= Conexión =========================
+
     public void connect(String imapHost, String smtpHost, String user, String password) throws Exception {
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
@@ -55,9 +53,9 @@ public class MailService {
         this.imapHost = imapHost;
     }
 
-    /**
-     * Descarga los últimos mensajes, los mapea a Mensaje y los clasifica mediante IA (Weka + LLM).
-     */
+    // ========================= Bandeja de entrada =========================
+
+    /** Descarga últimos mensajes y los mapea a Mensaje con IA. */
     public List<Mensaje> listInbox() throws Exception {
         if (store == null || !store.isConnected()) {
             throw new IllegalStateException("Store IMAP no conectado. Llama antes a connect().");
@@ -120,7 +118,7 @@ public class MailService {
                 mensajeObj.setPrioridad("NORMAL");
             }
 
-            // IA LLM (LangChain4j 1.x): resumen + sugerencia
+            // IA LLM (LangChain4j): resumen + sugerencia
             if (iaAsistenteService != null) {
                 try {
                     String resumen = iaAsistenteService.generarResumen(cuerpo);
@@ -139,9 +137,25 @@ public class MailService {
         return resultado;
     }
 
-    /**
-     * Envía un correo electrónico utilizando el servidor SMTP configurado.
-     */
+    /** Elimina (marca como DELETED) un mensaje de la INBOX usando su messageNumber. */
+    public void eliminarMensaje(Mensaje mensaje) throws Exception {
+        if (store == null || !store.isConnected()) {
+            throw new IllegalStateException("Store IMAP no conectado.");
+        }
+        if (mensaje == null) return;
+
+        Folder inbox = store.getFolder("INBOX");
+        inbox.open(Folder.READ_WRITE);
+
+        int msgNumber = Integer.parseInt(mensaje.getUidImap());
+        Message msg = inbox.getMessage(msgNumber);
+
+        msg.setFlag(Flags.Flag.DELETED, true);
+        inbox.close(true); // expunge = true
+    }
+
+    // ========================= Envío =========================
+
     public void sendEmail(String to, String subject, String body) throws Exception {
         if (currentUser == null || currentPassword == null || smtpHost == null) {
             throw new IllegalStateException("No hay sesión SMTP/credenciales configuradas.");

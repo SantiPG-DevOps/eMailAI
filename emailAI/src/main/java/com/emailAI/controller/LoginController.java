@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,12 +23,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.control.ProgressBar;
 
 public class LoginController {
 
     @FXML
-    private VBox accountsList;           // lista vertical de tarjetas
+    private VBox accountsList;
 
     @FXML
     private PasswordField passwordField;
@@ -43,17 +43,19 @@ public class LoginController {
 
     @FXML
     private ImageView logoImage;
-    
-    @FXML 
-    private ProgressBar strengthBar;
-    
-    @FXML 
-    private Label strengthLabel;
 
+    @FXML
+    private ProgressBar strengthBar;
+
+    @FXML
+    private Label strengthLabel;
 
     private final List<CuentaGuardada> cuentas = new ArrayList<>();
     private CuentaGuardada cuentaSeleccionada;
     private final MailService mailService = new MailService();
+
+    // estado de tema en login (true = claro, false = oscuro)
+    private boolean temaClaro = false;
 
     @FXML
     private void initialize() {
@@ -65,11 +67,13 @@ public class LoginController {
         statusLabel.setText("");
         passwordField.setText("");
 
+        // Tema por defecto: oscuro
         if (themeToggle != null) {
-            themeToggle.setSelected(false); // oscuro por defecto
-            themeToggle.setText("🌙");
+            temaClaro = false;
+            themeToggle.setSelected(false);
+            themeToggle.setText("☾");
         }
-        
+
         if (strengthBar != null && strengthLabel != null) {
             strengthBar.setProgress(0.0);
             strengthLabel.setText("Contraseña débil");
@@ -78,6 +82,8 @@ public class LoginController {
         cargarCuentasDesdeBD();
         dibujarTarjetas();
     }
+
+    // ===================== Cuentas guardadas =====================
 
     private void cargarCuentasDesdeBD() {
         cuentas.clear();
@@ -102,7 +108,7 @@ public class LoginController {
         VBox card = new VBox();
         card.getStyleClass().add("account-card");
         card.setSpacing(4);
-        card.setMaxWidth(560); // mismo ancho que el contenedor
+        card.setMaxWidth(560);
 
         String emailDescifrado;
         try {
@@ -138,6 +144,8 @@ public class LoginController {
         statusLabel.setText("Cuenta seleccionada: " + emailDescifrado);
         passwordField.requestFocus();
     }
+
+    // ===================== Login =====================
 
     @FXML
     private void onLoginClicked(ActionEvent event) {
@@ -186,6 +194,7 @@ public class LoginController {
             MainController mainController = loader.getController();
             if (mainController != null) {
                 try {
+                    mainController.aplicarTema(temaClaro);
                     mainController.setMailService(mailService);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -202,15 +211,14 @@ public class LoginController {
         }
     }
 
+    // ===================== Tema claro/oscuro =====================
+
     @FXML
     private void onThemeToggle(ActionEvent event) {
-        if (themeToggle != null) {
-            if (themeToggle.isSelected()) {
-                themeToggle.setText("☀");
-            } else {
-                themeToggle.setText("🌙");
-            }
-        }
+        if (themeToggle == null) return;
+
+        temaClaro = themeToggle.isSelected();
+        themeToggle.setText(temaClaro ? "☼" : "☾");
 
         Scene scene = themeToggle.getScene();
         if (scene != null) {
@@ -225,7 +233,7 @@ public class LoginController {
                 AppFX.class.getResource("/styles-basic.css").toExternalForm()
         );
 
-        if (themeToggle != null && themeToggle.isSelected()) {
+        if (temaClaro) {
             scene.getStylesheets().add(
                     AppFX.class.getResource("/styles-light.css").toExternalForm()
             );
@@ -235,6 +243,8 @@ public class LoginController {
             );
         }
     }
+
+    // ===================== Nueva cuenta =====================
 
     @FXML
     private void onNewAccountClicked(ActionEvent event) {
@@ -253,6 +263,9 @@ public class LoginController {
             statusLabel.setText("No se pudo abrir Nueva cuenta: " + e.getMessage());
         }
     }
+
+    // ===================== Fuerza de contraseña =====================
+
     @FXML
     private void onAppPasswordChanged() {
         if (strengthBar == null || strengthLabel == null) return;
@@ -304,5 +317,4 @@ public class LoginController {
         else if (puntos <= 4) return 1; // media
         else return 2;                  // fuerte
     }
-
 }

@@ -10,8 +10,8 @@
 		</section>
 	</section>
 	<section name="org.eclipse.oomph.setup.ui.wizards.SetupWizard$Updater$2">
-		<item key="DIALOG_WIDTH" value="826"/>
-		<item key="DIALOG_HEIGHT" value="727"/>
-		<item key="DIALOG_FONT_NAME" value="1|Roboto|10.0|0|GTK|1|"/>
+		<item key="DIALOG_WIDTH" value="820"/>
+		<item key="DIALOG_HEIGHT" value="693"/>
+		<item key="DIALOG_FONT_NAME" value="1|SF Pro Display|10.0|0|GTK|1|"/>
 	</section>
 </section>

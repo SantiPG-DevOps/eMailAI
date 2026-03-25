@@ -109,7 +109,7 @@
             <ToggleButton fx:id="themeToggle"
                           onAction="#onThemeToggle"
                           styleClass="theme-toggle"
-                          text="Tema" />
+                          text="TEMA" />
         </HBox>
     </bottom>
 
