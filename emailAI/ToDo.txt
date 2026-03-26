@@ -1,0 +1,52 @@
+Importante
+	Arreglar alertas de controllers. - Creo que son avisos de imports sin uso, pero revisar.
+
+Login
+	Terminar de implementar un menu cuenta nueva en login adecuado. Que no salte la ventana de config como esta ahora.
+
+Config 
+	General
+		Añadir en la parte general debajo de la seleccion de tema, el cambio de colores permanente de cada parte.
+	Correo  
+		Hacer que la parte de correo tenga una "lista" con cuenta nueva, donde salte popup de nueva cuenta.
+		Añadir tarjetas con las cuentas guardadas en bd, y 2 botones, añadir nueva que saltara la accion popup de cuenta nueva,
+		boton editar cuenta que saltara el pop cuenta nueva con los datos ya añadidos en cuenta nueva, y boton borrar cuenta.
+		Implementar configuracion de protocolo de llamada a enviar/recibir en segundo plano durante X minutos.
+	Calendario y Tareas
+		Implementacion con archivos .ics con tareas y con todoist.
+	Contactos
+		Buscar info sobre la implementacion de diferentes sistemas de encriptacion.
+	Chat IA
+		Añadir opciones para implementar un API de IA local.
+		
+
+Correo
+	Arreglar la llamada al explorador externo al accion sobre enlace
+	Ponerle a las etiquetas de los correos un borde de color, ROJO (Spam Phishing), Amarillo (sin calificar), Verde (legit).
+	Implementar la ia
+	Implementar la logica para tener diferentes bandejas con diferentes bd detras cada una. Segun la accion que se lleve a cabo
+	Arreglar el menu lateral, para que los botones de correo calendario y demas ocupen el ancho de la fila
+		Y al seleecionar correo, salgan un submenu debajo de correo, donde este bandeja de entrada, bandeja de salida etc.
+	Implementar protocolo, por el cual cada X min se llame a enviar/recibir.
+	
+Calendario
+	Eliminar eventos a la derecha y hacer el calendario ocupe todo
+	Añadir un boton nuevo donde se accione un popup de nuevo evento.
+	Arreglar un evento en segundo plano para colorear los eventos en rojo, al entrar en la semana que tienen q ser finalizados;
+	A la semana siguiente sera en amarillo, y el resto en verde.
+	
+Tareas
+	Cambiar el orden del menu lateral.
+	La bandeja de tareas sera bandeja de entrada.
+	Cambiar el calendario de tareas por "proximas tareas", y cambiarlo a una vista diaria. 
+		En el que sino tiene evento un dia se vea minimo q linea
+	Colorear de rojo el "Filtro" hoy, mañana naranja, semana amarillo, y mes en verde. Planificado y etiquetas en gris.
+	Terminar integracion con calendario y con todoist para soporte en linea.
+	
+Contactos
+	Cambiar a vista en 3 columnas, donde el boton nuevo, acciona popup, para añadir nuevo contacto.
+	Añadir etiquetas, de personal trabajo. y colorear las tarjetas segun etiquetas.
+	
+Chat IA
+	Terminar de diseñar e implementar la interfaz de usuario para charlar con la IA. Opcion solo disponible con IA local.
+	

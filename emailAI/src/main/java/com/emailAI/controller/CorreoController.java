@@ -1,7 +1,7 @@
 package com.emailAI.controller;
 
-import com.emailAI.AppFX;
 import com.emailAI.dao.DAOMensajes;
+import com.emailAI.dao.DAORemitentesConfiables;
 import com.emailAI.model.Mensaje;
 import com.emailAI.service.MailService;
 import com.emailAI.service.SpamIaService;
@@ -12,10 +12,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -70,12 +76,17 @@ public class CorreoController {
     @FXML
     private Button btnBorrarSeleccionado;
 
+    @FXML
+    private Button btnPermitirImagenes;
+
     private MailService mailService;
     private SpamIaService spamIaService;
     private DAOMensajes daoMensajes;
+    private DAORemitentesConfiables daoRemitentes;
     private String cuentaHash;
 
     private final ObservableList<Mensaje> modeloMensajes = FXCollections.observableArrayList();
+    private Mensaje mensajeActual;
 
     @FXML
     private void initialize() {
@@ -110,6 +121,59 @@ public class CorreoController {
         lstMensajes.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSel, newSel) -> mostrarMensaje(newSel)
         );
+
+        configurarWebViewEnlacesExternos();
+    }
+
+    // Enlaces del WebView se abren en navegador externo
+    private void configurarWebViewEnlacesExternos() {
+        WebEngine engine = webViewCuerpo.getEngine();
+
+        // Cuando el documento termine de cargar, inyectamos listeners en todos los <a>
+        engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState != javafx.concurrent.Worker.State.SUCCEEDED) return;
+
+            try {
+                // JS: añade listener a todos los enlaces
+                String script =
+                        "var anchors = document.getElementsByTagName('a');" +
+                        "for (var i = 0; i < anchors.length; i++) {" +
+                        "  anchors[i].addEventListener('click', function(e) {" +
+                        "    e.preventDefault();" +
+                        "    var href = this.getAttribute('href');" +
+                        "    if (href && (href.startsWith('http://') || href.startsWith('https://'))) {" +
+                        "      window.location.href = 'about:open_external::' + href;" +
+                        "    }" +
+                        "  });" +
+                        "}";
+
+                engine.executeScript(script);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Escuchamos cambios de location para capturar nuestro "about:open_external::URL"
+        engine.locationProperty().addListener((obs, oldLoc, newLoc) -> {
+            if (newLoc == null) return;
+
+            String prefix = "about:open_external::";
+            if (newLoc.startsWith(prefix)) {
+                String url = newLoc.substring(prefix.length());
+                try {
+                    if (Desktop.isDesktopSupported()) {
+                        Desktop.getDesktop().browse(new URI(url));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    // Volver al contenido del correo (no navegar dentro)
+                    if (oldLoc != null && !oldLoc.isBlank()) {
+                        webViewCuerpo.getEngine().load(oldLoc);
+                    }
+                }
+            }
+        });
     }
 
     // Lo llama MainController después de crear la vista
@@ -121,6 +185,7 @@ public class CorreoController {
 
             String url = "jdbc:sqlite:emailAI.db";
             this.daoMensajes = new DAOMensajes(url);
+            this.daoRemitentes = new DAORemitentesConfiables(url);
 
             cargarDesdeBD();
             cargarBandejaEntradaAsync();
@@ -207,9 +272,15 @@ public class CorreoController {
         lblRemitente.setText("");
         webViewCuerpo.getEngine().loadContent("");
         txtCuerpo.clear();
+        mensajeActual = null;
+        if (btnPermitirImagenes != null) {
+            btnPermitirImagenes.setDisable(true);
+        }
     }
 
     private void mostrarMensaje(Mensaje msg) {
+        mensajeActual = msg;
+
         if (msg == null) {
             limpiarDetalle();
             return;
@@ -236,6 +307,25 @@ public class CorreoController {
             webViewCuerpo.setVisible(false);
             webViewCuerpo.setManaged(false);
         }
+
+        if (btnPermitirImagenes != null) {
+            btnPermitirImagenes.setDisable(true); // de momento sin bloqueo de imágenes
+        }
+    }
+
+    private String eliminarImagenesExternas(String html) {
+        // Quita <img src="http://..."> y <img src="https://...">
+        return html.replaceAll("(?i)<img\\b[^>]*src\\s*=\\s*\"https?://[^>\"]*\"[^>]*>", "");
+    }
+
+    @FXML
+    private void onPermitirImagenes() {
+        if (mensajeActual == null || daoRemitentes == null) return;
+        String remitente = mensajeActual.getRemitente();
+        if (remitente == null || remitente.isBlank()) return;
+
+        daoRemitentes.marcarConfiable(remitente);
+        mostrarMensaje(mensajeActual);
     }
 
     // ================== COMPOSE WINDOW ==================
@@ -250,31 +340,6 @@ public class CorreoController {
 
             FXMLLoader loader = new FXMLLoader(url);
             Scene scene = new Scene(loader.load());
-
-            // Aplicar tema según MainController registrado en AppFX
-            MainController main = AppFX.getMainController();
-            if (main != null) {
-                scene.getStylesheets().clear();
-                scene.getStylesheets().add(
-                        AppFX.class.getResource("/styles-basic.css").toExternalForm()
-                );
-                if (main.isTemaClaro()) {
-                    scene.getStylesheets().add(
-                            AppFX.class.getResource("/styles-light.css").toExternalForm()
-                    );
-                } else {
-                    scene.getStylesheets().add(
-                            AppFX.class.getResource("/styles-dark.css").toExternalForm()
-                    );
-                }
-            } else {
-                // Fallback: copiar estilos de la escena donde está la lista
-                Scene mainScene = lstMensajes.getScene();
-                if (mainScene != null) {
-                    scene.getStylesheets().clear();
-                    scene.getStylesheets().addAll(mainScene.getStylesheets());
-                }
-            }
 
             ComposeController controller = loader.getController();
             Stage stage = new Stage();

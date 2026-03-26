@@ -3,5 +3,6 @@
     <libraryInfo home="/usr/lib/jvm/java-26-openjdk" version="26.0.2"/>
     <libraryInfo home="/usr/lib/jvm/java-21-openjdk" version="21.0.10"/>
     <libraryInfo home="/usr/lib/jvm/java-17-openjdk" version="17.0.18"/>
+    <libraryInfo home="/usr/lib/jvm/jdk-26" version="26"/>
     <libraryInfo home="/usr/lib/jvm/java-21-openjdk-amd64" version="21.0.10"/>
 </libraryInfos>

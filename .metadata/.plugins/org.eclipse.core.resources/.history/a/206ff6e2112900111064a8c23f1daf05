@@ -1,0 +1,17 @@
+Importante
+	Arreglar alertas de controllers. - Creo que son avisos de imports sin uso, pero revisar.
+
+Login
+	Terminar de implementar un menu cuenta nueva en login adecuado. Que no salte la ventana de config como esta ahora.
+
+Config 
+	Terminar la implementacion de la ventana de config. 
+		Hacer que la parte de correo tenga una "lista" con cuenta nueva, donde salte popup de nueva cuenta.
+		La parte de IA, añadir opciones para implementar un API de IA local.
+		Añadir en la parte general debajo de la seleccion de tema, el cambio de colores permanente de cada parte.
+
+Correo
+	Arreglar la llamada al explorador externo al accion sobre enlace
+	Ponerle a las etiquetas de los correos un borde de color, ROJO (Spam Phishing), Amarillo (sin calificar), Verde (legit).
+	Implementar la ia
+	

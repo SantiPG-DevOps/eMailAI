@@ -141,6 +141,7 @@
                             <Button fx:id="btnSug2" onAction="#onUsarRespuesta2" styleClass="chip" HBox.hgrow="ALWAYS" />
                             <Button fx:id="btnSug3" onAction="#onUsarRespuesta3" styleClass="chip" HBox.hgrow="ALWAYS" />
                             <Button fx:id="btnAnularSub" onAction="#onAnularSub" styleClass="chip" text="Anular sub" HBox.hgrow="ALWAYS" />
+                            <Button text="Permitir imágenes" fx:id="btnPermitirImagenes" onAction="#onPermitirImagenes" styleClass="small-button"/>
                         </HBox>
                     </VBox>
 
