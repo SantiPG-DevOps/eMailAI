@@ -134,4 +134,25 @@ public class DAOMensajes {
             e.printStackTrace();
         }
     }
+
+    public void actualizarCategoriaPrioridad(String uidImap, String cuentaHash, String categoria, String prioridad) {
+        if (uidImap == null || cuentaHash == null) return;
+
+        String sql = """
+                UPDATE mensajes
+                SET categoria = ?, prioridad = ?
+                WHERE uid_imap = ? AND cuenta_hash = ?
+                """;
+
+        try (Connection conn = DriverManager.getConnection(url);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, categoria);
+            ps.setString(2, prioridad);
+            ps.setString(3, uidImap);
+            ps.setString(4, cuentaHash);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

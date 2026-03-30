@@ -4,6 +4,7 @@ import com.emailAI.model.Mensaje;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.UIDFolder;
 import weka.core.WekaException;
 
 import java.nio.file.Path;
@@ -98,8 +99,7 @@ public class MailService {
 
         for (int i = total; i >= inicio; i--) {
             Message msg = messages[i - 1];
-
-            String id = String.valueOf(msg.getMessageNumber());
+            String uid = obtenerIdentificadorMensaje(inbox, msg);
 
             Address[] froms = msg.getFrom();
             String remitente = (froms != null && froms.length > 0)
@@ -110,9 +110,9 @@ public class MailService {
             String cuerpo = extraerCuerpoTexto(msg);
             String html = extraerCuerpoHtml(msg);
 
-            Mensaje mensajeObj = new Mensaje(id, remitente, asunto, cuerpo);
+            Mensaje mensajeObj = new Mensaje(uid, remitente, asunto, cuerpo);
 
-            mensajeObj.setUidImap(id);
+            mensajeObj.setUidImap(uid);
             if (msg.getReceivedDate() != null) {
                 mensajeObj.setFecha(sdf.format(msg.getReceivedDate()));
             } else if (msg.getSentDate() != null) {
@@ -146,7 +146,7 @@ public class MailService {
                 mensajeObj.setCategoria("LEGITIMO");
                 mensajeObj.setPrioridad("NORMAL");
             } catch (Exception e) {
-                System.err.println("Error procesando IA clásica para mensaje " + id + ": " + e.getMessage());
+                System.err.println("Error procesando IA clásica para mensaje " + uid + ": " + e.getMessage());
                 mensajeObj.setCategoria("DESCONOCIDO");
                 mensajeObj.setPrioridad("NORMAL");
             }
@@ -159,7 +159,7 @@ public class MailService {
                     mensajeObj.setResumenIA(resumen);
                     mensajeObj.setSugerenciaIA(sugerencia);
                 } catch (Exception e) {
-                    System.err.println("Error llamando a IAAsistenteService para mensaje " + id + ": " + e.getMessage());
+                    System.err.println("Error llamando a IAAsistenteService para mensaje " + uid + ": " + e.getMessage());
                 }
             }
 
@@ -179,8 +179,11 @@ public class MailService {
         Folder inbox = store.getFolder("INBOX");
         inbox.open(Folder.READ_WRITE);
 
-        int msgNumber = Integer.parseInt(mensaje.getUidImap());
-        Message msg = inbox.getMessage(msgNumber);
+        Message msg = obtenerMensajeParaBorrado(inbox, mensaje.getUidImap());
+        if (msg == null) {
+            inbox.close(false);
+            throw new IllegalStateException("No se encontró el mensaje en INBOX para uid=" + mensaje.getUidImap());
+        }
 
         msg.setFlag(Flags.Flag.DELETED, true);
         inbox.close(true);
@@ -295,5 +298,36 @@ public class MailService {
     
     public SpamIaService getSpamIaService() {
         return spamIaService;
+    }
+
+    private String obtenerIdentificadorMensaje(Folder inbox, Message msg) throws MessagingException {
+        if (inbox instanceof UIDFolder uidFolder) {
+            long uid = uidFolder.getUID(msg);
+            if (uid > 0) {
+                return String.valueOf(uid);
+            }
+        }
+        return String.valueOf(msg.getMessageNumber());
+    }
+
+    private Message obtenerMensajeParaBorrado(Folder inbox, String uidImap) throws MessagingException {
+        if (uidImap == null || uidImap.isBlank()) return null;
+
+        try {
+            long uid = Long.parseLong(uidImap);
+            if (inbox instanceof UIDFolder uidFolder) {
+                Message byUid = uidFolder.getMessageByUID(uid);
+                if (byUid != null) return byUid;
+            }
+        } catch (NumberFormatException ignored) {
+            // Compatibilidad con datos antiguos no numéricos.
+        }
+
+        try {
+            int msgNumber = Integer.parseInt(uidImap);
+            return inbox.getMessage(msgNumber);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 }

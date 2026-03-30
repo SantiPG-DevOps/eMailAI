@@ -1,6 +1,7 @@
 package com.emailAI.controller;
 
 import com.emailAI.dao.DAOMensajes;
+
 import com.emailAI.dao.DAORemitentesConfiables;
 import com.emailAI.model.Mensaje;
 import com.emailAI.service.MailService;
@@ -13,15 +14,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.Desktop;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -293,12 +291,24 @@ public class CorreoController {
         String texto = msg.getCuerpo();
 
         if (html != null && !html.isBlank()) {
+            String remitente = msg.getRemitente();
+            boolean remitenteConfiable = remitente != null
+                    && !remitente.isBlank()
+                    && daoRemitentes != null
+                    && daoRemitentes.esConfiable(remitente);
+            boolean tieneImagenesExternas = contieneImagenesExternas(html);
+            String htmlRender = remitenteConfiable ? html : eliminarImagenesExternas(html);
+
             webViewCuerpo.setVisible(true);
             webViewCuerpo.setManaged(true);
-            webViewCuerpo.getEngine().loadContent(html, "text/html");
+            webViewCuerpo.getEngine().loadContent(htmlRender, "text/html");
 
             txtCuerpo.setVisible(false);
             txtCuerpo.setManaged(false);
+
+            if (btnPermitirImagenes != null) {
+                btnPermitirImagenes.setDisable(remitenteConfiable || !tieneImagenesExternas);
+            }
         } else {
             txtCuerpo.setVisible(true);
             txtCuerpo.setManaged(true);
@@ -306,16 +316,19 @@ public class CorreoController {
 
             webViewCuerpo.setVisible(false);
             webViewCuerpo.setManaged(false);
-        }
-
-        if (btnPermitirImagenes != null) {
-            btnPermitirImagenes.setDisable(true); // de momento sin bloqueo de imágenes
+            if (btnPermitirImagenes != null) {
+                btnPermitirImagenes.setDisable(true);
+            }
         }
     }
 
     private String eliminarImagenesExternas(String html) {
-        // Quita <img src="http://..."> y <img src="https://...">
         return html.replaceAll("(?i)<img\\b[^>]*src\\s*=\\s*\"https?://[^>\"]*\"[^>]*>", "");
+    }
+
+    private boolean contieneImagenesExternas(String html) {
+        if (html == null || html.isBlank()) return false;
+        return html.matches("(?is).*<img\\b[^>]*src\\s*=\\s*\"https?://[^>\"]*\"[^>]*>.*");
     }
 
     @FXML
@@ -426,6 +439,12 @@ public class CorreoController {
 
         seleccionado.setCategoria("SPAM");
         seleccionado.setPrioridad("NORMAL");
+        daoMensajes.actualizarCategoriaPrioridad(
+                seleccionado.getUidImap(),
+                cuentaHash,
+                seleccionado.getCategoria(),
+                seleccionado.getPrioridad()
+        );
 
         lstMensajes.refresh();
 
@@ -439,6 +458,12 @@ public class CorreoController {
 
         seleccionado.setCategoria("LEGITIMO");
         seleccionado.setPrioridad("NORMAL");
+        daoMensajes.actualizarCategoriaPrioridad(
+                seleccionado.getUidImap(),
+                cuentaHash,
+                seleccionado.getCategoria(),
+                seleccionado.getPrioridad()
+        );
 
         lstMensajes.refresh();
 
