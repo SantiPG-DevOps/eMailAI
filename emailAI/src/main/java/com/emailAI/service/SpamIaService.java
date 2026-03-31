@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+// Implementa un modelo Naive Bayes con bag-of-words para clasificar correos como LEGITIMO/SPAM/PHISHING.
 public class SpamIaService {
 
     private final Path modelosDir;
@@ -26,6 +27,7 @@ public class SpamIaService {
         LEGITIMO, SPAM, PHISHING
     }
 
+    // Prepara el directorio de modelos y define el esquema de atributos Weka compartido.
     public SpamIaService(Path modelosDir) throws IOException {
         this.modelosDir = modelosDir;
         if (!Files.exists(modelosDir)) {
@@ -47,12 +49,14 @@ public class SpamIaService {
         atributos.add(attrClase);
     }
 
+    // Crea un dataset vacío con los atributos configurados y marca la clase.
     private Instances crearDatasetVacio(String nombre) {
         Instances data = new Instances(nombre, atributos, 0);
         data.setClass(attrClase);
         return data;
     }
 
+    // Construye un clasificador NaiveBayes envuelto en un filtro StringToWordVector.
     private FilteredClassifier crearClasificadorBase() {
         StringToWordVector filter = new StringToWordVector();
         filter.setAttributeIndices("first"); // el texto es el primer atributo
@@ -64,12 +68,14 @@ public class SpamIaService {
         return fc;
     }
 
+    // Calcula la ruta de fichero donde se guarda el modelo de una cuenta concreta.
     private Path modeloPath(String cuentaHash) {
         return modelosDir.resolve("modelo_" + cuentaHash + ".model");
     }
 
     // ================== ENTRENAR / REENTRENAR ==================
 
+    // Entrena (o reentrena) el modelo de una cuenta con la lista de mensajes etiquetados.
     public void entrenarModelo(String cuentaHash, List<Mensaje> ejemplos) throws Exception {
         if (cuentaHash == null || ejemplos == null || ejemplos.isEmpty()) return;
 
@@ -103,6 +109,7 @@ public class SpamIaService {
 
     // ================== CLASIFICAR UN MENSAJE ==================
 
+    // Carga el modelo de una cuenta y devuelve la clase predicha para un mensaje.
     public ClaseCorreo clasificar(String cuentaHash, Mensaje mensaje) throws Exception {
         Path path = modeloPath(cuentaHash);
         if (!Files.exists(path)) {
@@ -135,6 +142,7 @@ public class SpamIaService {
 
     // ================== UTILIDAD RÁPIDA ==================
 
+    // Elimina el fichero de modelo asociado a una cuenta concreta si existe.
     public void borrarModelo(String cuentaHash) throws IOException {
         Path p = modeloPath(cuentaHash);
         if (Files.exists(p)) {

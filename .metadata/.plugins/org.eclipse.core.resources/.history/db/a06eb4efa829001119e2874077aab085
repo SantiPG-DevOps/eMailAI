@@ -1,7 +1,6 @@
 package com.emailAI.controller;
 
 import com.emailAI.dao.DAOMensajes;
-
 import com.emailAI.dao.DAORemitentesConfiables;
 import com.emailAI.model.Mensaje;
 import com.emailAI.service.MailService;
@@ -14,84 +13,69 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.Desktop;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-// Controla la bandeja de entrada, detalle de mensajes y acciones de IA sobre el correo.
 public class CorreoController {
 
-    // Lista de mensajes mostrada en la columna izquierda.
     @FXML
     private ListView<Mensaje> lstMensajes;
 
-    // Etiqueta con el asunto del mensaje seleccionado.
     @FXML
     private Label lblAsunto;
 
-    // Etiqueta con el remitente del mensaje seleccionado.
     @FXML
     private Label lblRemitente;
 
-    // Etiqueta de estado general de la aplicación (mensajes de información/errores).
     @FXML
     private Label lblEstadoApp;
 
-    // Etiqueta de estado específico de la IA (entrenamiento, clasificación, etc.).
     @FXML
     private Label lblEstadoIA;
 
-    // Visor HTML para cuerpos de correo en formato HTML.
     @FXML
     private WebView webViewCuerpo;
 
-    // TextArea de fallback para mostrar solo texto plano cuando no hay HTML.
     @FXML
     private TextArea txtCuerpo;
 
-    // Botón para forzar reentrenado del modelo de spam.
     @FXML
     private Button btnReentrenar;
 
-    // Botón para marcar el mensaje actual como spam.
     @FXML
     private Button btnSpam;
 
-    // Botón para marcar el mensaje actual como legítimo.
     @FXML
     private Button btnLegitimo;
 
-    // Botón para aplicar la primera sugerencia de respuesta IA.
     @FXML
     private Button btnSug1;
 
-    // Botón para aplicar la segunda sugerencia de respuesta IA.
     @FXML
     private Button btnSug2;
 
-    // Botón para aplicar la tercera sugerencia de respuesta IA.
     @FXML
     private Button btnSug3;
 
-    // Botón para anular la suscripción sugerida por la IA (placeholder).
     @FXML
     private Button btnAnularSub;
 
-    // Botón para refrescar bandeja y sincronizar con el servidor.
     @FXML
     private Button btnActualizar;
 
-    // Botón para borrar el mensaje actualmente seleccionado.
     @FXML
     private Button btnBorrarSeleccionado;
 
-    // Botón que permite cargar imágenes externas de remitentes marcados como confiables.
     @FXML
     private Button btnPermitirImagenes;
 
@@ -101,14 +85,13 @@ public class CorreoController {
     private DAORemitentesConfiables daoRemitentes;
     private String cuentaHash;
 
-    private final ObservableList<Mensaje> modeloMensajes = FXCollections.observableArrayList(); // Modelo observable para la ListView.
-    private Mensaje mensajeActual; // Mensaje actualmente mostrado en el panel derecho.
+    private final ObservableList<Mensaje> modeloMensajes = FXCollections.observableArrayList();
+    private Mensaje mensajeActual;
 
     @FXML
     private void initialize() {
-        lstMensajes.setItems(modeloMensajes); // Enlaza el modelo observable a la lista visual.
+        lstMensajes.setItems(modeloMensajes);
 
-        // Define cómo se pinta cada elemento de la lista de mensajes.
         lstMensajes.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Mensaje msg, boolean empty) {
@@ -135,16 +118,14 @@ public class CorreoController {
             }
         });
 
-        // Cuando cambia la selección, se muestra el nuevo mensaje en el panel derecho.
         lstMensajes.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSel, newSel) -> mostrarMensaje(newSel)
         );
 
-        configurarWebViewEnlacesExternos(); // Configura el WebView para abrir enlaces en el navegador externo.
+        configurarWebViewEnlacesExternos();
     }
 
     // Enlaces del WebView se abren en navegador externo
-    // Configura el WebView para capturar clics en enlaces y abrirlos fuera de la aplicación.
     private void configurarWebViewEnlacesExternos() {
         WebEngine engine = webViewCuerpo.getEngine();
 
@@ -196,7 +177,6 @@ public class CorreoController {
     }
 
     // Lo llama MainController después de crear la vista
-    // Recibe el MailService ya conectado y prepara DAOs y datos iniciales.
     public void setMailService(MailService mailService) {
         this.mailService = mailService;
         if (mailService != null) {
@@ -214,7 +194,6 @@ public class CorreoController {
 
     // ================== CARGA DESDE BD ==================
 
-    // Carga mensajes desde la base de datos local para la cuenta actual.
     private void cargarDesdeBD() {
         if (daoMensajes == null || cuentaHash == null) return;
 
@@ -230,7 +209,6 @@ public class CorreoController {
 
     // ================== CARGA DESDE IMAP (ASYNC) ==================
 
-    // Sincroniza la bandeja de entrada contra IMAP en un hilo en segundo plano.
     public void cargarBandejaEntradaAsync() {
         if (mailService == null || daoMensajes == null || cuentaHash == null) return;
 
@@ -289,7 +267,6 @@ public class CorreoController {
 
     // ================== UI DETALLE ==================
 
-    // Limpia el panel de detalle cuando no hay mensaje seleccionado.
     private void limpiarDetalle() {
         lblAsunto.setText("");
         lblRemitente.setText("");
@@ -301,7 +278,6 @@ public class CorreoController {
         }
     }
 
-    // Actualiza el panel de detalle con el contenido del mensaje seleccionado.
     private void mostrarMensaje(Mensaje msg) {
         mensajeActual = msg;
 
@@ -317,24 +293,12 @@ public class CorreoController {
         String texto = msg.getCuerpo();
 
         if (html != null && !html.isBlank()) {
-            String remitente = msg.getRemitente();
-            boolean remitenteConfiable = remitente != null
-                    && !remitente.isBlank()
-                    && daoRemitentes != null
-                    && daoRemitentes.esConfiable(remitente);
-            boolean tieneImagenesExternas = contieneImagenesExternas(html);
-            String htmlRender = remitenteConfiable ? html : eliminarImagenesExternas(html);
-
             webViewCuerpo.setVisible(true);
             webViewCuerpo.setManaged(true);
-            webViewCuerpo.getEngine().loadContent(htmlRender, "text/html");
+            webViewCuerpo.getEngine().loadContent(html, "text/html");
 
             txtCuerpo.setVisible(false);
             txtCuerpo.setManaged(false);
-
-            if (btnPermitirImagenes != null) {
-                btnPermitirImagenes.setDisable(remitenteConfiable || !tieneImagenesExternas);
-            }
         } else {
             txtCuerpo.setVisible(true);
             txtCuerpo.setManaged(true);
@@ -342,24 +306,18 @@ public class CorreoController {
 
             webViewCuerpo.setVisible(false);
             webViewCuerpo.setManaged(false);
-            if (btnPermitirImagenes != null) {
-                btnPermitirImagenes.setDisable(true);
-            }
+        }
+
+        if (btnPermitirImagenes != null) {
+            btnPermitirImagenes.setDisable(true); // de momento sin bloqueo de imágenes
         }
     }
 
-    // Elimina etiquetas <img> que cargan recursos externos vía HTTP/HTTPS.
     private String eliminarImagenesExternas(String html) {
+        // Quita <img src="http://..."> y <img src="https://...">
         return html.replaceAll("(?i)<img\\b[^>]*src\\s*=\\s*\"https?://[^>\"]*\"[^>]*>", "");
     }
 
-    // Indica si el HTML contiene al menos una imagen externa.
-    private boolean contieneImagenesExternas(String html) {
-        if (html == null || html.isBlank()) return false;
-        return html.matches("(?is).*<img\\b[^>]*src\\s*=\\s*\"https?://[^>\"]*\"[^>]*>.*");
-    }
-
-    // Marca el remitente como confiable y vuelve a mostrar el mensaje con imágenes permitidas.
     @FXML
     private void onPermitirImagenes() {
         if (mensajeActual == null || daoRemitentes == null) return;
@@ -372,7 +330,6 @@ public class CorreoController {
 
     // ================== COMPOSE WINDOW ==================
 
-    // Abre la ventana modal de redacción aplicando una inicialización específica (nuevo, responder, reenviar).
     private void abrirVentanaCompose(Consumer<ComposeController> init) {
         try {
             var url = getClass().getResource("/ui/compose-view.fxml");
@@ -405,21 +362,18 @@ public class CorreoController {
 
     // ================== ACCIONES DE CORREO ==================
 
-    // Acción de menú para abrir una nueva ventana de redacción en blanco.
     @FXML
     private void onRedactar() {
         if (mailService == null) return;
         abrirVentanaCompose(ComposeController::inicializarNuevo);
     }
 
-    // Actualiza manualmente la bandeja leyendo de BD y sincronizando con IMAP.
     @FXML
     private void onActualizarBandeja() {
         cargarDesdeBD();
         cargarBandejaEntradaAsync();
     }
 
-    // Abre la ventana de redacción cargando el remitente y asunto para responder.
     @FXML
     private void onResponder() {
         if (mailService == null) return;
@@ -429,7 +383,6 @@ public class CorreoController {
         abrirVentanaCompose(c -> c.inicializarResponder(seleccionado));
     }
 
-    // Abre la ventana de redacción configurada para responder a todos (placeholder de CC).
     @FXML
     private void onResponderTodos() {
         if (mailService == null) return;
@@ -439,7 +392,6 @@ public class CorreoController {
         abrirVentanaCompose(c -> c.inicializarResponderTodos(seleccionado));
     }
 
-    // Abre la ventana de redacción configurada para reenviar el mensaje.
     @FXML
     private void onReenviar() {
         if (mailService == null) return;
@@ -449,7 +401,6 @@ public class CorreoController {
         abrirVentanaCompose(c -> c.inicializarReenviar(seleccionado));
     }
 
-    // Elimina el mensaje tanto en el servidor como en la lista local.
     @FXML
     private void onBorrarMensajeSeleccionado() {
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
@@ -468,7 +419,6 @@ public class CorreoController {
 
     // ================== IA: MARCAR SPAM / LEGÍTIMO ==================
 
-    // Marca el mensaje como SPAM y dispara un reentrenamiento del modelo.
     @FXML
     private void onMarcarSpam() {
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
@@ -476,19 +426,12 @@ public class CorreoController {
 
         seleccionado.setCategoria("SPAM");
         seleccionado.setPrioridad("NORMAL");
-        daoMensajes.actualizarCategoriaPrioridad(
-                seleccionado.getUidImap(),
-                cuentaHash,
-                seleccionado.getCategoria(),
-                seleccionado.getPrioridad()
-        );
 
         lstMensajes.refresh();
 
         entrenarConEjemplos();
     }
 
-    // Marca el mensaje como legítimo y dispara un reentrenamiento del modelo.
     @FXML
     private void onMarcarLegitimo() {
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
@@ -496,25 +439,17 @@ public class CorreoController {
 
         seleccionado.setCategoria("LEGITIMO");
         seleccionado.setPrioridad("NORMAL");
-        daoMensajes.actualizarCategoriaPrioridad(
-                seleccionado.getUidImap(),
-                cuentaHash,
-                seleccionado.getCategoria(),
-                seleccionado.getPrioridad()
-        );
 
         lstMensajes.refresh();
 
         entrenarConEjemplos();
     }
 
-    // Fuerza un reentrenado del modelo de spam con todos los ejemplos etiquetados.
     @FXML
     private void onReentrenarModelo() {
         entrenarConEjemplos();
     }
 
-    // Construye el conjunto de ejemplos etiquetados y entrena el modelo de spam IA.
     private void entrenarConEjemplos() {
         if (spamIaService == null || daoMensajes == null || cuentaHash == null) return;
 

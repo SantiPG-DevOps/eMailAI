@@ -12,23 +12,25 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
+// Gestiona la vista de calendario mensual y los eventos asociados al día seleccionado.
 public class CalendarioController {
 
-    // Calendario mensual
-    @FXML private Label lblMesAnio;
-    @FXML private GridPane gridDias;
+    // Declara componentes visuales de la rejilla mensual.
+    @FXML private Label lblMesAnio; // Etiqueta que muestra el mes y año en curso.
+    @FXML private GridPane gridDias; // Rejilla donde se dibujan los días del mes.
 
-    // Panel de eventos del día seleccionado
-    @FXML private Label lblFechaSeleccionada;
-    @FXML private ListView<Evento> lstEventos;
-    @FXML private TextField txtNuevoEvento;
+    // Declara componentes del panel de eventos para la fecha activa.
+    @FXML private Label lblFechaSeleccionada; // Cabecera de fecha del panel de eventos.
+    @FXML private ListView<Evento> lstEventos; // Lista de eventos para la fecha seleccionada.
+    @FXML private TextField txtNuevoEvento; // Campo para crear o editar título de evento.
 
-    private DAOEventosCalendario dao;
-    private Evento eventoEnEdicion;
+    private DAOEventosCalendario dao; // DAO de persistencia de eventos de calendario.
+    private Evento eventoEnEdicion; // Evento temporalmente seleccionado para edición.
 
-    private YearMonth mesActual;
-    private LocalDate fechaSeleccionada;
+    private YearMonth mesActual; // Mes visible actualmente en el calendario.
+    private LocalDate fechaSeleccionada; // Día activo para cargar/editar eventos.
 
+    // Inicializa calendario, listeners de UI y primera carga de eventos.
     @FXML
     private void initialize() {
         try {
@@ -41,7 +43,7 @@ public class CalendarioController {
         mesActual = YearMonth.now();
         fechaSeleccionada = LocalDate.now();
 
-        // Configurar lista de eventos
+        // Configura cómo se visualiza cada evento en la lista.
         lstEventos.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Evento ev, boolean empty) {
@@ -65,8 +67,7 @@ public class CalendarioController {
         cargarEventos(fechaSeleccionada);
     }
 
-    // =================== Calendario mensual ===================
-
+    // Dibuja visualmente todas las celdas del mes actual en el GridPane.
     private void pintarCalendario() {
         if (gridDias == null) return;
 
@@ -98,7 +99,7 @@ public class CalendarioController {
                 celda.getStyleClass().add("cal-dia-seleccionado");
             }
 
-            // que la celda rellene toda la casilla del GridPane
+            // Fuerza que la celda ocupe toda su posición del GridPane.
             celda.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
             GridPane.setFillHeight(celda, true);
             GridPane.setFillWidth(celda, true);
@@ -122,24 +123,28 @@ public class CalendarioController {
         }
     }
 
+    // Actualiza el texto de cabecera con la fecha actualmente seleccionada.
     private void actualizarFechaSeleccionadaLabel() {
         if (lblFechaSeleccionada != null && fechaSeleccionada != null) {
             lblFechaSeleccionada.setText("Eventos de " + fechaSeleccionada.toString());
         }
     }
 
+    // Navega al mes anterior y repinta el calendario.
     @FXML
     private void onMesAnterior() {
         mesActual = mesActual.minusMonths(1);
         pintarCalendario();
     }
 
+    // Navega al mes siguiente y repinta el calendario.
     @FXML
     private void onMesSiguiente() {
         mesActual = mesActual.plusMonths(1);
         pintarCalendario();
     }
 
+    // Vuelve a la fecha actual del sistema y recarga sus eventos.
     @FXML
     private void onHoy() {
         LocalDate hoy = LocalDate.now();
@@ -150,8 +155,7 @@ public class CalendarioController {
         cargarEventos(hoy);
     }
 
-    // =================== Eventos por fecha ===================
-
+    // Carga de BD los eventos del día indicado y los muestra en la lista.
     private void cargarEventos(LocalDate fecha) {
         if (dao == null || fecha == null) return;
         try {
@@ -163,6 +167,7 @@ public class CalendarioController {
         }
     }
 
+    // Crea un evento nuevo o actualiza el evento en edición.
     @FXML
     private void onAgregarEvento() {
         if (dao == null) return;
@@ -194,6 +199,7 @@ public class CalendarioController {
         }
     }
 
+    // Elimina el evento seleccionado y limpia estado de edición si aplica.
     @FXML
     private void onEliminarEventoSeleccionado() {
         if (dao == null) return;
@@ -213,6 +219,7 @@ public class CalendarioController {
         }
     }
 
+    // Pone en modo edición el evento seleccionado tras doble click.
     @FXML
     private void onEditarEvento() {
         Evento seleccionado = lstEventos.getSelectionModel().getSelectedItem();
@@ -227,6 +234,7 @@ public class CalendarioController {
         pintarCalendario();
     }
 
+    // Muestra un Alert de error con título y detalle.
     private void mostrarError(String titulo, String detalle) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");

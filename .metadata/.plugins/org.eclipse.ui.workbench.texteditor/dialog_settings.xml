@@ -6,6 +6,7 @@
 		<item key="wholeword" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="24.0.1"/>
 			<item value="mostrar"/>
 			<item value="getClass()"/>
 			<item value="seleccionarcorreo"/>
@@ -13,7 +14,6 @@
 			<item value="!mensajes.isempty"/>
 			<item value="cargaronbd"/>
 			<item value="FXMLLoader loader = new FXMLLoader(AppFX.class.getResource(&quot;/ui/main-view.fxml&quot;));"/>
-			<item value="String emailC"/>
 		</list>
 		<list key="replacehistory">
 		</list>

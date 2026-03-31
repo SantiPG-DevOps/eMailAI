@@ -18,25 +18,24 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Predicate;
 
-// Controla la sección de tareas: listado, filtros temporales y CRUD mediante diálogo modal.
 public class TareasController {
 
-    @FXML private ListView<Tarea> lstTareas; // Lista principal de tareas.
-    @FXML private ListView<String> lstDias; // Timeline textual agrupado por día.
+    @FXML private ListView<Tarea> lstTareas;
+    @FXML private ListView<String> lstDias;
 
-    @FXML private ToggleButton btnHoy; // Filtro por tareas con vencimiento hoy.
-    @FXML private ToggleButton btnManana; // Filtro por tareas con vencimiento mañana.
-    @FXML private ToggleButton btnSemana; // Filtro por tareas dentro de la próxima semana.
-    @FXML private ToggleButton btnMes; // Filtro por tareas del mes actual.
-    @FXML private ToggleButton btnPlanificado; // Filtro por tareas con fecha asignada.
-    @FXML private ToggleButton btnEtiquetas; // Filtro por tareas que tengan etiquetas.
+    @FXML private ToggleButton btnHoy;
+    @FXML private ToggleButton btnManana;
+    @FXML private ToggleButton btnSemana;
+    @FXML private ToggleButton btnMes;
+    @FXML private ToggleButton btnPlanificado;
+    @FXML private ToggleButton btnEtiquetas;
 
-    private DAOTareas daoTareas; // DAO para persistencia de tareas.
-    private final ObservableList<Tarea> modeloTareas = FXCollections.observableArrayList(); // Modelo base sin filtrar.
-    private FilteredList<Tarea> tareasFiltradas; // Vista filtrable enlazada al ListView.
+    private DAOTareas daoTareas;
+    private final ObservableList<Tarea> modeloTareas = FXCollections.observableArrayList();
+    private FilteredList<Tarea> tareasFiltradas;
 
-    // Inicializa DAO, modelos, render de celdas y carga inicial.
     @FXML
     private void initialize() {
         daoTareas = new DAOTareas("jdbc:sqlite:emailAI.db");
@@ -44,7 +43,7 @@ public class TareasController {
         tareasFiltradas = new FilteredList<>(modeloTareas, t -> true);
         lstTareas.setItems(tareasFiltradas);
 
-        // Renderiza cada tarea como tarjeta visual similar al módulo de contactos.
+        // Tarjetas tipo contactos
         lstTareas.setCellFactory(list -> new ListCell<>() {
             @Override
             protected void updateItem(Tarea t, boolean empty) {
@@ -99,16 +98,14 @@ public class TareasController {
         cargarTareas();
     }
 
-    // Recarga todas las tareas desde BD y refresca la timeline.
     private void cargarTareas() {
         List<Tarea> lista = daoTareas.listarTodas();
         modeloTareas.setAll(lista);
         actualizarTimelineDias();
     }
 
-    // Reconstruye la timeline agrupando tareas por fecha de vencimiento.
     private void actualizarTimelineDias() {
-        // Agrupa tareas por fecha de vencimiento para construir la timeline.
+        // agrupamos tareas por fecha
         Map<LocalDate, List<Tarea>> mapa = new TreeMap<>();
         for (Tarea t : modeloTareas) {
             LocalDate f = t.getFechaVencimiento();
@@ -130,7 +127,8 @@ public class TareasController {
         lstDias.setItems(FXCollections.observableArrayList(lineas));
     }
 
-    // Abre diálogo para crear tarea nueva y la persiste si se guarda.
+    // ================== CRUD via dialog ==================
+
     @FXML
     private void onNuevaTarea() {
         Tarea nueva = mostrarDialogoTarea(null);
@@ -141,7 +139,6 @@ public class TareasController {
         }
     }
 
-    // Borra la tarea seleccionada del listado y de la base de datos.
     @FXML
     private void onBorrarTarea() {
         Tarea seleccionada = lstTareas.getSelectionModel().getSelectedItem();
@@ -153,7 +150,6 @@ public class TareasController {
         actualizarTimelineDias();
     }
 
-    // Muestra el diálogo de edición/alta de tarea y devuelve la tarea guardada.
     private Tarea mostrarDialogoTarea(Tarea original) {
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -161,7 +157,7 @@ public class TareasController {
             );
             Scene scene = new Scene(loader.load());
 
-            // Hereda las hojas de estilo de la escena principal.
+            // heredar estilos de la escena principal
             Scene mainScene = lstTareas.getScene();
             if (mainScene != null) {
                 scene.getStylesheets().addAll(mainScene.getStylesheets());
@@ -188,14 +184,15 @@ public class TareasController {
         return null;
     }
 
-    @FXML private void onFiltroHoy()         { actualizarFiltro(); } // Recalcula filtros tras pulsar "Hoy".
-    @FXML private void onFiltroManana()      { actualizarFiltro(); } // Recalcula filtros tras pulsar "Mañana".
-    @FXML private void onFiltroSemana()      { actualizarFiltro(); } // Recalcula filtros tras pulsar "Semana".
-    @FXML private void onFiltroMes()         { actualizarFiltro(); } // Recalcula filtros tras pulsar "Mes".
-    @FXML private void onFiltroPlanificado() { actualizarFiltro(); } // Recalcula filtros tras pulsar "Planificado".
-    @FXML private void onFiltroEtiquetas()   { actualizarFiltro(); } // Recalcula filtros tras pulsar "Etiquetas".
+    // ================== Filtros ==================
 
-    // Aplica un predicado dinámico en función de los toggles activos.
+    @FXML private void onFiltroHoy()         { actualizarFiltro(); }
+    @FXML private void onFiltroManana()      { actualizarFiltro(); }
+    @FXML private void onFiltroSemana()      { actualizarFiltro(); }
+    @FXML private void onFiltroMes()         { actualizarFiltro(); }
+    @FXML private void onFiltroPlanificado() { actualizarFiltro(); }
+    @FXML private void onFiltroEtiquetas()   { actualizarFiltro(); }
+
     private void actualizarFiltro() {
         if (!btnHoy.isSelected() && !btnManana.isSelected() &&
             !btnSemana.isSelected() && !btnMes.isSelected() &&
@@ -206,7 +203,6 @@ public class TareasController {
         tareasFiltradas.setPredicate(this::cumpleFiltros);
     }
 
-    // Verifica si una tarea cumple todos los filtros actualmente seleccionados.
     private boolean cumpleFiltros(Tarea t) {
         LocalDate f = t.getFechaVencimiento();
 

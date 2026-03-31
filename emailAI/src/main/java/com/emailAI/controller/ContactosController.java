@@ -16,29 +16,37 @@ import javafx.scene.layout.VBox;
 
 import java.util.List;
 
+// Gestiona la agenda de contactos: listado, edición de detalle y operaciones CRUD.
 public class ContactosController {
 
+    // Lista de contactos mostrada en formato tarjeta.
     @FXML
     private ListView<Contacto> lstContactos;
 
+    // Campo de nombre del contacto seleccionado.
     @FXML
     private TextField txtNombre;
 
+    // Campo de email del contacto seleccionado.
     @FXML
     private TextField txtEmail;
 
+    // Campo de teléfono del contacto seleccionado.
     @FXML
     private TextField txtTelefono;
 
+    // Campo de notas del contacto seleccionado.
     @FXML
     private TextArea txtNotas;
 
+    // Etiqueta de estado para validaciones y mensajes de resultado.
     @FXML
     private Label lblEstado;
 
-    private DAOContactos daoContactos;
-    private final ObservableList<Contacto> modeloContactos = FXCollections.observableArrayList();
+    private DAOContactos daoContactos; // DAO de persistencia de contactos en SQLite.
+    private final ObservableList<Contacto> modeloContactos = FXCollections.observableArrayList(); // Modelo observable enlazado a la lista.
 
+    // Inicializa DAO, define el render de celdas y carga contactos existentes.
     @FXML
     private void initialize() {
         daoContactos = new DAOContactos("jdbc:sqlite:emailAI.db");
@@ -56,13 +64,13 @@ public class ContactosController {
                     return;
                 }
 
-                // Contenedor principal tipo tarjeta
+                // Construye el contenedor visual principal de la tarjeta.
                 HBox root = new HBox(10);
                 root.getStyleClass().add("contact-card");
-                // Para que los clics sigan yendo a la ListCell (selección correcta)
+                // Deja los clics en la celda para mantener selección correcta.
                 root.setPickOnBounds(false);
 
-                // Columna izquierda: nombre + email
+                // Construye la columna izquierda con nombre y email.
                 VBox leftBox = new VBox(2);
 
                 Label lblNombre = new Label(c.getNombre() != null ? c.getNombre() : "");
@@ -77,7 +85,7 @@ public class ContactosController {
                     leftBox.getChildren().add(lblEmail);
                 }
 
-                // Teléfono a la derecha
+                // Muestra el teléfono alineado en la parte derecha.
                 Label lblTelefono = new Label(c.getTelefono() != null ? c.getTelefono() : "");
                 lblTelefono.getStyleClass().add("contact-phone");
 
@@ -88,7 +96,7 @@ public class ContactosController {
                 setText(null);
                 setGraphic(root);
 
-                // Aseguramos clase de celda siempre que tenga datos
+                // Mantiene la clase CSS de tarjeta solo cuando hay datos.
                 getStyleClass().removeAll("contact-card-cell");
                 getStyleClass().add("contact-card-cell");
             }
@@ -101,6 +109,7 @@ public class ContactosController {
         cargarContactos();
     }
 
+    // Carga todos los contactos desde BD y selecciona el primero si existe.
     private void cargarContactos() {
         List<Contacto> lista = daoContactos.listarTodos();
         modeloContactos.setAll(lista);
@@ -111,6 +120,7 @@ public class ContactosController {
         }
     }
 
+    // Muestra en el formulario los datos del contacto seleccionado.
     private void mostrarContacto(Contacto c) {
         if (c == null) {
             limpiarFormulario();
@@ -123,6 +133,7 @@ public class ContactosController {
         lblEstado.setText("");
     }
 
+    // Limpia todos los campos del formulario de detalle.
     private void limpiarFormulario() {
         txtNombre.clear();
         txtEmail.clear();
@@ -131,14 +142,14 @@ public class ContactosController {
         lblEstado.setText("");
     }
 
-    // ================== Acciones ==================
-
+    // Prepara el formulario para crear un contacto nuevo.
     @FXML
     private void onNuevoContacto() {
         lstContactos.getSelectionModel().clearSelection();
         limpiarFormulario();
     }
 
+    // Guarda un contacto nuevo o actualiza el existente según la selección actual.
     @FXML
     private void onGuardarContacto() {
         String nombre = txtNombre.getText();
@@ -149,7 +160,7 @@ public class ContactosController {
 
         Contacto seleccionado = lstContactos.getSelectionModel().getSelectedItem();
         if (seleccionado == null) {
-            // nuevo
+            // Crea y persiste un contacto nuevo.
             Contacto nuevo = new Contacto(
                     null,
                     nombre.trim(),
@@ -162,7 +173,7 @@ public class ContactosController {
             lstContactos.getSelectionModel().select(nuevo);
             lblEstado.setText("Contacto creado.");
         } else {
-            // actualizar
+            // Actualiza el contacto existente seleccionado.
             seleccionado.setNombre(nombre.trim());
             seleccionado.setEmail(safe(txtEmail.getText()));
             seleccionado.setTelefono(safe(txtTelefono.getText()));
@@ -174,6 +185,7 @@ public class ContactosController {
         }
     }
 
+    // Borra el contacto seleccionado de la BD y del modelo de la lista.
     @FXML
     private void onBorrarContacto() {
         Contacto seleccionado = lstContactos.getSelectionModel().getSelectedItem();
@@ -187,6 +199,7 @@ public class ContactosController {
         lblEstado.setText("Contacto borrado.");
     }
 
+    // Normaliza texto nulo y aplica trim para guardar datos limpios.
     private String safe(String s) {
         return s != null ? s.trim() : "";
     }

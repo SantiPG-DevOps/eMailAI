@@ -1,31 +1,29 @@
 package com.emailAI.controller;
 
 import com.emailAI.model.Tarea;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-// Controlador del diálogo modal para crear o editar una tarea.
+import java.time.LocalDate;
+
 public class TareaDialogController {
 
-    @FXML private TextField txtTitulo; // Campo del título de la tarea.
-    @FXML private DatePicker dpFecha; // Selector de fecha de vencimiento.
-    @FXML private ComboBox<String> cmbEstado; // Selector del estado de la tarea.
-    @FXML private TextField txtEtiquetas; // Campo de etiquetas en texto plano.
-    @FXML private TextArea txtDescripcion; // Descripción libre de la tarea.
-    @FXML private Label lblEstado; // Mensaje de validación o estado del diálogo.
+    @FXML private TextField txtTitulo;
+    @FXML private DatePicker dpFecha;
+    @FXML private ComboBox<String> cmbEstado;
+    @FXML private TextField txtEtiquetas;
+    @FXML private TextArea txtDescripcion;
+    @FXML private Label lblEstado;
 
-    private Stage stage; // Stage modal para poder cerrarlo desde el controlador.
-    private Tarea tarea; // Instancia editada o nueva tarea creada en el diálogo.
-    private boolean guardado = false; // Marca si el usuario guardó cambios.
+    private Stage stage;
+    private Tarea tarea;           // existente o nueva
+    private boolean guardado = false;
 
-    // Inyecta la ventana modal asociada para control de cierre.
     public void setStage(Stage stage) {
         this.stage = stage;
     }
 
-    // Carga en el formulario los datos de una tarea existente o prepara una nueva.
     public void setTarea(Tarea tarea) {
         this.tarea = tarea;
         if (tarea != null) {
@@ -41,7 +39,6 @@ public class TareaDialogController {
         }
     }
 
-    // Inicializa los estados permitidos en el ComboBox.
     public void inicializarEstados() {
         cmbEstado.getItems().setAll("PENDIENTE", "EN_PROGRESO", "COMPLETADA");
         if (cmbEstado.getSelectionModel().isEmpty()) {
@@ -49,17 +46,14 @@ public class TareaDialogController {
         }
     }
 
-    // Indica si el diálogo terminó con guardado confirmado.
     public boolean isGuardado() {
         return guardado;
     }
 
-    // Devuelve la tarea resultante tras cerrar el diálogo.
     public Tarea getTarea() {
         return tarea;
     }
 
-    // Valida campos obligatorios y vuelca datos del formulario al modelo de tarea.
     @FXML
     private void onGuardar() {
         String titulo = txtTitulo.getText();
@@ -81,14 +75,12 @@ public class TareaDialogController {
         if (stage != null) stage.close();
     }
 
-    // Cierra el diálogo sin persistir cambios.
     @FXML
     private void onCancelar() {
         guardado = false;
         if (stage != null) stage.close();
     }
 
-    // Normaliza cadenas nulas y elimina espacios laterales.
     private String safe(String s) {
         return s != null ? s.trim() : "";
     }

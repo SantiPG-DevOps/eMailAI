@@ -1,5 +1,6 @@
 package com.emailAI.model;
 
+// Modelo de contacto para la agenda con datos básicos de comunicación.
 public class Contacto {
 
     private Integer id;
@@ -8,8 +9,9 @@ public class Contacto {
     private String telefono;
     private String notas;
 
-    public Contacto() {}
+    public Contacto() {} // Constructor vacío para formularios y mapeo desde BD.
 
+    // Constructor completo para instanciar un contacto listo para persistir/mostrar.
     public Contacto(Integer id, String nombre, String email, String telefono, String notas) {
         this.id = id;
         this.nombre = nombre;

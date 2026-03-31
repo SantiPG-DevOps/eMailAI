@@ -24,39 +24,49 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+// Gestiona la pantalla de login, selección de cuentas guardadas y cambio de tema inicial.
 public class LoginController {
 
+    // Contenedor donde se pintan las tarjetas de cuentas disponibles.
     @FXML
     private VBox accountsList;
 
+    // Campo donde el usuario introduce la contraseña de la cuenta seleccionada.
     @FXML
     private PasswordField passwordField;
 
+    // Mensajes de error/estado durante el proceso de login.
     @FXML
     private Label statusLabel;
 
+    // Botón para alternar entre tema claro y oscuro en la pantalla de login.
     @FXML
     private ToggleButton themeToggle;
 
+    // Botón para ir a la pantalla de configuración de nueva cuenta.
     @FXML
     private Button newAccountButton;
 
+    // Logo mostrado en la cabecera del login.
     @FXML
     private ImageView logoImage;
 
+    // Barra visual que indica la fuerza de la contraseña introducida.
     @FXML
     private ProgressBar strengthBar;
 
+    // Texto descriptivo asociado al nivel de fuerza de contraseña.
     @FXML
     private Label strengthLabel;
 
-    private final List<CuentaGuardada> cuentas = new ArrayList<>();
-    private CuentaGuardada cuentaSeleccionada;
-    private final MailService mailService = new MailService();
+    private final List<CuentaGuardada> cuentas = new ArrayList<>(); // Lista de cuentas cargadas desde BD.
+    private CuentaGuardada cuentaSeleccionada; // Cuenta actualmente resaltada en la UI.
+    private final MailService mailService = new MailService(); // Servicio de correo usado tras el login.
 
     // estado de tema en login (true = claro, false = oscuro)
     private boolean temaClaro = false;
 
+    // Inicializa el login cargando logo, tema por defecto y cuentas guardadas.
     @FXML
     private void initialize() {
         try {
@@ -85,6 +95,7 @@ public class LoginController {
 
     // ===================== Cuentas guardadas =====================
 
+    // Carga la lista de cuentas guardadas desde la base de datos.
     private void cargarCuentasDesdeBD() {
         cuentas.clear();
         try {
@@ -95,6 +106,7 @@ public class LoginController {
         }
     }
 
+    // Dibuja una tarjeta visual por cada cuenta disponible en el VBox.
     private void dibujarTarjetas() {
         accountsList.getChildren().clear();
 
@@ -104,6 +116,7 @@ public class LoginController {
         }
     }
 
+    // Crea el nodo visual que representa una cuenta en la lista.
     private VBox crearTarjetaCuenta(CuentaGuardada cuenta) {
         VBox card = new VBox();
         card.getStyleClass().add("account-card");
@@ -131,6 +144,7 @@ public class LoginController {
         return card;
     }
 
+    // Marca una cuenta como seleccionada y actualiza el estado visual y de texto.
     private void seleccionarCuenta(CuentaGuardada cuenta,
                                    VBox cardSeleccionada,
                                    String emailDescifrado) {
@@ -147,6 +161,7 @@ public class LoginController {
 
     // ===================== Login =====================
 
+    // Maneja el click en el botón de login: valida, descifra email y conecta con el servidor.
     @FXML
     private void onLoginClicked(ActionEvent event) {
         statusLabel.setText("");
@@ -184,6 +199,7 @@ public class LoginController {
         }
     }
 
+    // Carga la ventana principal y le pasa el MailService y el tema elegido.
     private void irAVentanaPrincipal(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/main-view.fxml"));
@@ -213,6 +229,7 @@ public class LoginController {
 
     // ===================== Tema claro/oscuro =====================
 
+    // Alterna el tema en caliente dentro del login y actualiza estilos de la escena.
     @FXML
     private void onThemeToggle(ActionEvent event) {
         if (themeToggle == null) return;
@@ -226,6 +243,7 @@ public class LoginController {
         }
     }
 
+    // Aplica el conjunto de hojas de estilo según tema claro/oscuro elegido.
     private void aplicarTemaAScene(Scene scene) {
         scene.getStylesheets().clear();
 
@@ -246,6 +264,7 @@ public class LoginController {
 
     // ===================== Nueva cuenta =====================
 
+    // Abre la pantalla de configuración para crear una nueva cuenta de correo.
     @FXML
     private void onNewAccountClicked(ActionEvent event) {
         try {
@@ -266,6 +285,7 @@ public class LoginController {
 
     // ===================== Fuerza de contraseña =====================
 
+    // Evento que se dispara al cambiar el texto de la contraseña de app.
     @FXML
     private void onAppPasswordChanged() {
         if (strengthBar == null || strengthLabel == null) return;
@@ -273,6 +293,7 @@ public class LoginController {
         actualizarStrength(pwd);
     }
 
+    // Actualiza barra y texto de fuerza de contraseña a partir del nivel calculado.
     private void actualizarStrength(String pwd) {
         int nivel = calcularNivel(pwd); // 0 débil, 1 media, 2 fuerte
         double progress;
@@ -296,6 +317,7 @@ public class LoginController {
         strengthLabel.setText(texto);
     }
 
+    // Calcula un nivel simple de fuerza de contraseña en función de composición y longitud.
     private int calcularNivel(String pwd) {
         if (pwd == null || pwd.isBlank()) return 0;
 

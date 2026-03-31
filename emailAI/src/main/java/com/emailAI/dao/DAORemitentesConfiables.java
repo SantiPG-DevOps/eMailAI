@@ -4,15 +4,18 @@ import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
 
+// DAO para gestionar remitentes confiables usados al permitir imágenes externas.
 public class DAORemitentesConfiables {
 
-    private final String url;
+    private final String url; // URL de conexión SQLite para esta tabla.
 
+    // Inicializa el DAO y crea la tabla de remitentes confiables si hace falta.
     public DAORemitentesConfiables(String url) {
         this.url = url;
         inicializarTabla();
     }
 
+    // Crea la tabla que almacena los emails confiables.
     private void inicializarTabla() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS remitentes_confiables (
@@ -28,6 +31,7 @@ public class DAORemitentesConfiables {
         }
     }
 
+    // Comprueba si un email ya está marcado como confiable.
     public boolean esConfiable(String email) {
         if (email == null) return false;
         String sql = "SELECT 1 FROM remitentes_confiables WHERE email = ?";
@@ -43,6 +47,7 @@ public class DAORemitentesConfiables {
         }
     }
 
+    // Inserta un remitente en la lista confiable evitando duplicados.
     public void marcarConfiable(String email) {
         if (email == null) return;
         String sql = "INSERT OR IGNORE INTO remitentes_confiables(email) VALUES (?)";
@@ -55,6 +60,7 @@ public class DAORemitentesConfiables {
         }
     }
 
+    // Devuelve el conjunto de todos los remitentes confiables almacenados.
     public Set<String> listarTodos() {
         Set<String> res = new HashSet<>();
         String sql = "SELECT email FROM remitentes_confiables";

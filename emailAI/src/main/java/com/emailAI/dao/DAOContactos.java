@@ -7,15 +7,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO de contactos: persistencia cifrada de datos personales y operaciones CRUD básicas.
 public class DAOContactos {
 
-    private final String url;
+    private final String url; // URL de conexión SQLite usada por este DAO.
 
+    // Inicializa el DAO con su URL y asegura la tabla requerida.
     public DAOContactos(String url) {
         this.url = url;
         inicializarTabla();
     }
 
+    // Crea la tabla de contactos si todavía no existe.
     private void inicializarTabla() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS contactos (
@@ -35,6 +38,7 @@ public class DAOContactos {
         }
     }
 
+    // Recupera todos los contactos y descifra los campos almacenados.
     public List<Contacto> listarTodos() {
         List<Contacto> lista = new ArrayList<>();
         String sql = "SELECT id, nombre, email_cifrado, telefono_cifrado, notas_cifrado FROM contactos ORDER BY nombre ASC";
@@ -64,6 +68,7 @@ public class DAOContactos {
         return lista;
     }
 
+    // Inserta o actualiza según si el contacto tiene id asignado.
     public void guardarOActualizar(Contacto c) {
         if (c.getId() == null) {
             insertar(c);
@@ -72,6 +77,7 @@ public class DAOContactos {
         }
     }
 
+    // Inserta un nuevo contacto y actualiza su id generado.
     private void insertar(Contacto c) {
         String sql = """
                 INSERT INTO contactos (nombre, email_cifrado, telefono_cifrado, notas_cifrado)
@@ -98,6 +104,7 @@ public class DAOContactos {
         }
     }
 
+    // Actualiza un contacto existente identificado por su id.
     private void actualizar(Contacto c) {
         String sql = """
                 UPDATE contactos
@@ -120,6 +127,7 @@ public class DAOContactos {
         }
     }
 
+    // Borra un contacto existente por id.
     public void borrar(Contacto c) {
         if (c.getId() == null) return;
 
@@ -135,6 +143,7 @@ public class DAOContactos {
         }
     }
 
+    // Cifra un texto si existe, devolviendo null ante error o vacío.
     private String cifrarSeguro(String texto) {
         if (texto == null || texto.isBlank()) return null;
         try {
@@ -145,6 +154,7 @@ public class DAOContactos {
         }
     }
 
+    // Descifra un texto cifrado de forma segura devolviendo vacío si falla.
     private String descifrarSeguro(String textoCif) {
         if (textoCif == null || textoCif.isBlank()) return "";
         try {

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+// Encapsula la conexión IMAP/SMTP, la carga de mensajes y la integración con los servicios de IA.
 public class MailService {
 
     private Session session;
@@ -48,6 +49,7 @@ public class MailService {
 
     // ========================= Conexión =========================
 
+    // Establece la sesión IMAP y guarda credenciales y hosts para posteriores operaciones.
     public void connect(String imapHost, String smtpHost, String user, String password) throws Exception {
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
@@ -79,6 +81,7 @@ public class MailService {
 
     // ========================= Bandeja de entrada =========================
 
+    // Obtiene los últimos N mensajes de la bandeja de entrada y les aplica clasificación IA.
     public List<Mensaje> listInbox() throws Exception {
         if (store == null || !store.isConnected()) {
             throw new IllegalStateException("Store IMAP no conectado. Llama antes a connect().");
@@ -170,6 +173,7 @@ public class MailService {
         return resultado;
     }
 
+    // Marca como eliminado un mensaje en INBOX a partir de su UID/identificador.
     public void eliminarMensaje(Mensaje mensaje) throws Exception {
         if (store == null || !store.isConnected()) {
             throw new IllegalStateException("Store IMAP no conectado.");
@@ -191,6 +195,7 @@ public class MailService {
 
     // ========================= Envío =========================
 
+    // Envía un correo de texto plano usando SMTP autenticado con STARTTLS.
     public void sendEmail(String to, String subject, String body) throws Exception {
         if (currentUser == null || currentPassword == null || smtpHost == null) {
             throw new IllegalStateException("No hay sesión SMTP/credenciales configuradas.");
@@ -216,6 +221,7 @@ public class MailService {
         }
     }
 
+    // Cierra de forma segura la conexión IMAP si sigue abierta.
     public void close() throws Exception {
         if (store != null && store.isConnected()) {
             store.close();
@@ -224,6 +230,7 @@ public class MailService {
 
     // ===================== helpers de extracción =====================
 
+    // Extrae la representación de texto plano desde un mensaje potencialmente multiparte.
     private String extraerCuerpoTexto(Message message) throws Exception {
         Object content = message.getContent();
 
@@ -251,6 +258,7 @@ public class MailService {
         return "";
     }
 
+    // Intenta extraer una versión HTML del cuerpo del mensaje si existe.
     private String extraerCuerpoHtml(Message message) throws Exception {
         Object content = message.getContent();
 
@@ -266,6 +274,7 @@ public class MailService {
         return null;
     }
 
+    // Recorre recursivamente las partes de un multipart buscando contenido HTML.
     private String extraerHtmlDeMultipart(Multipart multipart) throws Exception {
         String html = null;
 
@@ -288,18 +297,22 @@ public class MailService {
         return html;
     }
 
+    // Devuelve la dirección de correo del usuario autenticado.
     public String getEmail() {
         return currentUser;
     }
 
+    // Devuelve el host IMAP actualmente configurado.
     public String getImapHost() {
         return imapHost;
     }
     
+    // Devuelve el servicio de IA clásica asociado (puede ser null si falló la inicialización).
     public SpamIaService getSpamIaService() {
         return spamIaService;
     }
 
+    // Obtiene un identificador estable de mensaje priorizando UID IMAP y usando messageNumber como respaldo.
     private String obtenerIdentificadorMensaje(Folder inbox, Message msg) throws MessagingException {
         if (inbox instanceof UIDFolder uidFolder) {
             long uid = uidFolder.getUID(msg);
@@ -310,6 +323,7 @@ public class MailService {
         return String.valueOf(msg.getMessageNumber());
     }
 
+    // Localiza el Message correspondiente a un UID dado, con fallback al índice numérico.
     private Message obtenerMensajeParaBorrado(Folder inbox, String uidImap) throws MessagingException {
         if (uidImap == null || uidImap.isBlank()) return null;
 

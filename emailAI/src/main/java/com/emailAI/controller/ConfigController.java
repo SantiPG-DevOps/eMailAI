@@ -16,58 +16,71 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+// Controla la pantalla de configuración: tema, alta de cuentas y borrado de cuentas almacenadas.
 public class ConfigController {
 
-    // --------- TAB CORREO: nueva cuenta ---------
+    // Gestiona los campos de alta de una cuenta de correo nueva.
 
+    // Selector de proveedor (Gmail, Outlook, personalizado, etc.).
     @FXML
     private ComboBox<String> providerCombo;
 
+    // Campo de correo electrónico del usuario a guardar.
     @FXML
     private TextField emailField;
 
+    // Contraseña maestra para proteger la cuenta a nivel local.
     @FXML
     private PasswordField masterPassField;
 
+    // Campo para el host IMAP cuando el proveedor es personalizado.
     @FXML
     private TextField imapField;
 
+    // Campo para el host SMTP cuando el proveedor es personalizado.
     @FXML
     private TextField smtpField;
 
+    // Etiqueta asociada al campo IMAP (se oculta para proveedores conocidos).
     @FXML
     private Label imapLabel;
 
+    // Etiqueta asociada al campo SMTP (se oculta para proveedores conocidos).
     @FXML
     private Label smtpLabel;
 
+    // Muestra errores o mensajes de confirmación en la pantalla de configuración.
     @FXML
     private Label statusLabel;
 
-    // --------- TAB GENERAL: apariencia ---------
+    // Gestiona los controles de apariencia de la pestaña General.
 
+    // RadioButton para seleccionar tema claro desde la pestaña General.
     @FXML
     private RadioButton rbTemaClaro;
 
+    // RadioButton para seleccionar tema oscuro desde la pestaña General.
     @FXML
     private RadioButton rbTemaOscuro;
 
-    // --------- CORREO: olvidar cuentas ---------
+    // Gestiona la selección y borrado de cuentas guardadas.
 
+    // Selector de cuentas ya existentes para poder "olvidarlas".
     @FXML
     private ComboBox<String> comboCuentasExistentes;
 
     private final Map<String, Integer> mapaEmailAId = new HashMap<>();
 
-    // --------- Datos proveedores ---------
+    // Mantiene los proveedores preconfigurados y sus hosts por defecto.
 
     private final Map<String, String[]> proveedores = new HashMap<>();
     private static final String PERSONALIZADO = "Servidor personalizado";
 
-    // --------- Referencia al MainController (para aplicar tema) ---------
+    // Conserva referencia al MainController para aplicar cambios de tema globales.
 
-    private MainController mainController;
+    private MainController mainController; // Referencia opcional al controlador principal para aplicar tema global.
 
+    // Recibe el MainController y sincroniza el estado inicial de los radios de tema.
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
 
@@ -82,17 +95,14 @@ public class ConfigController {
         }
     }
 
-    // ====================================================
-    // Inicialización
-    // ====================================================
-
+    // Inicializa la pantalla: proveedores por defecto y carga de cuentas existentes.
     @FXML
     private void initialize() {
         if (statusLabel != null) {
             statusLabel.setText("");
         }
 
-        // Proveedores predefinidos
+        // Carga el catálogo de proveedores soportados con sus hosts conocidos.
         proveedores.put("Gmail",                 new String[]{"imap.gmail.com", "smtp.gmail.com"});
         proveedores.put("Outlook/Hotmail",      new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
         proveedores.put("Yahoo",                new String[]{"imap.mail.yahoo.com", "smtp.mail.yahoo.com"});
@@ -116,19 +126,17 @@ public class ConfigController {
             aplicarProveedorSeleccionado();
         }
 
-        // Cargar lista de cuentas guardadas para "Olvidar"
+        // Carga la lista de cuentas para el bloque de "Olvidar cuenta".
         cargarCuentasExistentes();
     }
 
-    // ====================================================
-    // Proveedores / nueva cuenta
-    // ====================================================
-
+    // Handler cuando se cambia de proveedor para ajustar visibilidad/valores de IMAP/SMTP.
     @FXML
     private void onProviderChanged(ActionEvent event) {
         aplicarProveedorSeleccionado();
     }
 
+    // Rellena o limpia los campos de servidor según el proveedor actualmente elegido.
     private void aplicarProveedorSeleccionado() {
         if (providerCombo == null) return;
 
@@ -167,6 +175,7 @@ public class ConfigController {
         }
     }
 
+    // Valida el formulario y guarda la nueva cuenta en la base de datos.
     @FXML
     private void onSaveClicked(ActionEvent event) {
         if (statusLabel != null) statusLabel.setText("");
@@ -217,10 +226,7 @@ public class ConfigController {
         }
     }
 
-    // ====================================================
-    // Olvidar cuentas
-    // ====================================================
-
+    // Rellena el combo de cuentas olvidables leyendo de la base de datos.
     private void cargarCuentasExistentes() {
         if (comboCuentasExistentes == null) return;
 
@@ -241,6 +247,7 @@ public class ConfigController {
         }
     }
 
+    // Elimina de la base de datos la cuenta seleccionada en el combo.
     @FXML
     private void onOlvidarCuentaClicked(ActionEvent event) {
         if (comboCuentasExistentes == null) return;
@@ -268,10 +275,7 @@ public class ConfigController {
         }
     }
 
-    // ====================================================
-    // Apariencia (tema) desde pestaña General
-    // ====================================================
-
+    // Cambia el tema a claro, usando MainController si está disponible.
     @FXML
     private void onTemaClaro() {
         if (mainController != null) {
@@ -281,6 +285,7 @@ public class ConfigController {
         }
     }
 
+    // Cambia el tema a oscuro, usando MainController si está disponible.
     @FXML
     private void onTemaOscuro() {
         if (mainController != null) {
@@ -290,7 +295,7 @@ public class ConfigController {
         }
     }
 
-    // fallback si no se ha pasado mainController
+    // Aplica el tema localmente cuando la vista no recibió MainController.
     private void aplicarTemaLocal(boolean light) {
         Scene scene = rbTemaClaro != null ? rbTemaClaro.getScene() : null;
         if (scene == null) return;
@@ -310,10 +315,7 @@ public class ConfigController {
         }
     }
 
-    // ====================================================
-    // Navegación
-    // ====================================================
-
+    // Vuelve a la pantalla de login manteniendo el tema actual.
     @FXML
     private void onCancelClicked(ActionEvent event) {
         try {
@@ -323,6 +325,7 @@ public class ConfigController {
         }
     }
 
+    // Carga la escena de login y le aplica el tema claro u oscuro correspondiente.
     private void irALogin(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
         Scene loginScene = new Scene(loader.load());

@@ -6,8 +6,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO para almacenar y recuperar ejemplos etiquetados usados en entrenamiento de modelos IA.
 public class DAOEntrenamiento {
 
+    // DTO mutable que representa un ejemplo de entrenamiento persistido.
     public static class Ejemplo {
         public String remitente;
         public String asunto;
@@ -25,10 +27,12 @@ public class DAOEntrenamiento {
         }
     }
 
+    // Inicializa el DAO asegurando la tabla de ejemplos.
     public DAOEntrenamiento() throws SQLException {
         crearTablaSiNoExiste();
     }
 
+    // Crea la tabla de ejemplos de entrenamiento si no existe.
     private void crearTablaSiNoExiste() throws SQLException {
         String sql = """
                 CREATE TABLE IF NOT EXISTS ejemplos_entrenamiento (
@@ -46,6 +50,7 @@ public class DAOEntrenamiento {
         }
     }
 
+    // Guarda un ejemplo etiquetado para un tipo de modelo concreto.
     public void guardarEjemplo(Mensaje mensaje, String etiqueta, String tipoModelo) throws SQLException {
         String sql = """
                 INSERT INTO ejemplos_entrenamiento(remitente, asunto, cuerpo, etiqueta, tipo_modelo)
@@ -66,6 +71,7 @@ public class DAOEntrenamiento {
     /**
      * Número de interacciones no-SPAM con un remitente (para atributo es_remitente_frecuente).
      */
+    // Cuenta interacciones no-spam de un remitente para señales de prioridad/confianza.
     public int contarInteracciones(String remitente) throws SQLException {
         String sql = """
                 SELECT COUNT(*)
@@ -86,6 +92,7 @@ public class DAOEntrenamiento {
     /**
      * Lista todos los ejemplos de un tipo de modelo (SPAM, PRIORIDAD, etc.).
      */
+    // Lista todos los ejemplos pertenecientes a un tipo de modelo.
     public List<Ejemplo> listarEjemplosPorTipo(String tipoModelo) throws SQLException {
         String sql = """
                 SELECT remitente, asunto, cuerpo, etiqueta, tipo_modelo
@@ -117,6 +124,7 @@ public class DAOEntrenamiento {
     /**
      * Compatibilidad: devuelve los ejemplos del modelo SPAM por defecto.
      */
+    // Método de compatibilidad que devuelve los ejemplos del modelo SPAM.
     public List<Ejemplo> listarEjemplos() throws SQLException {
         return listarEjemplosPorTipo("SPAM");
     }

@@ -4,8 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO para la tabla de cuentas de correo almacenadas localmente (servidores, email cifrado y hash).
 public class DAOCuentas {
 
+    // Representa una fila de la tabla cuentas con los datos mínimos para login.
     public static class CuentaGuardada {
         public int id;
         public String servidorImap;
@@ -26,10 +28,12 @@ public class DAOCuentas {
         }
     }
 
+    // Crea la tabla de cuentas si no existe aún.
     public DAOCuentas() throws SQLException {
         crearTablaSiNoExiste();
     }
 
+    // Ejecuta el DDL necesario para tener la tabla de cuentas preparada.
     private void crearTablaSiNoExiste() throws SQLException {
         String sql = """
                 CREATE TABLE IF NOT EXISTS cuentas (
@@ -47,6 +51,7 @@ public class DAOCuentas {
         }
     }
 
+    // Inserta una nueva cuenta con servidores, email cifrado y hash de contraseña maestra.
     public void guardarCuenta(String servidorImap,
                               String servidorSmtp,
                               String emailCifrado,
@@ -67,6 +72,7 @@ public class DAOCuentas {
         }
     }
 
+    // Recupera todas las cuentas guardadas en forma de lista utilizable por la UI.
     public List<CuentaGuardada> listarCuentas() throws SQLException {
         String sql = "SELECT id, servidor_imap, servidor_smtp, email_cifrado, pass_maestra_hash FROM cuentas";
         List<CuentaGuardada> lista = new ArrayList<>();
@@ -90,12 +96,14 @@ public class DAOCuentas {
     }
 
     // Para AppConsole antigua
+    // Método legado para la consola antigua que devuelve solo la primera cuenta.
     public ResultSet obtenerPrimeraCuenta(Connection conn) throws SQLException {
         String sql = "SELECT * FROM cuentas LIMIT 1";
         PreparedStatement ps = conn.prepareStatement(sql);
         return ps.executeQuery();
     }
     
+    // Elimina una cuenta a partir de su id primario.
     public void eliminarCuentaPorId(int id) throws SQLException {
         String sql = "DELETE FROM cuentas WHERE id = ?";
 

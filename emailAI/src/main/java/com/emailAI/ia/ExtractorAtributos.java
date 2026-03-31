@@ -8,10 +8,10 @@ import weka.core.Instances;
 import java.util.ArrayList;
 import java.util.List;
 
+// Define estructuras Weka y transforma ejemplos de BD a vectores de entrenamiento.
 public class ExtractorAtributos {
 
-    // --- ESTRUCTURAS DE DATOS (ATRIBUTOS) ---
-
+    // Construye el esquema de atributos para el modelo SPAM/LEGITIMO.
     public static Instances construirEstructura() {
         ArrayList<Attribute> atributos = new ArrayList<>();
         atributos.add(new Attribute("long_asunto"));
@@ -30,6 +30,7 @@ public class ExtractorAtributos {
         return data;
     }
 
+    // Construye el esquema de atributos para el modelo NORMAL/URGENTE.
     public static Instances construirEstructuraPrioridad() {
         ArrayList<Attribute> atributos = new ArrayList<>();
         atributos.add(new Attribute("es_remitente_frecuente")); 
@@ -47,11 +48,10 @@ public class ExtractorAtributos {
         return data;
     }
 
-    // --- CONVERSORES DE LISTAS (ENTRENAMIENTO) ---
-
     /**
      * Convierte ejemplos de la DB a formato Weka para detectar SPAM
      */
+    // Convierte ejemplos etiquetados a instancias Weka para entrenar spam.
     public static Instances convertirAEstructura(List<DAOEntrenamiento.Ejemplo> ejemplos) {
         Instances data = construirEstructura();
 
@@ -66,7 +66,7 @@ public class ExtractorAtributos {
             vals[3] = (asunto.contains("gratis") || cuerpo.contains("gratis")) ? 1.0 : 0.0;
             vals[4] = (asunto.contains("%") || cuerpo.contains("%")) ? 1.0 : 0.0;
             
-            // Mapeo de etiqueta: SPAM o LEGITIMO
+            // Mapea la etiqueta textual a su índice de clase para spam.
             vals[5] = data.classAttribute().indexOfValue(e.etiqueta);
 
             if (vals[5] != -1) data.add(new DenseInstance(1.0, vals));
@@ -77,6 +77,7 @@ public class ExtractorAtributos {
     /**
      * Convierte ejemplos de la DB a formato Weka para detectar PRIORIDAD
      */
+    // Convierte ejemplos etiquetados a instancias Weka para entrenar prioridad.
     public static Instances convertirAEstructuraPrioridad(List<DAOEntrenamiento.Ejemplo> ejemplos) {
         Instances data = construirEstructuraPrioridad();
 
@@ -85,14 +86,13 @@ public class ExtractorAtributos {
             String asunto = e.asunto != null ? e.asunto.toLowerCase() : "";
             String cuerpo = e.cuerpo != null ? e.cuerpo.toLowerCase() : "";
 
-            // Lógica de extracción para prioridad
+            // Extrae señales simples para el modelo de prioridad.
             vals[0] = 0.0; // Placeholder para remitente frecuente
             vals[1] = (cuerpo.contains("?") || cuerpo.contains("¿")) ? 1.0 : 0.0;
             vals[2] = (asunto.startsWith("re:") || asunto.startsWith("fwd:")) ? 1.0 : 0.0;
             vals[3] = cuerpo.length();
             
-            // Mapeo de etiqueta: NORMAL o URGENTE
-            // Nota: Asegúrate de que al guardar el ejemplo en la DB, la etiqueta coincida
+            // Mapea la etiqueta textual a su índice de clase para prioridad.
             vals[4] = data.classAttribute().indexOfValue(e.etiqueta);
 
             if (vals[4] != -1) data.add(new DenseInstance(1.0, vals));

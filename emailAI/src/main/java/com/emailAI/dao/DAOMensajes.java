@@ -6,15 +6,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Gestiona la tabla de mensajes en SQLite: creación, lectura, upsert y operaciones auxiliares.
 public class DAOMensajes {
 
     private final String url;
 
+    // Recibe la URL de conexión (SQLite) y asegura que la tabla exista.
     public DAOMensajes(String url) {
         this.url = url;
         inicializarTabla();
     }
 
+    // Crea la tabla de mensajes si no existe todavía.
     private void inicializarTabla() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS mensajes (
@@ -42,6 +45,7 @@ public class DAOMensajes {
 
     // ================== CARGAR DESDE BD ==================
 
+    // Devuelve todos los mensajes asociados a una cuenta ordenados por inserción descendente.
     public List<Mensaje> listarPorCuentaHash(String cuentaHash) {
         List<Mensaje> lista = new ArrayList<>();
         String sql = """
@@ -77,6 +81,7 @@ public class DAOMensajes {
 
     // ================== GUARDAR / MODIFICAR (UPSERT) ==================
 
+    // Inserta o actualiza en bloque los mensajes recibidos para una cuenta (upsert por uid_imap + cuenta).
     public void guardarOModificar(List<Mensaje> mensajes, String cuentaHash) {
         if (mensajes == null || mensajes.isEmpty() || cuentaHash == null) return;
 
@@ -124,6 +129,7 @@ public class DAOMensajes {
 
     // ================== OPCIONAL: BORRAR POR CUENTA ==================
 
+    // Borra todos los mensajes asociados a una cuenta dada.
     public void borrarPorCuenta(String cuentaHash) {
         String sql = "DELETE FROM mensajes WHERE cuenta_hash = ?";
         try (Connection conn = DriverManager.getConnection(url);
@@ -135,6 +141,7 @@ public class DAOMensajes {
         }
     }
 
+    // Actualiza solo la categoría y prioridad de un mensaje identificado por uid_imap y cuenta.
     public void actualizarCategoriaPrioridad(String uidImap, String cuentaHash, String categoria, String prioridad) {
         if (uidImap == null || cuentaHash == null) return;
 

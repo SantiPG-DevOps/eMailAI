@@ -7,14 +7,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO para eventos de calendario diarios: alta, consulta, edición y borrado.
 public class DAOEventosCalendario {
 
-    public record Evento(int id, LocalDate fecha, String titulo, String detalle, String origen) {}
+    public record Evento(int id, LocalDate fecha, String titulo, String detalle, String origen) {} // DTO inmutable para filas de evento.
 
+    // Inicializa el DAO y asegura la existencia de la tabla de eventos.
     public DAOEventosCalendario() throws Exception {
         crearTablaSiNoExiste();
     }
 
+    // Crea la tabla de eventos del calendario cuando aún no existe.
     private void crearTablaSiNoExiste() throws Exception {
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement st = conn.prepareStatement("""
@@ -30,6 +33,7 @@ public class DAOEventosCalendario {
         }
     }
 
+    // Inserta un nuevo evento para una fecha concreta.
     public void guardarEvento(LocalDate fecha, String titulo, String detalle, String origen) throws Exception {
         String sql = "INSERT INTO eventos_calendario(fecha, titulo, detalle, origen) VALUES(?, ?, ?, ?)";
         try (Connection conn = ConexionBD.getConnection();
@@ -42,6 +46,7 @@ public class DAOEventosCalendario {
         }
     }
 
+    // Devuelve los eventos de una fecha ordenados por id.
     public List<Evento> listarPorFecha(LocalDate fecha) throws Exception {
         String sql = "SELECT id, fecha, titulo, detalle, origen FROM eventos_calendario WHERE fecha = ? ORDER BY id";
         List<Evento> lista = new ArrayList<>();
@@ -63,6 +68,7 @@ public class DAOEventosCalendario {
         return lista;
     }
 
+    // Borra un evento por su id.
     public void borrarEvento(int id) throws Exception {
         String sql = "DELETE FROM eventos_calendario WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
@@ -72,6 +78,7 @@ public class DAOEventosCalendario {
         }
     }
 
+    // Actualiza todos los campos editables de un evento existente.
     public void actualizarEvento(Evento evento) throws Exception {
         String sql = "UPDATE eventos_calendario SET fecha = ?, titulo = ?, detalle = ?, origen = ? WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();

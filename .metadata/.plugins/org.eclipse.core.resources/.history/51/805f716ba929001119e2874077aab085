@@ -1,8 +1,8 @@
 Importante
-	Arreglar alertas de controllers. - Creo que son avisos de imports sin uso, pero revisar. ✅ 
+	Arreglar alertas de controllers. - Creo que son avisos de imports sin uso, pero revisar. 
 
 Login
-	Terminar de implementar un menu cuenta nueva en login adecuado. Que no salte la ventana de config como esta ahora. ❌
+	Terminar de implementar un menu cuenta nueva en login adecuado. Que no salte la ventana de config como esta ahora.
 
 Config 
 	General

@@ -7,15 +7,18 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO de tareas: creación de tabla y operaciones CRUD sobre la lista de pendientes.
 public class DAOTareas {
 
-    private final String url;
+    private final String url; // URL de conexión SQLite usada por este DAO.
 
+    // Inicializa DAO con su conexión y crea la tabla si falta.
     public DAOTareas(String url) {
         this.url = url;
         inicializarTabla();
     }
 
+    // Crea la tabla de tareas en la base local.
     private void inicializarTabla() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS tareas (
@@ -36,6 +39,7 @@ public class DAOTareas {
         }
     }
 
+    // Lista todas las tareas ordenadas por fecha de vencimiento.
     public List<Tarea> listarTodas() {
         List<Tarea> lista = new ArrayList<>();
         String sql = "SELECT id, titulo, descripcion, fecha_vencimiento, estado, etiquetas FROM tareas ORDER BY fecha_vencimiento IS NULL, fecha_vencimiento";
@@ -66,6 +70,7 @@ public class DAOTareas {
         return lista;
     }
 
+    // Decide insertar o actualizar según si la tarea ya tiene id.
     public void guardarOActualizar(Tarea t) {
         if (t.getId() == null) {
             insertar(t);
@@ -74,6 +79,7 @@ public class DAOTareas {
         }
     }
 
+    // Inserta una tarea nueva y sincroniza el id generado en el objeto.
     private void insertar(Tarea t) {
         String sql = """
                 INSERT INTO tareas (titulo, descripcion, fecha_vencimiento, estado, etiquetas)
@@ -101,6 +107,7 @@ public class DAOTareas {
         }
     }
 
+    // Actualiza una tarea existente usando su id como clave.
     private void actualizar(Tarea t) {
         String sql = """
                 UPDATE tareas
@@ -124,6 +131,7 @@ public class DAOTareas {
         }
     }
 
+    // Elimina una tarea por id si existe en BD.
     public void borrar(Tarea t) {
         if (t.getId() == null) return;
 

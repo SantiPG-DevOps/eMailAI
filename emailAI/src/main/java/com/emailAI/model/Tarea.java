@@ -2,6 +2,7 @@ package com.emailAI.model;
 
 import java.time.LocalDate;
 
+// Modelo de tarea con campos de planificación y estado de ejecución.
 public class Tarea {
 
     private Integer id;
@@ -11,8 +12,9 @@ public class Tarea {
     private String estado;                // PENDIENTE, EN_PROGRESO, COMPLETADA
     private String etiquetas;             // tags separados por comas, de momento texto plano
 
-    public Tarea() {}
+    public Tarea() {} // Constructor vacío para creación incremental y mapeo desde BD.
 
+    // Constructor completo para crear una tarea con todos sus atributos.
     public Tarea(Integer id, String titulo, String descripcion,
                  LocalDate fechaVencimiento, String estado, String etiquetas) {
         this.id = id;
