@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="DAOTareasTest" project="emailAI" tests="1" started="1" failures="0" errors="0" ignored="0">
-  <testsuite name="com.emailAI.dao.DAOTareasTest" time="0.105" displayname="DAOTareasTest" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOTareasTest]">
-    <testcase name="guardarActualizarBorrar_debeMantenerConsistencia" classname="com.emailAI.dao.DAOTareasTest" time="0.105" displayname="guardarActualizarBorrar_debeMantenerConsistencia()" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOTareasTest]/[method:guardarActualizarBorrar_debeMantenerConsistencia()]"/>
-  </testsuite>
-</testrun>

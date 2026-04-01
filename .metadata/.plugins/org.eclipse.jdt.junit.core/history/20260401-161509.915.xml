@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="DAOEventosCalendarioTest" project="emailAI" tests="1" started="1" failures="0" errors="0" ignored="0">
-  <testsuite name="com.emailAI.dao.DAOEventosCalendarioTest" time="0.108" displayname="DAOEventosCalendarioTest" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOEventosCalendarioTest]">
-    <testcase name="guardarActualizarBorrarEvento_debeFuncionar" classname="com.emailAI.dao.DAOEventosCalendarioTest" time="0.108" displayname="guardarActualizarBorrarEvento_debeFuncionar()" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOEventosCalendarioTest]/[method:guardarActualizarBorrarEvento_debeFuncionar()]"/>
-  </testsuite>
-</testrun>

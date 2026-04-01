@@ -1,114 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.emailAI.controller.CalendarioController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.emailAI.controller.CalendarioController">
 
     <center>
-        <SplitPane dividerPositions="0.5"
-                   prefHeight="0.0">
+        <SplitPane prefHeight="0.0">
             <items>
 
                 <!-- IZQUIERDA: Calendario mensual -->
-                <VBox spacing="8"
-                      VBox.vgrow="ALWAYS"
-                      prefHeight="0.0">
+                <VBox prefHeight="0.0" spacing="8" VBox.vgrow="ALWAYS">
                     <padding>
-                        <Insets top="10" right="10" bottom="10" left="10"/>
+                        <Insets bottom="10" left="10" right="10" top="10" />
                     </padding>
 
                     <!-- Barra de mes -->
                     <HBox spacing="10">
-                        <HBox spacing="8" alignment="CENTER_LEFT">
-                            <Button text="«" onAction="#onMesAnterior"/>
-                            <Label fx:id="lblMesAnio"
-                                   text="Mes Año"
-                                   style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-                            <Button text="»" onAction="#onMesSiguiente"/>
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Button onAction="#onMesAnterior" text="«" />
+                            <Label fx:id="lblMesAnio" style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Mes Año" />
+                            <Button onAction="#onMesSiguiente" text="»" />
                         </HBox>
 
-                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Pane HBox.hgrow="ALWAYS" />
 
-                        <Button text="Hoy" onAction="#onHoy"/>
+                        <Button onAction="#onHoy" text="Hoy" />
                     </HBox>
 
                     <!-- Cabecera días de la semana -->
                     <GridPane hgap="5" vgap="5">
                         <columnConstraints>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
                         </columnConstraints>
 
                         <children>
-                            <Label text="L" GridPane.columnIndex="0"/>
-                            <Label text="M" GridPane.columnIndex="1"/>
-                            <Label text="X" GridPane.columnIndex="2"/>
-                            <Label text="J" GridPane.columnIndex="3"/>
-                            <Label text="V" GridPane.columnIndex="4"/>
-                            <Label text="S" GridPane.columnIndex="5"/>
-                            <Label text="D" GridPane.columnIndex="6"/>
+                            <Label text="L" GridPane.columnIndex="0" />
+                            <Label text="M" GridPane.columnIndex="1" />
+                            <Label text="X" GridPane.columnIndex="2" />
+                            <Label text="J" GridPane.columnIndex="3" />
+                            <Label text="V" GridPane.columnIndex="4" />
+                            <Label text="S" GridPane.columnIndex="5" />
+                            <Label text="D" GridPane.columnIndex="6" />
                         </children>
+                  <rowConstraints>
+                     <RowConstraints />
+                  </rowConstraints>
                     </GridPane>
 
                     <!-- Grid de días (se estira a todo el alto) -->
-                    <GridPane fx:id="gridDias"
-                              hgap="5"
-                              vgap="5"
-                              VBox.vgrow="ALWAYS"
-                              BorderPane.alignment="CENTER"
-                              prefHeight="0.0">
+                    <GridPane fx:id="gridDias" hgap="5" prefHeight="0.0" vgap="5" BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS">
                         <columnConstraints>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
-                            <ColumnConstraints percentWidth="14.28"/>
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
+                            <ColumnConstraints percentWidth="14.28" />
                         </columnConstraints>
 
                         <!-- 6 filas para un mes completo -->
                         <rowConstraints>
-                            <RowConstraints percentHeight="16.6"/>
-                            <RowConstraints percentHeight="16.6"/>
-                            <RowConstraints percentHeight="16.6"/>
-                            <RowConstraints percentHeight="16.6"/>
-                            <RowConstraints percentHeight="16.6"/>
-                            <RowConstraints percentHeight="16.6"/>
+                            <RowConstraints percentHeight="16.6" />
+                            <RowConstraints percentHeight="16.6" />
+                            <RowConstraints percentHeight="16.6" />
+                            <RowConstraints percentHeight="16.6" />
+                            <RowConstraints percentHeight="16.6" />
+                            <RowConstraints percentHeight="16.6" />
                         </rowConstraints>
                     </GridPane>
-                </VBox>
-
-                <!-- DERECHA: eventos del día seleccionado -->
-                <VBox spacing="8"
-                      VBox.vgrow="ALWAYS"
-                      prefHeight="0.0">
-                    <padding>
-                        <Insets top="10" right="10" bottom="10" left="0"/>
-                    </padding>
-
-                    <Label fx:id="lblFechaSeleccionada"
-                           text="Eventos de hoy"
-                           style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
-
-                    <ListView fx:id="lstEventos" VBox.vgrow="ALWAYS"/>
-
-                    <HBox spacing="8">
-                        <TextField fx:id="txtNuevoEvento"
-                                   promptText="Nuevo evento o editar seleccionado"
-                                   HBox.hgrow="ALWAYS"/>
-                        <Button text="Guardar" onAction="#onAgregarEvento"/>
-                        <Button text="Eliminar" onAction="#onEliminarEventoSeleccionado"/>
-                    </HBox>
                 </VBox>
 
             </items>
