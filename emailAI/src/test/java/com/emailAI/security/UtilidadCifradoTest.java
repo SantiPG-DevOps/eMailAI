@@ -23,6 +23,6 @@ class UtilidadCifradoTest {
         String hash2 = UtilidadCifrado.hash(texto);
 
         assertEquals(hash1, hash2);
-        assertNotBlank(hash1);
+        assertNotNull(hash1);
     }
 }

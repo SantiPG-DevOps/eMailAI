@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="UtilidadCifradoTest" project="emailAI" tests="2" started="2" failures="0" errors="0" ignored="0">
+  <testsuite name="com.emailAI.security.UtilidadCifradoTest" time="0.0" displayname="UtilidadCifradoTest" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.security.UtilidadCifradoTest]">
+    <testcase name="cifrarYDescifrar_debeRecuperarTextoOriginal" classname="com.emailAI.security.UtilidadCifradoTest" time="0.0" displayname="cifrarYDescifrar_debeRecuperarTextoOriginal()" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.security.UtilidadCifradoTest]/[method:cifrarYDescifrar_debeRecuperarTextoOriginal()]"/>
+    <testcase name="hash_debeSerDeterminista" classname="com.emailAI.security.UtilidadCifradoTest" time="0.0" displayname="hash_debeSerDeterminista()" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.security.UtilidadCifradoTest]/[method:hash_debeSerDeterminista()]"/>
+  </testsuite>
+</testrun>
