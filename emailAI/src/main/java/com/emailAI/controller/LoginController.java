@@ -11,18 +11,27 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 // Gestiona la pantalla de login, selección de cuentas guardadas y cambio de tema inicial.
 public class LoginController {
@@ -43,7 +52,7 @@ public class LoginController {
     @FXML
     private ToggleButton themeToggle;
 
-    // Botón para ir a la pantalla de configuración de nueva cuenta.
+    // Botón para abrir un pop-up y registrar una cuenta nueva.
     @FXML
     private Button newAccountButton;
 
@@ -264,22 +273,132 @@ public class LoginController {
 
     // ===================== Nueva cuenta =====================
 
-    // Abre la pantalla de configuración para crear una nueva cuenta de correo.
+    // Abre un pop-up modal para crear una cuenta sin salir del login.
     @FXML
     private void onNewAccountClicked(ActionEvent event) {
+        statusLabel.setText("");
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Nueva cuenta");
+        dialog.setHeaderText("Añadir cuenta de correo");
+
+        Stage owner = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        dialog.initOwner(owner);
+        dialog.initModality(Modality.WINDOW_MODAL);
+
+        DialogPane pane = dialog.getDialogPane();
+        pane.getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
+
+        if (owner.getScene() != null) {
+            pane.getStylesheets().addAll(owner.getScene().getStylesheets());
+        }
+
+        Map<String, String[]> proveedores = new HashMap<>();
+        proveedores.put("Gmail", new String[]{"imap.gmail.com", "smtp.gmail.com"});
+        proveedores.put("Outlook/Hotmail", new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
+        proveedores.put("Yahoo", new String[]{"imap.mail.yahoo.com", "smtp.mail.yahoo.com"});
+        proveedores.put("iCloud", new String[]{"imap.mail.me.com", "smtp.mail.me.com"});
+        proveedores.put("GMX", new String[]{"imap.gmx.com", "mail.gmx.com"});
+        proveedores.put("ProtonMail (Bridge)", new String[]{"127.0.0.1", "127.0.0.1"});
+        proveedores.put("Zoho Mail", new String[]{"imap.zoho.com", "smtp.zoho.com"});
+        String personalizado = "Servidor personalizado";
+
+        ComboBox<String> providerCombo = new ComboBox<>();
+        providerCombo.getItems().addAll(
+                "Gmail", "Outlook/Hotmail", "Yahoo", "iCloud", "GMX", "ProtonMail (Bridge)", "Zoho Mail", personalizado
+        );
+        providerCombo.getSelectionModel().selectFirst();
+
+        TextField emailField = new TextField();
+        emailField.setPromptText("usuario@dominio.com");
+
+        PasswordField masterPassField = new PasswordField();
+        masterPassField.setPromptText("Contraseña maestra");
+
+        Label imapLabel = new Label("Servidor IMAP:");
+        TextField imapField = new TextField();
+        Label smtpLabel = new Label("Servidor SMTP:");
+        TextField smtpField = new TextField();
+
+        Runnable aplicarProveedor = () -> {
+            String proveedor = providerCombo.getSelectionModel().getSelectedItem();
+            if (proveedor == null) return;
+            if (personalizado.equals(proveedor)) {
+                imapLabel.setVisible(true);
+                smtpLabel.setVisible(true);
+                imapField.setVisible(true);
+                smtpField.setVisible(true);
+                imapField.setEditable(true);
+                smtpField.setEditable(true);
+                imapField.clear();
+                smtpField.clear();
+                return;
+            }
+            String[] datos = proveedores.get(proveedor);
+            if (datos != null) {
+                imapField.setText(datos[0]);
+                smtpField.setText(datos[1]);
+            }
+            imapLabel.setVisible(false);
+            smtpLabel.setVisible(false);
+            imapField.setVisible(false);
+            smtpField.setVisible(false);
+        };
+
+        providerCombo.setOnAction(e -> aplicarProveedor.run());
+        aplicarProveedor.run();
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.add(new Label("Proveedor:"), 0, 0);
+        grid.add(providerCombo, 1, 0);
+        grid.add(new Label("Correo electrónico:"), 0, 1);
+        grid.add(emailField, 1, 1);
+        grid.add(new Label("Contraseña maestra:"), 0, 2);
+        grid.add(masterPassField, 1, 2);
+        grid.add(imapLabel, 0, 3);
+        grid.add(imapField, 1, 3);
+        grid.add(smtpLabel, 0, 4);
+        grid.add(smtpField, 1, 4);
+
+        pane.setContent(grid);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
+            return;
+        }
+
+        String proveedor = providerCombo.getSelectionModel().getSelectedItem();
+        String email = emailField.getText() != null ? emailField.getText().trim() : "";
+        String passMaestra = masterPassField.getText() != null ? masterPassField.getText() : "";
+
+        String imap = "";
+        String smtp = "";
+        if (proveedor != null && personalizado.equals(proveedor)) {
+            imap = imapField.getText() != null ? imapField.getText().trim() : "";
+            smtp = smtpField.getText() != null ? smtpField.getText().trim() : "";
+        } else if (proveedor != null && proveedores.containsKey(proveedor)) {
+            imap = proveedores.get(proveedor)[0];
+            smtp = proveedores.get(proveedor)[1];
+        }
+
+        if (email.isBlank() || passMaestra.isBlank() || imap.isBlank() || smtp.isBlank()) {
+            statusLabel.setText("Cuenta no creada: completa todos los campos.");
+            return;
+        }
+
         try {
-            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
-            Scene configScene = new Scene(loader.load());
+            String emailCifrado = UtilidadCifrado.cifrar(email);
+            String passHash = UtilidadCifrado.hash(passMaestra);
+            DAOCuentas dao = new DAOCuentas();
+            dao.guardarCuenta(imap, smtp, emailCifrado, passHash);
 
-            aplicarTemaAScene(configScene);
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setTitle("eMailAI - Nueva cuenta");
-            stage.setScene(configScene);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            statusLabel.setText("No se pudo abrir Nueva cuenta: " + e.getMessage());
+            cargarCuentasDesdeBD();
+            dibujarTarjetas();
+            statusLabel.setText("Cuenta creada correctamente.");
+        } catch (Exception e) {
+            statusLabel.setText("Error al crear la cuenta: " + e.getMessage());
         }
     }
 
