@@ -13,7 +13,12 @@ import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
@@ -23,7 +28,9 @@ import netscape.javascript.JSObject;
 import java.awt.Desktop;
 import java.net.URI;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -92,6 +99,8 @@ public class CorreoController {
 
     private String carpetaImapActiva = "INBOX";
 
+    private final Set<String> mensajesConImagenesPermitidas = new HashSet<>();
+
     private final WebLinkBridge webLinkBridge = new WebLinkBridge(this::abrirEnNavegadorSeguro);
 
     public static final class WebLinkBridge {
@@ -124,14 +133,17 @@ public class CorreoController {
             protected void updateItem(Mensaje msg, boolean empty) {
                 super.updateItem(msg, empty);
 
+                getStyleClass().removeAll(
+                        "message-card",
+                        "message-card-spam",
+                        "message-card-risk",
+                        "message-card-legit",
+                        "message-card-pending"
+                );
+
                 if (empty || msg == null) {
                     setText(null);
-                    getStyleClass().removeAll(
-                            "message-card",
-                            "message-card-spam",
-                            "message-card-risk",
-                            "message-card-legit",
-                            "message-card-pending");
+                    setGraphic(null);
                     return;
                 }
 
@@ -140,22 +152,14 @@ public class CorreoController {
 
                 setText(remitente + "\n" + asunto);
 
-                getStyleClass().removeAll(
-                        "message-card",
-                        "message-card-spam",
-                        "message-card-risk",
-                        "message-card-legit",
-                        "message-card-pending");
-
                 String cat = msg.getCategoria();
-                if (cat == null || cat.isBlank()) {
+
+                if (cat == null || cat.isBlank() || "DESCONOCIDO".equalsIgnoreCase(cat) || "PENDIENTE".equalsIgnoreCase(cat)) {
                     getStyleClass().add("message-card-pending");
                 } else if ("SPAM".equalsIgnoreCase(cat) || "PHISHING".equalsIgnoreCase(cat)) {
                     getStyleClass().add("message-card-risk");
                 } else if ("LEGITIMO".equalsIgnoreCase(cat) || "LEGIT".equalsIgnoreCase(cat)) {
                     getStyleClass().add("message-card-legit");
-                } else if ("DESCONOCIDO".equalsIgnoreCase(cat)) {
-                    getStyleClass().add("message-card-pending");
                 } else {
                     getStyleClass().add("message-card-pending");
                 }
@@ -167,6 +171,7 @@ public class CorreoController {
         );
 
         configurarWebViewEnlacesExternos();
+        actualizarSugerenciasIA(null);
     }
 
     private void configurarWebViewEnlacesExternos() {
@@ -211,10 +216,13 @@ public class CorreoController {
 
     private void abrirEnNavegadorSeguro(String url) {
         if (url == null) return;
+
         String u = url.trim();
-        if (!u.startsWith("http://") && !u.startsWith("https://")) {
+        String lo = u.toLowerCase();
+        if (!lo.startsWith("http://") && !lo.startsWith("https://")) {
             return;
         }
+
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(new URI(u));
@@ -303,8 +311,11 @@ public class CorreoController {
             uidSeleccionado = actual.getUidImap();
         }
         final String uidSelFinal = uidSeleccionado;
-
         final String carpetaSync = carpetaImapActiva;
+
+        if (lblEstadoApp != null) {
+            lblEstadoApp.setText("Actualizando bandeja...");
+        }
 
         Task<List<Mensaje>> task = new Task<>() {
             @Override
@@ -314,15 +325,19 @@ public class CorreoController {
                     daoMensajes.guardarOModificar(mensajesImap, cuentaHash, carpetaSync);
                     return mensajesImap;
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
+                    throw new RuntimeException(e);
                 }
             }
         };
 
         task.setOnSucceeded(ev -> {
             List<Mensaje> nuevos = task.getValue();
-            if (nuevos == null) return;
+            if (nuevos == null) {
+                if (lblEstadoApp != null) {
+                    lblEstadoApp.setText("No se pudieron obtener mensajes.");
+                }
+                return;
+            }
 
             modeloMensajes.setAll(nuevos);
 
@@ -330,6 +345,9 @@ public class CorreoController {
                 for (Mensaje m : modeloMensajes) {
                     if (uidSelFinal.equals(m.getUidImap())) {
                         lstMensajes.getSelectionModel().select(m);
+                        if (lblEstadoApp != null) {
+                            lblEstadoApp.setText("Bandeja actualizada.");
+                        }
                         return;
                     }
                 }
@@ -340,11 +358,20 @@ public class CorreoController {
             } else {
                 limpiarDetalle();
             }
+
+            if (lblEstadoApp != null) {
+                lblEstadoApp.setText("Bandeja actualizada.");
+            }
         });
 
         task.setOnFailed(ev -> {
             Throwable ex = task.getException();
-            if (ex != null) ex.printStackTrace();
+            if (ex != null) {
+                ex.printStackTrace();
+            }
+            if (lblEstadoApp != null) {
+                lblEstadoApp.setText("Error cargando la bandeja.");
+            }
         });
 
         Thread t = new Thread(task, "cargar-bandeja-imap");
@@ -358,9 +385,12 @@ public class CorreoController {
         webViewCuerpo.getEngine().loadContent("");
         txtCuerpo.clear();
         mensajeActual = null;
+
         if (btnPermitirImagenes != null) {
             btnPermitirImagenes.setDisable(true);
         }
+
+        actualizarSugerenciasIA(null);
     }
 
     private void mostrarMensaje(Mensaje msg) {
@@ -371,20 +401,24 @@ public class CorreoController {
             return;
         }
 
-        lblAsunto.setText(msg.getAsunto());
-        lblRemitente.setText(msg.getRemitente());
+        String asunto = msg.getAsunto() != null ? msg.getAsunto() : "";
+        String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
+
+        lblAsunto.setText(asunto);
+        lblRemitente.setText(remitente);
 
         String html = msg.getHtml();
         String texto = msg.getCuerpo();
 
         if (html != null && !html.isBlank()) {
-            String remitente = msg.getRemitente();
-            boolean remitenteConfiable = remitente != null
-                    && !remitente.isBlank()
-                    && daoRemitentes != null
-                    && esConfiableSeguro(remitente);
+            boolean remitenteConfiable = !remitente.isBlank() && esConfiableSeguro(remitente);
+            boolean imagenesPermitidasPorUsuario = msg.getUidImap() != null
+                    && mensajesConImagenesPermitidas.contains(msg.getUidImap());
+
+            boolean permitirImagenes = remitenteConfiable || imagenesPermitidasPorUsuario;
             boolean tieneImagenesExternas = contieneImagenesExternas(html);
-            String htmlRender = remitenteConfiable ? html : eliminarImagenesExternas(html);
+
+            String htmlRender = permitirImagenes ? html : eliminarImagenesExternas(html);
 
             webViewCuerpo.setVisible(true);
             webViewCuerpo.setManaged(true);
@@ -392,9 +426,10 @@ public class CorreoController {
 
             txtCuerpo.setVisible(false);
             txtCuerpo.setManaged(false);
+            txtCuerpo.clear();
 
             if (btnPermitirImagenes != null) {
-                btnPermitirImagenes.setDisable(remitenteConfiable || !tieneImagenesExternas);
+                btnPermitirImagenes.setDisable(permitirImagenes || !tieneImagenesExternas);
             }
         } else {
             txtCuerpo.setVisible(true);
@@ -403,31 +438,41 @@ public class CorreoController {
 
             webViewCuerpo.setVisible(false);
             webViewCuerpo.setManaged(false);
+            webViewCuerpo.getEngine().loadContent("");
+
             if (btnPermitirImagenes != null) {
                 btnPermitirImagenes.setDisable(true);
             }
         }
+
+        actualizarSugerenciasIA(msg);
     }
 
- // Elimina etiquetas <img> que cargan recursos externos vía HTTP/HTTPS.
     private String eliminarImagenesExternas(String html) {
         if (html == null || html.isBlank()) return html;
-        return html.replaceAll("(?i)<img\\b[^>]*src\\s*=\\s*\"https?://[^\"]*\"[^>]*>", "");
+
+        return html.replaceAll(
+                "(?is)<img\\b[^>]*\\bsrc\\s*=\\s*(['\"]?)https?://.*?\\1[^>]*>",
+                ""
+        );
     }
 
-    // Indica si el HTML contiene al menos una imagen externa.
     private boolean contieneImagenesExternas(String html) {
         if (html == null || html.isBlank()) return false;
-        return html.matches("(?is).*<img\\b[^>]*src\\s*=\\s*\"https?://[^\"]*\"[^>]*>.*");
+
+        return html.matches(
+                "(?is).*<img\\b[^>]*\\bsrc\\s*=\\s*(['\"]?)https?://.*?\\1[^>]*>.*"
+        );
     }
 
     @FXML
     private void onPermitirImagenes() {
-        if (mensajeActual == null || daoRemitentes == null) return;
-        String remitente = mensajeActual.getRemitente();
-        if (remitente == null || remitente.isBlank()) return;
+        if (mensajeActual == null) return;
 
-        esConfiableSeguro(remitente);
+        String uid = mensajeActual.getUidImap();
+        if (uid == null || uid.isBlank()) return;
+
+        mensajesConImagenesPermitidas.add(uid);
         mostrarMensaje(mensajeActual);
     }
 
@@ -506,55 +551,102 @@ public class CorreoController {
         if (seleccionado == null || mailService == null) {
             return;
         }
+
         try {
             mailService.eliminarMensaje(seleccionado, carpetaImapActiva);
             modeloMensajes.remove(seleccionado);
-            limpiarDetalle();
+
+            if (!modeloMensajes.isEmpty()) {
+                lstMensajes.getSelectionModel().selectFirst();
+            } else {
+                limpiarDetalle();
+            }
+
+            if (lblEstadoApp != null) {
+                lblEstadoApp.setText("Mensaje eliminado.");
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            if (lblEstadoApp != null) {
+                lblEstadoApp.setText("Error eliminando el mensaje.");
+            }
         }
     }
 
     @FXML
     private void onMarcarSpam() {
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
-        if (seleccionado == null) return;
+        if (seleccionado == null) {
+            return;
+        }
 
         seleccionado.setCategoria("SPAM");
         seleccionado.setPrioridad("NORMAL");
-        if (daoMensajes != null && cuentaHash != null) {
-            daoMensajes.actualizarCategoriaPrioridad(
-                    seleccionado.getUidImap(),
-                    cuentaHash,
-                    carpetaImapActiva,
-                    seleccionado.getCategoria(),
-                    seleccionado.getPrioridad()
-            );
-        }
 
-        lstMensajes.refresh();
-        entrenarConEjemplos();
+        try {
+            if (daoMensajes != null && cuentaHash != null) {
+                daoMensajes.actualizarCategoriaPrioridad(
+                        seleccionado.getUidImap(),
+                        cuentaHash,
+                        carpetaImapActiva,
+                        seleccionado.getCategoria(),
+                        seleccionado.getPrioridad()
+                );
+
+                lstMensajes.refresh();
+                mostrarMensaje(seleccionado);
+
+                if (lblEstadoApp != null) {
+                    lblEstadoApp.setText("Mensaje marcado como spam.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Base de Datos");
+            alert.setHeaderText("No se pudo actualizar la categoría.");
+            alert.setContentText("Hubo un problema al guardar el mensaje: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML
     private void onMarcarLegitimo() {
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
-        if (seleccionado == null) return;
-
-        seleccionado.setCategoria("LEGITIMO");
-        seleccionado.setPrioridad("NORMAL");
-        if (daoMensajes != null && cuentaHash != null) {
-            daoMensajes.actualizarCategoriaPrioridad(
-                    seleccionado.getUidImap(),
-                    cuentaHash,
-                    carpetaImapActiva,
-                    seleccionado.getCategoria(),
-                    seleccionado.getPrioridad()
-            );
+        if (seleccionado == null) {
+            return;
         }
 
-        lstMensajes.refresh();
-        entrenarConEjemplos();
+        seleccionado.setCategoria("LEGITIMO");
+        seleccionado.setPrioridad("ALTA");
+
+        try {
+            if (daoMensajes != null && cuentaHash != null) {
+                daoMensajes.actualizarCategoriaPrioridad(
+                        seleccionado.getUidImap(),
+                        cuentaHash,
+                        carpetaImapActiva,
+                        seleccionado.getCategoria(),
+                        seleccionado.getPrioridad()
+                );
+
+                lstMensajes.refresh();
+                mostrarMensaje(seleccionado);
+
+                if (lblEstadoApp != null) {
+                    lblEstadoApp.setText("Mensaje marcado como legítimo.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de Base de Datos");
+            alert.setHeaderText("No se pudo actualizar la categoría.");
+            alert.setContentText("Hubo un problema al guardar el mensaje: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML
@@ -565,32 +657,220 @@ public class CorreoController {
     private void entrenarConEjemplos() {
         if (spamIaService == null || daoMensajes == null || cuentaHash == null) return;
 
+        if (lblEstadoIA != null) {
+            lblEstadoIA.setText("Reentrenando modelo...");
+        }
+
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
                 try {
                     List<Mensaje> todos = daoMensajes.listarTodosPorCuenta(cuentaHash);
                     List<Mensaje> etiquetados = todos.stream()
-                            .filter(m -> m.getCategoria() != null &&
-                                         !m.getCategoria().isBlank() &&
-                                         !"DESCONOCIDO".equalsIgnoreCase(m.getCategoria()))
+                            .filter(m -> m.getCategoria() != null
+                                    && !m.getCategoria().isBlank()
+                                    && !"DESCONOCIDO".equalsIgnoreCase(m.getCategoria()))
                             .collect(Collectors.toList());
 
                     spamIaService.entrenarModelo(cuentaHash, etiquetados);
+                    return null;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
-                return null;
             }
         };
+
+        task.setOnSucceeded(ev -> {
+            if (lblEstadoIA != null) {
+                lblEstadoIA.setText("Modelo reentrenado.");
+            }
+        });
+
+        task.setOnFailed(ev -> {
+            Throwable ex = task.getException();
+            if (ex != null) {
+                ex.printStackTrace();
+            }
+            if (lblEstadoIA != null) {
+                lblEstadoIA.setText("Error al reentrenar el modelo.");
+            }
+        });
 
         Thread t = new Thread(task, "entrenar-spam-model");
         t.setDaemon(true);
         t.start();
     }
 
-    @FXML private void onUsarRespuesta1() {}
-    @FXML private void onUsarRespuesta2() {}
-    @FXML private void onUsarRespuesta3() {}
-    @FXML private void onAnularSub() {}
+    @FXML
+    private void onUsarRespuesta1() {
+        usarRespuestaSugerida(btnSug1);
+    }
+
+    @FXML
+    private void onUsarRespuesta2() {
+        usarRespuestaSugerida(btnSug2);
+    }
+
+    @FXML
+    private void onUsarRespuesta3() {
+        usarRespuestaSugerida(btnSug3);
+    }
+
+    @FXML
+    private void onAnularSub() {
+        if (mensajeActual == null) {
+            if (lblEstadoIA != null) {
+                lblEstadoIA.setText("Selecciona un mensaje primero.");
+            }
+            return;
+        }
+
+        abrirVentanaCompose(c -> {
+            c.inicializarResponder(mensajeActual);
+            c.setCuerpoInicial(
+                    "Hola,\n\n" +
+                    "Quiero darme de baja de esta suscripción y dejar de recibir estos correos.\n\n" +
+                    "Gracias.\n"
+            );
+        });
+
+        if (lblEstadoIA != null) {
+            lblEstadoIA.setText("Borrador de baja preparado.");
+        }
+    }
+
+    private void usarRespuestaSugerida(Button boton) {
+        if (mensajeActual == null) {
+            if (lblEstadoIA != null) {
+                lblEstadoIA.setText("Selecciona un mensaje primero.");
+            }
+            return;
+        }
+
+        if (boton == null) {
+            return;
+        }
+
+        Object payload = boton.getUserData();
+        String sugerencia = payload != null ? payload.toString() : null;
+
+        if (sugerencia == null || sugerencia.isBlank()) {
+            if (lblEstadoIA != null) {
+                lblEstadoIA.setText("No hay sugerencia disponible.");
+            }
+            return;
+        }
+
+        abrirVentanaCompose(c -> {
+            c.inicializarResponder(mensajeActual);
+            c.setCuerpoInicial(sugerencia);
+        });
+
+        if (lblEstadoIA != null) {
+            lblEstadoIA.setText("Sugerencia aplicada al borrador.");
+        }
+    }
+
+    private void actualizarSugerenciasIA(Mensaje msg) {
+        if (btnSug1 == null || btnSug2 == null || btnSug3 == null || btnAnularSub == null) {
+            return;
+        }
+
+        if (msg == null) {
+            btnSug1.setText("");
+            btnSug2.setText("");
+            btnSug3.setText("");
+
+            btnSug1.setUserData(null);
+            btnSug2.setUserData(null);
+            btnSug3.setUserData(null);
+
+            btnSug1.setDisable(true);
+            btnSug2.setDisable(true);
+            btnSug3.setDisable(true);
+            btnAnularSub.setDisable(true);
+
+            if (lblEstadoIA != null) {
+                lblEstadoIA.setText("IA: sin mensaje seleccionado");
+            }
+            return;
+        }
+
+        String asunto = msg.getAsunto() != null ? msg.getAsunto().toLowerCase() : "";
+        String cuerpo = msg.getCuerpo() != null ? msg.getCuerpo().toLowerCase() : "";
+        String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
+
+        boolean pareceNewsletter =
+                asunto.contains("newsletter") ||
+                asunto.contains("suscripción") ||
+                asunto.contains("oferta") ||
+                asunto.contains("promoción") ||
+                cuerpo.contains("unsubscribe") ||
+                cuerpo.contains("cancelar suscripción") ||
+                cuerpo.contains("darse de baja");
+
+        boolean parecePeticion =
+                cuerpo.contains("?") ||
+                cuerpo.contains("¿") ||
+                asunto.contains("consulta") ||
+                asunto.contains("pregunta") ||
+                asunto.contains("podrías") ||
+                asunto.contains("puedes");
+
+        String titulo1;
+        String titulo2;
+        String titulo3;
+
+        String texto1;
+        String texto2;
+        String texto3;
+
+        if (pareceNewsletter) {
+            titulo1 = "No me interesa";
+            titulo2 = "Eliminar de lista";
+            titulo3 = "No enviar más";
+
+            texto1 = "Hola,\n\nGracias, pero no me interesa esta información en este momento.\n\nUn saludo.";
+            texto2 = "Hola,\n\nPor favor, eliminad mi dirección de vuestra lista de distribución.\n\nGracias.";
+            texto3 = "Hola,\n\nHe recibido vuestro correo. No es necesario que me enviéis más mensajes de este tipo.\n\nUn saludo.";
+
+            btnAnularSub.setDisable(false);
+        } else if (parecePeticion) {
+            titulo1 = "Confirmar recepción";
+            titulo2 = "Pedir más detalles";
+            titulo3 = "Responder más tarde";
+
+            texto1 = "Hola,\n\nGracias por tu mensaje. Lo reviso y te respondo en breve.\n\nUn saludo.";
+            texto2 = "Hola,\n\n¿Podrías darme un poco más de detalle para poder ayudarte mejor?\n\nGracias.";
+            texto3 = "Hola,\n\nRecibido. En cuanto lo revise te digo algo.\n\nUn saludo.";
+
+            btnAnularSub.setDisable(true);
+        } else {
+            titulo1 = "Tomar nota";
+            titulo2 = "Revisar luego";
+            titulo3 = "Confirmar recibido";
+
+            texto1 = "Hola,\n\nGracias por tu correo. Tomo nota.\n\nUn saludo.";
+            texto2 = "Hola,\n\nHe recibido tu mensaje y lo revisaré en cuanto pueda.\n\nGracias.";
+            texto3 = "Hola,\n\nPerfecto, queda anotado.\n\nUn saludo.";
+
+            btnAnularSub.setDisable(true);
+        }
+
+        btnSug1.setText(titulo1);
+        btnSug2.setText(titulo2);
+        btnSug3.setText(titulo3);
+
+        btnSug1.setUserData(texto1);
+        btnSug2.setUserData(texto2);
+        btnSug3.setUserData(texto3);
+
+        btnSug1.setDisable(false);
+        btnSug2.setDisable(false);
+        btnSug3.setDisable(false);
+
+        if (lblEstadoIA != null) {
+            lblEstadoIA.setText("IA: sugerencias listas para " + (remitente.isBlank() ? "el mensaje seleccionado" : remitente));
+        }
+    }
 }

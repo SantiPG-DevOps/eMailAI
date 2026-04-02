@@ -1,0 +1,29 @@
+package com.emailAI.service;
+
+import com.emailAI.model.ThemePreset;
+
+public class ThemeCssResolver {
+
+    public String getCssPath(ThemePreset theme, String mode) {
+        String suffix = "dark".equalsIgnoreCase(mode) ? "-dark.css" : "-light.css";
+
+        return switch (theme) {
+            case EMAILIA -> "/themes/emailia" + suffix;
+            case OCEAN_TEAL -> "/themes/ocean-teal" + suffix;
+            case GRAPHITE_MINT -> "/themes/graphite-mint" + suffix;
+            case AMBER_SLATE -> "/themes/amber-slate" + suffix;
+            case INDIGO_MIST -> "/themes/indigo-mist" + suffix;
+            case EMERALD_PAPER -> "/themes/emerald-paper" + suffix;
+            case RUBY_INK -> "/themes/ruby-ink" + suffix;
+            case VIOLET_SMOKE -> "/themes/violet-smoke" + suffix;
+            case SLATE_GOLD -> "/themes/slate-gold" + suffix;
+            case ARCTIC_BLUE -> "/themes/arctic-blue" + suffix;
+            case SAND_CORAL -> "/themes/sand-coral" + suffix;
+            case FOREST_STONE -> "/themes/forest-stone" + suffix;
+            case MIDNIGHT_ROSE -> "/themes/midnight-rose" + suffix;
+            case NEUTRAL_CYAN -> "/themes/neutral-cyan" + suffix;
+            case WARM_BEIGE_TEAL -> "/themes/warm-beige-teal" + suffix;
+            case DEEP_NAVY_LIME -> "/themes/deep-navy-lime" + suffix;
+        };
+    }
+}

@@ -1,0 +1,51 @@
+package com.emailAI;
+
+import com.emailAI.controller.MainController;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+
+import java.net.URL;
+
+public class AppFX extends Application {
+
+    private static MainController mainController;
+
+    public static void setMainController(MainController controller) {
+        mainController = controller;
+    }
+
+    public static MainController getMainController() {
+        return mainController;
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/main-view.fxml"));
+        BorderPane root = loader.load();
+
+        Scene scene = new Scene(root, 1400, 900);
+
+        URL basicCss = getClass().getResource("/styles-basic.css");
+        if (basicCss == null) {
+            throw new IllegalStateException("No se encontró /styles-basic.css");
+        }
+
+        scene.getStylesheets().add(basicCss.toExternalForm());
+
+        stage.setTitle("eMailAI");
+        stage.setScene(scene);
+        stage.show();
+
+        MainController controller = loader.getController();
+        if (controller != null) {
+            controller.aplicarTema(false);
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}

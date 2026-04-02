@@ -5,6 +5,9 @@ import com.emailAI.dao.DAOCuentas;
 import com.emailAI.dao.DAOCuentas.CuentaGuardada;
 import com.emailAI.security.UtilidadCifrado;
 import com.emailAI.service.MailService;
+import com.emailAI.service.ThemeCssResolver;
+import com.emailAI.service.ThemeManager;
+import com.emailAI.model.ThemePreset;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,19 +29,22 @@ import java.util.Optional;
 
 public class LoginController {
 
-    @FXML private VBox          accountsList;
+    @FXML private VBox accountsList;
     @FXML private PasswordField passwordField;
-    @FXML private Label         statusLabel;
-    @FXML private ToggleButton  themeToggle;
-    @FXML private Button        newAccountButton;
-    @FXML private ImageView     logoImage;
-    @FXML private ProgressBar   strengthBar;
-    @FXML private Label         strengthLabel;
+    @FXML private Label statusLabel;
+    @FXML private ToggleButton themeToggle;
+    @FXML private Button newAccountButton;
+    @FXML private ImageView logoImage;
+    @FXML private ProgressBar strengthBar;
+    @FXML private Label strengthLabel;
 
     private final List<CuentaGuardada> cuentas = new ArrayList<>();
     private CuentaGuardada cuentaSeleccionada;
     private final MailService mailService = new MailService();
     private boolean temaClaro = false;
+
+    private final ThemeManager themeManager = new ThemeManager();
+    private final ThemeCssResolver themeCssResolver = new ThemeCssResolver();
 
     @FXML
     private void initialize() {
@@ -50,10 +56,10 @@ public class LoginController {
         statusLabel.setText("");
         passwordField.setText("");
 
+        temaClaro = "light".equalsIgnoreCase(themeManager.getMode());
         if (themeToggle != null) {
-            temaClaro = false;
-            themeToggle.setSelected(false);
-            themeToggle.setText("☾");
+            themeToggle.setSelected(temaClaro);
+            themeToggle.setText(temaClaro ? "☼" : "☾");
         }
 
         if (strengthBar != null && strengthLabel != null) {
@@ -63,9 +69,12 @@ public class LoginController {
 
         cargarCuentasDesdeBD();
         dibujarTarjetas();
-    }
 
-    // ===================== Cuentas guardadas =====================
+        Scene scene = themeToggle != null ? themeToggle.getScene() : null;
+        if (scene != null) {
+            aplicarTemaAScene(scene, temaClaro);
+        }
+    }
 
     private void cargarCuentasDesdeBD() {
         cuentas.clear();
@@ -78,6 +87,9 @@ public class LoginController {
     }
 
     private void dibujarTarjetas() {
+        if (accountsList == null) {
+            return;
+        }
         accountsList.getChildren().clear();
         for (CuentaGuardada cuenta : cuentas) {
             accountsList.getChildren().add(crearTarjetaCuenta(cuenta));
@@ -97,7 +109,7 @@ public class LoginController {
             emailDescifrado = "[email]";
         }
 
-        Label emailLabel    = new Label(emailDescifrado);
+        Label emailLabel = new Label(emailDescifrado);
         emailLabel.getStyleClass().add("account-email");
 
         Label servidorLabel = new Label(cuenta.servidor());
@@ -111,17 +123,13 @@ public class LoginController {
         return card;
     }
 
-    private void seleccionarCuenta(CuentaGuardada cuenta, VBox cardSeleccionada,
-                                    String emailDescifrado) {
+    private void seleccionarCuenta(CuentaGuardada cuenta, VBox cardSeleccionada, String emailDescifrado) {
         this.cuentaSeleccionada = cuenta;
-        accountsList.getChildren()
-                .forEach(node -> node.getStyleClass().remove("account-card-selected"));
+        accountsList.getChildren().forEach(node -> node.getStyleClass().remove("account-card-selected"));
         cardSeleccionada.getStyleClass().add("account-card-selected");
         statusLabel.setText("Cuenta seleccionada: " + emailDescifrado);
         passwordField.requestFocus();
     }
-
-    // ===================== Login =====================
 
     @FXML
     private void onLoginClicked(ActionEvent event) {
@@ -147,8 +155,6 @@ public class LoginController {
         }
 
         try {
-            // servidor()  → IMAP host
-            // usuarioCifrado() → SMTP host (reutilizado según ConfigController)
             mailService.connect(
                     cuentaSeleccionada.servidor(),
                     cuentaSeleccionada.usuarioCifrado(),
@@ -167,12 +173,11 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/main-view.fxml"));
             Scene mainScene = new Scene(loader.load());
 
-            aplicarTemaAScene(mainScene);
+            aplicarTemaAScene(mainScene, temaClaro);
 
             MainController mainController = loader.getController();
             if (mainController != null) {
                 AppFX.setMainController(mainController);
-                mainController.aplicarTema(temaClaro);
                 mainController.setMailService(mailService);
             }
 
@@ -186,26 +191,43 @@ public class LoginController {
         }
     }
 
-    // ===================== Tema =====================
-
     @FXML
     private void onThemeToggle(ActionEvent event) {
-        if (themeToggle == null) return;
+        if (themeToggle == null) {
+            return;
+        }
         temaClaro = themeToggle.isSelected();
         themeToggle.setText(temaClaro ? "☼" : "☾");
+
         Scene scene = themeToggle.getScene();
-        if (scene != null) aplicarTemaAScene(scene);
+        if (scene != null) {
+            aplicarTemaAScene(scene, temaClaro);
+        }
     }
 
-    private void aplicarTemaAScene(Scene scene) {
+    private void aplicarTemaAScene(Scene scene, boolean light) {
+        if (scene == null) {
+            return;
+        }
+
+        themeManager.setMode(light ? "light" : "dark");
+        ThemePreset tema = themeManager.getTheme();
+
+        var basicUrl = getClass().getResource("/styles-basic.css");
+        String themePath = themeCssResolver.getCssPath(tema, themeManager.getMode());
+        var themeUrl = getClass().getResource(themePath);
+
+        if (basicUrl == null) {
+            throw new IllegalStateException("No se encontró /styles-basic.css");
+        }
+        if (themeUrl == null) {
+            throw new IllegalStateException("No se encontró el CSS del tema: " + themePath);
+        }
+
         scene.getStylesheets().clear();
-        scene.getStylesheets().add(
-                AppFX.class.getResource("/styles-basic.css").toExternalForm());
-        scene.getStylesheets().add(AppFX.class.getResource(
-                temaClaro ? "/styles-light.css" : "/styles-dark.css").toExternalForm());
+        scene.getStylesheets().add(basicUrl.toExternalForm());
+        scene.getStylesheets().add(themeUrl.toExternalForm());
     }
-
-    // ===================== Nueva cuenta =====================
 
     @FXML
     private void onNewAccountClicked(ActionEvent event) {
@@ -221,48 +243,61 @@ public class LoginController {
 
         DialogPane pane = dialog.getDialogPane();
         pane.getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
-        if (owner.getScene() != null)
+        if (owner.getScene() != null) {
             pane.getStylesheets().addAll(owner.getScene().getStylesheets());
+        }
 
         Map<String, String[]> proveedores = new HashMap<>();
-        proveedores.put("Gmail",               new String[]{"imap.gmail.com",        "smtp.gmail.com"});
-        proveedores.put("Outlook/Hotmail",     new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
-        proveedores.put("Yahoo",               new String[]{"imap.mail.yahoo.com",   "smtp.mail.yahoo.com"});
-        proveedores.put("iCloud",              new String[]{"imap.mail.me.com",      "smtp.mail.me.com"});
-        proveedores.put("GMX",                 new String[]{"imap.gmx.com",          "mail.gmx.com"});
-        proveedores.put("ProtonMail (Bridge)", new String[]{"127.0.0.1",             "127.0.0.1"});
-        proveedores.put("Zoho Mail",           new String[]{"imap.zoho.com",         "smtp.zoho.com"});
+        proveedores.put("Gmail", new String[]{"imap.gmail.com", "smtp.gmail.com"});
+        proveedores.put("Outlook/Hotmail", new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
+        proveedores.put("Yahoo", new String[]{"imap.mail.yahoo.com", "smtp.mail.yahoo.com"});
+        proveedores.put("iCloud", new String[]{"imap.mail.me.com", "smtp.mail.me.com"});
+        proveedores.put("GMX", new String[]{"imap.gmx.com", "mail.gmx.com"});
+        proveedores.put("ProtonMail (Bridge)", new String[]{"127.0.0.1", "127.0.0.1"});
+        proveedores.put("Zoho Mail", new String[]{"imap.zoho.com", "smtp.zoho.com"});
         String personalizado = "Servidor personalizado";
 
         ComboBox<String> providerCombo = new ComboBox<>();
         providerCombo.getItems().addAll(
                 "Gmail", "Outlook/Hotmail", "Yahoo", "iCloud",
-                "GMX", "ProtonMail (Bridge)", "Zoho Mail", personalizado);
+                "GMX", "ProtonMail (Bridge)", "Zoho Mail", personalizado
+        );
         providerCombo.getSelectionModel().selectFirst();
 
-        TextField     emailField      = new TextField();
+        TextField emailField = new TextField();
         PasswordField masterPassField = new PasswordField();
         emailField.setPromptText("usuario@dominio.com");
         masterPassField.setPromptText("Contraseña maestra");
 
-        Label     imapLabel = new Label("Servidor IMAP:");
+        Label imapLabel = new Label("Servidor IMAP:");
         TextField imapField = new TextField();
-        Label     smtpLabel = new Label("Servidor SMTP:");
+        Label smtpLabel = new Label("Servidor SMTP:");
         TextField smtpField = new TextField();
 
         Runnable aplicarProveedor = () -> {
             String p = providerCombo.getSelectionModel().getSelectedItem();
-            if (p == null) return;
+            if (p == null) {
+                return;
+            }
             if (personalizado.equals(p)) {
-                imapLabel.setVisible(true); smtpLabel.setVisible(true);
-                imapField.setVisible(true); smtpField.setVisible(true);
-                imapField.setEditable(true); smtpField.setEditable(true);
-                imapField.clear(); smtpField.clear();
+                imapLabel.setVisible(true);
+                smtpLabel.setVisible(true);
+                imapField.setVisible(true);
+                smtpField.setVisible(true);
+                imapField.setEditable(true);
+                smtpField.setEditable(true);
+                imapField.clear();
+                smtpField.clear();
             } else {
                 String[] datos = proveedores.get(p);
-                if (datos != null) { imapField.setText(datos[0]); smtpField.setText(datos[1]); }
-                imapLabel.setVisible(false); smtpLabel.setVisible(false);
-                imapField.setVisible(false); smtpField.setVisible(false);
+                if (datos != null) {
+                    imapField.setText(datos[0]);
+                    smtpField.setText(datos[1]);
+                }
+                imapLabel.setVisible(false);
+                smtpLabel.setVisible(false);
+                imapField.setVisible(false);
+                smtpField.setVisible(false);
             }
         };
 
@@ -270,22 +305,31 @@ public class LoginController {
         aplicarProveedor.run();
 
         GridPane grid = new GridPane();
-        grid.setHgap(10); grid.setVgap(10);
-        grid.add(new Label("Proveedor:"),          0, 0); grid.add(providerCombo,  1, 0);
-        grid.add(new Label("Correo electrónico:"), 0, 1); grid.add(emailField,     1, 1);
-        grid.add(new Label("Contraseña maestra:"), 0, 2); grid.add(masterPassField,1, 2);
-        grid.add(imapLabel,                        0, 3); grid.add(imapField,      1, 3);
-        grid.add(smtpLabel,                        0, 4); grid.add(smtpField,      1, 4);
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.add(new Label("Proveedor:"), 0, 0);
+        grid.add(providerCombo, 1, 0);
+        grid.add(new Label("Correo electrónico:"), 0, 1);
+        grid.add(emailField, 1, 1);
+        grid.add(new Label("Contraseña maestra:"), 0, 2);
+        grid.add(masterPassField, 1, 2);
+        grid.add(imapLabel, 0, 3);
+        grid.add(imapField, 1, 3);
+        grid.add(smtpLabel, 0, 4);
+        grid.add(smtpField, 1, 4);
         pane.setContent(grid);
 
         Optional<ButtonType> result = dialog.showAndWait();
-        if (result.isEmpty() || result.get() != ButtonType.OK) return;
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
+            return;
+        }
 
-        String proveedor  = providerCombo.getSelectionModel().getSelectedItem();
-        String email      = emailField.getText() != null ? emailField.getText().trim() : "";
-        String passMaestra= masterPassField.getText() != null ? masterPassField.getText() : "";
+        String proveedor = providerCombo.getSelectionModel().getSelectedItem();
+        String email = emailField.getText() != null ? emailField.getText().trim() : "";
+        String passMaestra = masterPassField.getText() != null ? masterPassField.getText() : "";
 
-        String imap = "", smtp = "";
+        String imap = "";
+        String smtp = "";
         if (personalizado.equals(proveedor)) {
             imap = imapField.getText() != null ? imapField.getText().trim() : "";
             smtp = smtpField.getText() != null ? smtpField.getText().trim() : "";
@@ -301,15 +345,15 @@ public class LoginController {
 
         try {
             String emailCifrado = UtilidadCifrado.cifrar(email);
-            String passHash     = UtilidadCifrado.hash(passMaestra);
+            String passHash = UtilidadCifrado.hash(passMaestra);
 
             DAOCuentas dao = new DAOCuentas();
             dao.guardar(new CuentaGuardada(
-                    emailCifrado,  // email → clave única
-                    imap,          // servidor IMAP
-                    993,           // puerto
-                    smtp,          // usuarioCifrado → reutilizado para SMTP
-                    passHash,      // passwordCifrada
+                    emailCifrado,
+                    imap,
+                    993,
+                    smtp,
+                    passHash,
                     false
             ));
 
@@ -321,11 +365,11 @@ public class LoginController {
         }
     }
 
-    // ===================== Fuerza de contraseña =====================
-
     @FXML
     private void onAppPasswordChanged() {
-        if (strengthBar == null || strengthLabel == null) return;
+        if (strengthBar == null || strengthLabel == null) {
+            return;
+        }
         actualizarStrength(passwordField.getText());
     }
 
@@ -334,26 +378,37 @@ public class LoginController {
         double progress;
         String texto;
         switch (nivel) {
-            case 0 -> { progress = 0.2; texto = "Contraseña débil"; }
-            case 1 -> { progress = 0.6; texto = "Contraseña media"; }
-            default -> { progress = 1.0; texto = "Contraseña fuerte"; }
+            case 0 -> {
+                progress = 0.2;
+                texto = "Contraseña débil";
+            }
+            case 1 -> {
+                progress = 0.6;
+                texto = "Contraseña media";
+            }
+            default -> {
+                progress = 1.0;
+                texto = "Contraseña fuerte";
+            }
         }
         strengthBar.setProgress(progress);
         strengthLabel.setText(texto);
     }
 
     private int calcularNivel(String pwd) {
-        if (pwd == null || pwd.isBlank()) return 0;
+        if (pwd == null || pwd.isBlank()) {
+            return 0;
+        }
         boolean tieneMinus = pwd.matches(".*[a-z].*");
         boolean tieneMayus = pwd.matches(".*[A-Z].*");
-        boolean tieneNum   = pwd.matches(".*\\d.*");
-        boolean tieneEsp   = pwd.matches(".*[^A-Za-z0-9].*");
+        boolean tieneNum = pwd.matches(".*\\d.*");
+        boolean tieneEsp = pwd.matches(".*[^A-Za-z0-9].*");
         int longitud = pwd.length();
         int puntos = 0;
         if (tieneMinus) puntos++;
         if (tieneMayus) puntos++;
-        if (tieneNum)   puntos++;
-        if (tieneEsp)   puntos++;
+        if (tieneNum) puntos++;
+        if (tieneEsp) puntos++;
         if (longitud >= 12) puntos++;
         else if (longitud >= 8) puntos++;
         if (puntos <= 2) return 0;

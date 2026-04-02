@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="DAOMensajesTest" project="emailAI" tests="1" started="1" failures="0" errors="0" ignored="0">
-  <testsuite name="com.emailAI.dao.DAOMensajesTest" time="0.144" displayname="DAOMensajesTest" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOMensajesTest]">
-    <testcase name="guardarModificarYActualizarCategoria_debeAplicarCambios" classname="com.emailAI.dao.DAOMensajesTest" time="0.144" displayname="guardarModificarYActualizarCategoria_debeAplicarCambios()" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOMensajesTest]/[method:guardarModificarYActualizarCategoria_debeAplicarCambios()]"/>
-  </testsuite>
-</testrun>

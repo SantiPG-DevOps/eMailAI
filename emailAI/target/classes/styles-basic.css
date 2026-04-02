@@ -1,6 +1,7 @@
 /* ═══════════════════════════════════════════════
-   styles-basic.css  —  estructura, sin colores
-   Los colores van en styles-dark.css / styles-light.css
+   styles-basic.css — estructura base, sin tema
+   Los colores se definen en styles-dark.css / styles-light.css
+   y se sobreescriben por tema usando looked-up colors.
    ═══════════════════════════════════════════════ */
 
 .root {
@@ -78,9 +79,15 @@
 }
 
 /* ── Mensajes ── */
-.list-view .message-card {
+.list-view .message-card,
+.list-cell.message-card-pending,
+.list-cell.message-card-legit,
+.list-cell.message-card-risk,
+.list-cell.message-card-spam {
     -fx-padding: 8;
     -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
 }
 
 .message-subject {
@@ -256,8 +263,13 @@
     -fx-min-height: 0;
 }
 
-.config-header-wrap  { -fx-border-width: 0 0 1 0; }
-.config-footer-wrap  { -fx-border-width: 0; }
+.config-header-wrap {
+    -fx-border-width: 0 0 1 0;
+}
+
+.config-footer-wrap {
+    -fx-border-width: 0;
+}
 
 .config-screen-title {
     -fx-font-size: 24px;
@@ -274,7 +286,9 @@
     -fx-font-weight: bold;
 }
 
-.config-field-label  { -fx-font-size: 12px; }
+.config-field-label {
+    -fx-font-size: 12px;
+}
 
 .config-nav-heading {
     -fx-font-size: 11px;
@@ -282,7 +296,9 @@
     -fx-padding: 0 0 8 4;
 }
 
-.config-sep          { -fx-opacity: 0.65; }
+.config-sep {
+    -fx-opacity: 0.65;
+}
 
 .config-content-stack {
     -fx-padding: 0;
@@ -295,9 +311,13 @@
     -fx-padding: 0;
 }
 
-.config-scroll > .viewport { -fx-background-color: transparent; }
+.config-scroll > .viewport {
+    -fx-background-color: transparent;
+}
 
-.config-tab-inner    { -fx-max-width: 760; }
+.config-tab-inner {
+    -fx-max-width: 760;
+}
 
 .config-section-box {
     -fx-padding: 16 20 18 20;
@@ -319,12 +339,20 @@
     -fx-background-radius: 8;
 }
 
-.config-nav-list .list-cell:filled:hover { -fx-cursor: hand; }
+.config-nav-list .list-cell:filled:hover {
+    -fx-cursor: hand;
+}
 
-.config-split        { -fx-padding: 0; -fx-background-insets: 0; }
-.config-split > .split-pane-divider { -fx-padding: 0 2 0 2; }
+.config-split {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
 
-/* ── Chat IA  (estructura sin colores) ── */
+.config-split > .split-pane-divider {
+    -fx-padding: 0 2 0 2;
+}
+
+/* ── Chat IA ── */
 .chat-header {
     -fx-padding: 12 16 12 16;
     -fx-border-width: 0 0 1 0;
@@ -335,7 +363,9 @@
     -fx-font-weight: bold;
 }
 
-.chat-model-label    { -fx-font-size: 12px; }
+.chat-model-label {
+    -fx-font-size: 12px;
+}
 
 .chat-scroll {
     -fx-background-color: transparent;
@@ -343,10 +373,17 @@
     -fx-padding: 0;
 }
 
-.chat-scroll > .viewport { -fx-background-color: transparent; }
+.chat-scroll > .viewport {
+    -fx-background-color: transparent;
+}
 
-.chat-messages       { -fx-padding: 16; }
-.chat-bubble-row     { -fx-padding: 2 0; }
+.chat-messages {
+    -fx-padding: 16;
+}
+
+.chat-bubble-row {
+    -fx-padding: 2 0;
+}
 
 .chat-bubble-user {
     -fx-padding: 10 14 10 14;
@@ -367,6 +404,14 @@
     -fx-border-width: 1 0 0 0;
 }
 
-.chat-input          { -fx-font-size: 13px; }
-.chat-typing         { -fx-padding: 4 16 4 16; }
-.chat-typing-label   { -fx-font-size: 12px; }
+.chat-input {
+    -fx-font-size: 13px;
+}
+
+.chat-typing {
+    -fx-padding: 4 16 4 16;
+}
+
+.chat-typing-label {
+    -fx-font-size: 12px;
+}

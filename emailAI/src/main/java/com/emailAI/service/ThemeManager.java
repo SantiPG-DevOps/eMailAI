@@ -1,0 +1,34 @@
+package com.emailAI.service;
+
+import com.emailAI.model.ThemePreset;
+
+import java.util.prefs.Preferences;
+
+public class ThemeManager {
+
+    private static final String KEY_THEME = "app.theme";
+    private static final String KEY_MODE = "app.mode";
+
+    private final Preferences prefs = Preferences.userNodeForPackage(ThemeManager.class);
+
+    public ThemePreset getTheme() {
+        String raw = prefs.get(KEY_THEME, ThemePreset.EMAILIA.name());
+        try {
+            return ThemePreset.valueOf(raw);
+        } catch (Exception e) {
+            return ThemePreset.EMAILIA;
+        }
+    }
+
+    public void setTheme(ThemePreset theme) {
+        prefs.put(KEY_THEME, theme.name());
+    }
+
+    public String getMode() {
+        return prefs.get(KEY_MODE, "dark");
+    }
+
+    public void setMode(String mode) {
+        prefs.put(KEY_MODE, mode);
+    }
+}

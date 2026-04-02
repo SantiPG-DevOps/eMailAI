@@ -138,4 +138,12 @@ public class ComposeController {
 	public void setMensajeOrigen(Mensaje mensajeOrigen) {
 		this.mensajeOrigen = mensajeOrigen;
 	}
+	
+	public void setCuerpoInicial(String texto) {
+	    if (txtCuerpo != null) {
+	        txtCuerpo.setText(texto != null ? texto : "");
+	        txtCuerpo.requestFocus();
+	        txtCuerpo.positionCaret(txtCuerpo.getText().length());
+	    }
+	}
 }

@@ -1,0 +1,88 @@
+package com.emailAI.controller;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
+public class ChatIAController {
+
+    @FXML
+    private Label lblModelo;
+
+    @FXML
+    private ScrollPane scrollChat;
+
+    @FXML
+    private VBox vboxMensajes;
+
+    @FXML
+    private HBox hboxEscribiendo;
+
+    @FXML
+    private TextArea txtInput;
+
+    @FXML
+    private Button btnLimpiar;
+
+    @FXML
+    private Button btnEnviar;
+
+    @FXML
+    private void initialize() {
+        if (lblModelo != null) {
+            lblModelo.setText("Modelo: —");
+        }
+        if (hboxEscribiendo != null) {
+            hboxEscribiendo.setVisible(false);
+            hboxEscribiendo.setManaged(false);
+        }
+    }
+
+    @FXML
+    private void onLimpiarChat() {
+        if (vboxMensajes != null) {
+            vboxMensajes.getChildren().clear();
+        }
+        if (txtInput != null) {
+            txtInput.clear();
+        }
+    }
+
+    @FXML
+    private void onEnviar() {
+        if (txtInput == null || vboxMensajes == null) {
+            return;
+        }
+
+        String texto = txtInput.getText();
+        if (texto == null || texto.isBlank()) {
+            return;
+        }
+
+        Label msgUsuario = new Label(texto);
+        msgUsuario.getStyleClass().add("chat-bubble-user");
+        msgUsuario.setWrapText(true);
+
+        Label msgIA = new Label("IA pendiente de conectar.");
+        msgIA.getStyleClass().add("chat-bubble-ia");
+        msgIA.setWrapText(true);
+
+        vboxMensajes.getChildren().addAll(msgUsuario, msgIA);
+        txtInput.clear();
+
+        if (scrollChat != null) {
+            scrollChat.layout();
+            scrollChat.setVvalue(1.0);
+        }
+    }
+
+    public void setModelo(String modelo) {
+        if (lblModelo != null) {
+            lblModelo.setText("Modelo: " + (modelo != null ? modelo : "—"));
+        }
+    }
+}

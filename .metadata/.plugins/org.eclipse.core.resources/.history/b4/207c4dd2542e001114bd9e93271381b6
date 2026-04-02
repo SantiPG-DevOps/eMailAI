@@ -1,0 +1,80 @@
+package com.emailAI.service;
+
+import com.emailAI.model.ThemePreset;
+
+public class ThemeCssResolver {
+
+    public String getCssPath(ThemePreset preset, String mode) {
+        boolean light = "light".equalsIgnoreCase(mode);
+
+        return switch (preset) {
+            case EMAILIA -> light
+                    ? "/themes/emailia/emailia-light.css"
+                    : "/themes/emailia/emailia-dark.css";
+
+            case OCEAN_TEAL -> light
+                    ? "/themes/ocean-teal/ocean-teal-light.css"
+                    : "/themes/ocean-teal/ocean-teal-dark.css";
+
+            case GRAPHITE_MINT -> light
+                    ? "/themes/graphite-mint/graphite-mint-light.css"
+                    : "/themes/graphite-mint/graphite-mint-dark.css";
+
+            case AMBER_SLATE -> light
+                    ? "/themes/amber-slate/amber-slate-light.css"
+                    : "/themes/amber-slate/amber-slate-dark.css";
+
+            case INDIGO_MIST -> light
+                    ? "/themes/indigo-mist/indigo-mist-light.css"
+                    : "/themes/indigo-mist/indigo-mist-dark.css";
+
+            case EMERALD_PAPER -> light
+                    ? "/themes/emerald-paper/emerald-paper-light.css"
+                    : "/themes/emerald-paper/emerald-paper-dark.css";
+
+            case RUBY_INK -> light
+                    ? "/themes/ruby-ink/ruby-ink-light.css"
+                    : "/themes/ruby-ink/ruby-ink-dark.css";
+
+            case VIOLET_SMOKE -> light
+                    ? "/themes/violet-smoke/violet-smoke-light.css"
+                    : "/themes/violet-smoke/violet-smoke-dark.css";
+
+            case SLATE_GOLD -> light
+                    ? "/themes/slate-gold/slate-gold-light.css"
+                    : "/themes/slate-gold/slate-gold-dark.css";
+
+            case ARCTIC_BLUE -> light
+                    ? "/themes/arctic-blue/arctic-blue-light.css"
+                    : "/themes/arctic-blue/arctic-blue-dark.css";
+
+            case SAND_CORAL -> light
+                    ? "/themes/sand-coral/sand-coral-light.css"
+                    : "/themes/sand-coral/sand-coral-dark.css";
+
+            case FOREST_STONE -> light
+                    ? "/themes/forest-stone/forest-stone-light.css"
+                    : "/themes/forest-stone/forest-stone-dark.css";
+
+            case MIDNIGHT_ROSE -> light
+                    ? "/themes/midnight-rose/midnight-rose-light.css"
+                    : "/themes/midnight-rose/midnight-rose-dark.css";
+
+            case NEUTRAL_CYAN -> light
+                    ? "/themes/neutral-cyan/neutral-cyan-light.css"
+                    : "/themes/neutral-cyan/neutral-cyan-dark.css";
+
+            case WARM_BEIGE_TEAL -> light
+                    ? "/themes/warm-beige-teal/warm-beige-teal-light.css"
+                    : "/themes/warm-beige-teal/warm-beige-teal-dark.css";
+
+            case DEEP_NAVY_LIME -> light
+                    ? "/themes/deep-navy-lime/deep-navy-lime-light.css"
+                    : "/themes/deep-navy-lime/deep-navy-lime-dark.css";
+
+            case PERSONALIZAR -> light
+                    ? "/themes/emailia/emailia-light.css"
+                    : "/themes/emailia/emailia-dark.css";
+        };
+    }
+}

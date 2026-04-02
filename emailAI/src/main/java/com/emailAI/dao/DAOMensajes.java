@@ -2,9 +2,6 @@ package com.emailAI.dao;
 
 import com.emailAI.model.Mensaje;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

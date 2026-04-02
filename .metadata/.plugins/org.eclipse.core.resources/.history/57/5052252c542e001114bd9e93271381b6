@@ -1,0 +1,395 @@
+/* ═══════════════════════════════════════════════
+   styles-basic.css  —  estructura, sin colores
+   Los colores van en styles-dark.css / styles-light.css
+   ═══════════════════════════════════════════════ */
+
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+}
+
+/* ── Tipografía ── */
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.status-label,
+.label-secondary {
+    -fx-font-size: 11px;
+}
+
+/* ── Botones ── */
+.small-button {
+    -fx-font-size: 11px;
+    -fx-padding: 4 10 4 10;
+}
+
+.primary-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 4 10 4 10;
+    -fx-cursor: hand;
+}
+
+.btn-primary {
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.btn-secondary {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+/* ── Cuentas ── */
+.account-card {
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.account-email {
+    -fx-font-weight: bold;
+}
+
+.account-server {
+    -fx-font-size: 11px;
+}
+
+/* ── Mensajes ── */
+.list-view .message-card,
+.list-cell.message-card-pending,
+.list-cell.message-card-legit,
+.list-cell.message-card-risk,
+.list-cell.message-card-spam {
+    -fx-padding: 8;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.message-subject {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* ── Contactos ── */
+.list-cell.contact-card-cell {
+    -fx-padding: 4 6 4 6;
+    -fx-background-color: transparent;
+}
+
+.contact-card {
+    -fx-padding: 8 10 8 10;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.contact-name {
+    -fx-font-weight: bold;
+}
+
+.contact-email {
+    -fx-font-size: 11px;
+    -fx-opacity: 0.85;
+}
+
+.contact-phone {
+    -fx-font-weight: normal;
+}
+
+.contact-separator-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 4 8 2 8;
+}
+
+.contact-separator-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-opacity: 0.75;
+}
+
+/* ── Chips / IA panel ── */
+.chip {
+    -fx-background-radius: 999;
+    -fx-padding: 4 12 4 12;
+}
+
+.ia-panel {
+    -fx-background-radius: 8;
+    -fx-padding: 8 10 8 10;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+    -fx-padding: 10 5 10 5;
+    -fx-spacing: 10;
+}
+
+.sidebar-toggle {
+    -fx-background-radius: 999;
+    -fx-padding: 6 14 6 14;
+    -fx-max-width: Infinity;
+}
+
+.sidebar-submenu-toggle {
+    -fx-max-width: Infinity;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 12;
+    -fx-font-size: 11px;
+}
+
+.main-sidebar-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.main-sidebar-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-nav-heading {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.main-nav-submenu-heading {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+/* ── Top bar ── */
+.top-bar {
+    -fx-spacing: 8;
+}
+
+.theme-toggle {
+    -fx-font-size: 14px;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 4 10 4 10;
+}
+
+/* ── Calendario ── */
+.cal-dia {
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6;
+    -fx-alignment: top-left;
+    -fx-min-height: 40;
+}
+
+.cal-dia-numero {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 2 4 2 4;
+}
+
+.cal-evento-barra {
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-padding: 1 4 1 4;
+    -fx-background-radius: 3;
+    -fx-max-width: Infinity;
+}
+
+/* ── Tareas ── */
+.task-filter-btn {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 4 12 4 12;
+    -fx-font-size: 11px;
+    -fx-cursor: hand;
+}
+
+.task-priority-badge {
+    -fx-padding: 2 6 2 6;
+    -fx-background-radius: 4;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+/* ── Paginación ── */
+.btn-pag {
+    -fx-background-radius: 50%;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-max-width: 36px;
+    -fx-max-height: 36px;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.pag-indicator {
+    -fx-background-radius: 20px;
+    -fx-padding: 4 16 4 16;
+    -fx-border-radius: 20px;
+    -fx-border-width: 1px;
+}
+
+.pag-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+/* ── Configuración ── */
+.config-root {
+    -fx-min-width: 0;
+    -fx-min-height: 0;
+}
+
+.config-header-wrap  { -fx-border-width: 0 0 1 0; }
+.config-footer-wrap  { -fx-border-width: 0; }
+
+.config-screen-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.config-page-heading {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.config-section-kicker {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.config-field-label  { -fx-font-size: 12px; }
+
+.config-nav-heading {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 8 4;
+}
+
+.config-sep          { -fx-opacity: 0.65; }
+
+.config-content-stack {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.config-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.config-scroll > .viewport { -fx-background-color: transparent; }
+
+.config-tab-inner    { -fx-max-width: 760; }
+
+.config-section-box {
+    -fx-padding: 16 20 18 20;
+    -fx-spacing: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.config-nav-list {
+    -fx-background-insets: 0;
+    -fx-padding: 4 0 8 0;
+    -fx-border-width: 0;
+}
+
+.config-nav-list .list-cell {
+    -fx-background-insets: 2 4;
+    -fx-padding: 0 12 0 12;
+    -fx-background-radius: 8;
+}
+
+.config-nav-list .list-cell:filled:hover { -fx-cursor: hand; }
+
+.config-split        { -fx-padding: 0; -fx-background-insets: 0; }
+.config-split > .split-pane-divider { -fx-padding: 0 2 0 2; }
+
+/* ── Chat IA  (estructura sin colores) ── */
+.chat-header {
+    -fx-padding: 12 16 12 16;
+    -fx-border-width: 0 0 1 0;
+}
+
+.chat-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.chat-model-label {
+    -fx-font-size: 12px;
+}
+
+.chat-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.chat-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.chat-messages {
+    -fx-padding: 16;
+}
+
+.chat-bubble-row {
+    -fx-padding: 2 0;
+}
+
+.chat-bubble-user {
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 16 16 4 16;
+    -fx-font-size: 13px;
+}
+
+.chat-bubble-ia {
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 16 16 16 4;
+    -fx-font-size: 13px;
+    -fx-border-radius: 16 16 16 4;
+    -fx-border-width: 1;
+}
+
+.chat-input-bar {
+    -fx-padding: 10 16 10 16;
+    -fx-border-width: 1 0 0 0;
+}
+
+.chat-input {
+    -fx-font-size: 13px;
+}
+
+.chat-typing {
+    -fx-padding: 4 16 4 16;
+}
+
+.chat-typing-label {
+    -fx-font-size: 12px;
+}

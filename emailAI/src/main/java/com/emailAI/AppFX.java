@@ -6,22 +6,34 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.net.URL;
+
 public class AppFX extends Application {
 
     private static MainController mainController;
     private static Scene mainScene;
 
     private static final String CSS_BASIC = "/styles-basic.css";
-    private static final String CSS_DARK  = "/styles-dark.css";
+    private static final String CSS_DARK  = "/themes/emailIA/emailia-dark.css";
+    private static final String CSS_LIGHT = "/themes/emailIA/emailia-light.css";
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
         mainScene = new Scene(loader.load(), 800, 650);
 
-        // Tema inicial: oscuro hasta que MainController tome el control
-        mainScene.getStylesheets().add(AppFX.class.getResource(CSS_BASIC).toExternalForm());
-        mainScene.getStylesheets().add(AppFX.class.getResource(CSS_DARK).toExternalForm());
+        URL basicUrl = AppFX.class.getResource(CSS_BASIC);
+        URL darkUrl = AppFX.class.getResource(CSS_DARK);
+
+        if (basicUrl == null) {
+            throw new IllegalStateException("No se encontró " + CSS_BASIC);
+        }
+        if (darkUrl == null) {
+            throw new IllegalStateException("No se encontró " + CSS_DARK);
+        }
+
+        mainScene.getStylesheets().add(basicUrl.toExternalForm());
+        mainScene.getStylesheets().add(darkUrl.toExternalForm());
 
         stage.setTitle("Cliente de Correo IA");
         stage.setScene(mainScene);
@@ -40,17 +52,31 @@ public class AppFX extends Application {
         return mainScene;
     }
 
-    // Llamado desde cualquier parte de la app para cambiar tema
     public static void aplicarTema(boolean light) {
         if (mainController != null) {
             mainController.aplicarTema(light);
-        } else if (mainScene != null) {
-            // Antes de que MainController exista (pantalla de login)
-            mainScene.getStylesheets().clear();
-            mainScene.getStylesheets().add(AppFX.class.getResource(CSS_BASIC).toExternalForm());
-            String temaCSS = light ? "/styles-light.css" : CSS_DARK;
-            mainScene.getStylesheets().add(AppFX.class.getResource(temaCSS).toExternalForm());
+            return;
         }
+
+        if (mainScene == null) {
+            return;
+        }
+
+        URL basicUrl = AppFX.class.getResource(CSS_BASIC);
+        URL themeUrl = AppFX.class.getResource(light ? CSS_LIGHT : CSS_DARK);
+
+        if (basicUrl == null) {
+            System.err.println("No se encontró " + CSS_BASIC);
+            return;
+        }
+        if (themeUrl == null) {
+            System.err.println("No se encontró el tema: " + (light ? CSS_LIGHT : CSS_DARK));
+            return;
+        }
+
+        mainScene.getStylesheets().clear();
+        mainScene.getStylesheets().add(basicUrl.toExternalForm());
+        mainScene.getStylesheets().add(themeUrl.toExternalForm());
     }
 
     public static void main(String[] args) {

@@ -1,0 +1,21 @@
+package com.emailAI.model;
+
+public enum ThemePreset {
+    EMAILIA,
+	OCEAN_TEAL,
+    GRAPHITE_MINT,
+    AMBER_SLATE,
+    INDIGO_MIST,
+    EMERALD_PAPER,
+    RUBY_INK,
+    VIOLET_SMOKE,
+    SLATE_GOLD,
+    ARCTIC_BLUE,
+    SAND_CORAL,
+    FOREST_STONE,
+    MIDNIGHT_ROSE,
+    NEUTRAL_CYAN,
+    WARM_BEIGE_TEAL,
+    DEEP_NAVY_LIME,
+    PERSONALIZAR
+}

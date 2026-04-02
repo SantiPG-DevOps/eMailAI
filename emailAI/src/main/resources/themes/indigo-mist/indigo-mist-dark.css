@@ -1,0 +1,120 @@
+.root {
+    -fx-background-color: #0F172A;
+    -fx-base: #0F172A;
+    -fx-text-fill: #EDE9FE;
+    -fx-selection-bar: #6366F1;
+    -fx-selection-bar-text: #0F172A;
+}
+
+.label { -fx-text-fill: #EDE9FE; }
+.label-secondary { -fx-text-fill: #A5B4FC; }
+.status-label { -fx-text-fill: #6366F1; }
+
+.config-root,
+.config-content-stack,
+.main-background {
+    -fx-background-color: #0F172A;
+}
+
+.sidebar,
+.top-bar,
+.ia-panel,
+.card,
+.config-section-box {
+    -fx-background-color: #1E1B4B;
+}
+
+.config-header-wrap,
+.config-footer-wrap,
+.config-nav-pane,
+.main-app-sidebar {
+    -fx-background-color: #1E1B4B;
+    -fx-border-color: #3730A3;
+}
+
+.config-screen-title,
+.config-page-heading,
+.config-section-kicker,
+.config-field-label,
+.config-nav-heading,
+.section-label,
+.title-label,
+.message-subject,
+.account-email,
+.contact-name,
+.contact-phone {
+    -fx-text-fill: #EDE9FE;
+}
+
+.account-server,
+.contact-email,
+.main-nav-heading,
+.main-nav-submenu-heading,
+.chat-model-label,
+.chat-typing-label {
+    -fx-text-fill: #A5B4FC;
+}
+
+.text-field,
+.password-field,
+.text-area,
+.combo-box,
+.choice-box,
+.spinner,
+.list-view {
+    -fx-background-color: #0F172A;
+    -fx-control-inner-background: #0F172A;
+    -fx-text-fill: #EDE9FE;
+    -fx-prompt-text-fill: #A5B4FC;
+    -fx-border-color: #3730A3;
+}
+
+.text-field:focused,
+.password-field:focused,
+.text-area:focused {
+    -fx-border-color: #6366F1;
+}
+
+.button,
+.button.config-primary-btn,
+.btn-primary {
+    -fx-background-color: #6366F1;
+    -fx-text-fill: #0F172A;
+}
+
+.button.config-secondary-btn,
+.btn-secondary,
+.theme-toggle,
+.sidebar-submenu-toggle,
+.action-button,
+.btn-pag {
+    -fx-background-color: #1E1B4B;
+    -fx-text-fill: #EDE9FE;
+    -fx-border-color: #3730A3;
+}
+
+.config-nav-list .list-cell:filled:selected,
+.config-nav-list .list-cell:filled:selected:focused,
+.main-nav-folder-list .list-cell:filled:selected,
+.main-nav-folder-list .list-cell:filled:selected:focused,
+.toggle-button.main-nav-primary:selected {
+    -fx-background-color: #6366F1;
+    -fx-text-fill: #0F172A;
+}
+
+.chat-bubble-user {
+    -fx-background-color: #6366F1;
+    -fx-text-fill: white;
+}
+
+.chat-bubble-ia,
+.chat-header,
+.chat-input-bar {
+    -fx-background-color: #1E1B4B;
+    -fx-text-fill: #EDE9FE;
+    -fx-border-color: #3730A3;
+}
+
+.config-header-accent {
+    -fx-background-color: #6366F1;
+}

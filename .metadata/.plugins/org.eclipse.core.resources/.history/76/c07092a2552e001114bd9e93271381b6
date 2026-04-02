@@ -1,0 +1,85 @@
+package com.emailAI;
+
+import com.emailAI.controller.MainController;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+import java.net.URL;
+
+public class AppFX extends Application {
+
+    private static MainController mainController;
+    private static Scene mainScene;
+
+    private static final String CSS_BASIC = "/styles-basic.css";
+    private static final String CSS_DARK  = "/themes/emailia-dark.css";
+    private static final String CSS_LIGHT = "/themes/emailia-light.css";
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
+        mainScene = new Scene(loader.load(), 800, 650);
+
+        URL basicUrl = AppFX.class.getResource(CSS_BASIC);
+        URL darkUrl = AppFX.class.getResource(CSS_DARK);
+
+        if (basicUrl == null) {
+            throw new IllegalStateException("No se encontró " + CSS_BASIC);
+        }
+        if (darkUrl == null) {
+            throw new IllegalStateException("No se encontró " + CSS_DARK);
+        }
+
+        mainScene.getStylesheets().add(basicUrl.toExternalForm());
+        mainScene.getStylesheets().add(darkUrl.toExternalForm());
+
+        stage.setTitle("Cliente de Correo IA");
+        stage.setScene(mainScene);
+        stage.show();
+    }
+
+    public static void setMainController(MainController controller) {
+        mainController = controller;
+    }
+
+    public static MainController getMainController() {
+        return mainController;
+    }
+
+    public static Scene getMainScene() {
+        return mainScene;
+    }
+
+    public static void aplicarTema(boolean light) {
+        if (mainController != null) {
+            mainController.aplicarTema(light);
+            return;
+        }
+
+        if (mainScene == null) {
+            return;
+        }
+
+        URL basicUrl = AppFX.class.getResource(CSS_BASIC);
+        URL themeUrl = AppFX.class.getResource(light ? CSS_LIGHT : CSS_DARK);
+
+        if (basicUrl == null) {
+            System.err.println("No se encontró " + CSS_BASIC);
+            return;
+        }
+        if (themeUrl == null) {
+            System.err.println("No se encontró el tema: " + (light ? CSS_LIGHT : CSS_DARK));
+            return;
+        }
+
+        mainScene.getStylesheets().clear();
+        mainScene.getStylesheets().add(basicUrl.toExternalForm());
+        mainScene.getStylesheets().add(themeUrl.toExternalForm());
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}

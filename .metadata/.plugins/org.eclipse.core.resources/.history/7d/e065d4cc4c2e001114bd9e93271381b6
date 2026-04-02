@@ -1,0 +1,5 @@
+package com.emailAI.service;
+
+public class ThemeManager {
+
+}

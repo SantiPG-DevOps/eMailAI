@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.emailAI.controller.ConfigController"
+            styleClass="config-root"
+            maxWidth="Infinity"
+            maxHeight="Infinity">
+
+    <fx:define>
+        <ToggleGroup fx:id="themeGroup"/>
+    </fx:define>
+
+    <top>
+        <VBox spacing="0" styleClass="config-header-wrap">
+            <padding>
+                <Insets top="18" right="20" bottom="14" left="20"/>
+            </padding>
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <Region styleClass="config-header-accent"
+                        minWidth="5" prefWidth="5" minHeight="52" maxHeight="Infinity"/>
+                <VBox alignment="CENTER_LEFT" spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Ajustes" styleClass="config-screen-title"/>
+                    <Label text="Personaliza la apariencia, las cuentas de correo y las integraciones."
+                           styleClass="label-secondary"
+                           wrapText="true"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.26"
+                   maxHeight="Infinity"
+                   maxWidth="Infinity"
+                   styleClass="config-split">
+            <items>
+
+                <!-- Navegación lateral -->
+                <VBox spacing="0"
+                      styleClass="config-nav-pane"
+                      minWidth="168"
+                      prefWidth="200"
+                      maxWidth="260">
+                    <padding>
+                        <Insets top="12" right="8" bottom="12" left="12"/>
+                    </padding>
+                    <Label text="Categorías" styleClass="config-nav-heading"/>
+                    <ListView fx:id="configNavList"
+                              VBox.vgrow="ALWAYS"
+                              styleClass="config-nav-list"/>
+                </VBox>
+
+                <!-- Páginas -->
+                <StackPane fx:id="configStack"
+                           maxHeight="Infinity"
+                           maxWidth="Infinity"
+                           styleClass="config-content-stack">
+
+                    <!-- 0: General -->
+                    <ScrollPane fitToWidth="true"
+                                hbarPolicy="NEVER"
+                                vbarPolicy="AS_NEEDED"
+                                styleClass="config-scroll"
+                                maxHeight="Infinity"
+                                maxWidth="Infinity">
+                        <content>
+                            <VBox spacing="18" styleClass="config-tab-inner">
+                                <padding>
+                                    <Insets top="20" right="24" bottom="32" left="20"/>
+                                </padding>
+
+                                <Label text="Apariencia" styleClass="config-page-heading"/>
+
+                                <VBox styleClass="config-section-box" spacing="12">
+                                    <Label text="Tema de la aplicación" styleClass="config-section-kicker"/>
+                                    <Label text="El cambio se aplica al momento en toda la aplicación. El estilo base se mantiene y solo cambian los colores."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+
+                                    <Separator styleClass="config-sep"/>
+
+                                    <HBox spacing="14" alignment="CENTER_LEFT">
+                                        <Label text="Tema" styleClass="config-field-label" minWidth="88"/>
+                                        <ComboBox fx:id="comboTema"
+                                                  onAction="#onTemaSeleccionado"
+                                                  prefWidth="240"/>
+                                    </HBox>
+
+                                    <HBox spacing="14" alignment="CENTER_LEFT">
+                                        <Label text="Modo" styleClass="config-field-label" minWidth="88"/>
+                                        <RadioButton fx:id="rbTemaClaro"
+                                                     text="Claro"
+                                                     toggleGroup="$themeGroup"
+                                                     onAction="#onTemaClaro"/>
+                                        <RadioButton fx:id="rbTemaOscuro"
+                                                     text="Oscuro"
+                                                     toggleGroup="$themeGroup"
+                                                     onAction="#onTemaOscuro"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+
+                    <!-- 1: Correo -->
+                    <ScrollPane fitToWidth="true"
+                                hbarPolicy="NEVER"
+                                vbarPolicy="AS_NEEDED"
+                                styleClass="config-scroll"
+                                maxHeight="Infinity"
+                                maxWidth="Infinity"
+                                visible="false"
+                                managed="false">
+                        <content>
+                            <VBox spacing="18" styleClass="config-tab-inner">
+                                <padding>
+                                    <Insets top="20" right="24" bottom="32" left="20"/>
+                                </padding>
+
+                                <Label text="Correo" styleClass="config-page-heading"/>
+
+                                <VBox styleClass="config-section-box" spacing="12">
+                                    <Label text="Cuentas en este equipo" styleClass="config-section-kicker"/>
+                                    <Label text="Olvidar solo quita la cuenta de esta app; no borra mensajes en el servidor."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <ComboBox fx:id="comboCuentasExistentes"
+                                                  promptText="Selecciona una cuenta…"
+                                                  HBox.hgrow="ALWAYS"/>
+                                        <Button text="Olvidar"
+                                                onAction="#onOlvidarCuentaClicked"
+                                                styleClass="config-secondary-btn"/>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox styleClass="config-section-box" spacing="14">
+                                    <Label text="Añadir cuenta" styleClass="config-section-kicker"/>
+                                    <Label text="Los datos se guardan cifrados en la base de datos local. Usa una contraseña maestra fuerte."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+
+                                    <GridPane hgap="14" vgap="12" styleClass="config-form-grid">
+                                        <columnConstraints>
+                                            <ColumnConstraints halignment="RIGHT" minWidth="148" prefWidth="156"/>
+                                            <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
+                                        </columnConstraints>
+
+                                        <Label text="Proveedor"
+                                               styleClass="config-field-label"
+                                               GridPane.rowIndex="0"
+                                               GridPane.columnIndex="0"/>
+                                        <ComboBox fx:id="providerCombo"
+                                                  maxWidth="Infinity"
+                                                  onAction="#onProviderChanged"
+                                                  GridPane.rowIndex="0"
+                                                  GridPane.columnIndex="1"/>
+
+                                        <Label text="Correo"
+                                               styleClass="config-field-label"
+                                               GridPane.rowIndex="1"
+                                               GridPane.columnIndex="0"/>
+                                        <TextField fx:id="emailField"
+                                                   promptText="usuario@dominio.com"
+                                                   GridPane.rowIndex="1"
+                                                   GridPane.columnIndex="1"/>
+
+                                        <Label text="Contraseña maestra"
+                                               styleClass="config-field-label"
+                                               GridPane.rowIndex="2"
+                                               GridPane.columnIndex="0"/>
+                                        <PasswordField fx:id="masterPassField"
+                                                       promptText="Protege el acceso local"
+                                                       GridPane.rowIndex="2"
+                                                       GridPane.columnIndex="1"/>
+
+                                        <Label fx:id="imapLabel"
+                                               text="IMAP"
+                                               styleClass="config-field-label"
+                                               GridPane.rowIndex="3"
+                                               GridPane.columnIndex="0"/>
+                                        <TextField fx:id="imapField"
+                                                   promptText="imap.ejemplo.com"
+                                                   GridPane.rowIndex="3"
+                                                   GridPane.columnIndex="1"/>
+
+                                        <Label fx:id="smtpLabel"
+                                               text="SMTP"
+                                               styleClass="config-field-label"
+                                               GridPane.rowIndex="4"
+                                               GridPane.columnIndex="0"/>
+                                        <TextField fx:id="smtpField"
+                                                   promptText="smtp.ejemplo.com"
+                                                   GridPane.rowIndex="4"
+                                                   GridPane.columnIndex="1"/>
+                                    </GridPane>
+
+                                    <Label fx:id="statusLabel"
+                                           text=""
+                                           styleClass="status-label"
+                                           wrapText="true"/>
+                                </VBox>
+
+                                <VBox styleClass="config-section-box" spacing="10">
+                                    <Label text="Sincronización automática" styleClass="config-section-kicker"/>
+                                    <Label text="La bandeja de entrada (INBOX) se sincroniza en segundo plano con el intervalo indicado. Los cambios se aplican al pulsar Aplicar."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+                                    <HBox spacing="12" alignment="CENTER_LEFT">
+                                        <Label text="Cada (minutos)"
+                                               styleClass="config-field-label"
+                                               minWidth="120"/>
+                                        <Spinner fx:id="spinnerSyncMinutos" prefWidth="100"/>
+                                        <Button text="Aplicar intervalo"
+                                                onAction="#onAplicarIntervaloSync"
+                                                styleClass="config-secondary-btn"/>
+                                    </HBox>
+                                </VBox>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+
+                    <!-- 2: Calendario y tareas -->
+                    <ScrollPane fitToWidth="true"
+                                hbarPolicy="NEVER"
+                                vbarPolicy="AS_NEEDED"
+                                styleClass="config-scroll"
+                                maxHeight="Infinity"
+                                maxWidth="Infinity"
+                                visible="false"
+                                managed="false">
+                        <content>
+                            <VBox spacing="18" styleClass="config-tab-inner">
+                                <padding>
+                                    <Insets top="20" right="24" bottom="32" left="20"/>
+                                </padding>
+
+                                <Label text="Calendario y tareas" styleClass="config-page-heading"/>
+
+                                <VBox styleClass="config-section-box" spacing="8">
+                                    <Label text="Calendario" styleClass="config-section-kicker"/>
+                                    <Label text="Planes: importar y exportar .ics, y sincronizar con proveedores compatibles."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+                                </VBox>
+
+                                <VBox styleClass="config-section-box" spacing="8">
+                                    <Label text="Tareas" styleClass="config-section-kicker"/>
+                                    <Label text="Planes: enlazar con el calendario de la app y con Todoist (u otros) cuando esté listo."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+                                </VBox>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+
+                    <!-- 3: Contactos -->
+                    <ScrollPane fitToWidth="true"
+                                hbarPolicy="NEVER"
+                                vbarPolicy="AS_NEEDED"
+                                styleClass="config-scroll"
+                                maxHeight="Infinity"
+                                maxWidth="Infinity"
+                                visible="false"
+                                managed="false">
+                        <content>
+                            <VBox spacing="18" styleClass="config-tab-inner">
+                                <padding>
+                                    <Insets top="20" right="24" bottom="32" left="20"/>
+                                </padding>
+
+                                <Label text="Contactos" styleClass="config-page-heading"/>
+
+                                <VBox styleClass="config-section-box" spacing="8">
+                                    <Label text="Privacidad y cifrado" styleClass="config-section-kicker"/>
+                                    <Label text="Aquí aparecerán opciones de protección cuando se implementen."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+                                </VBox>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+
+                    <!-- 4: IA -->
+                    <ScrollPane fitToWidth="true"
+                                hbarPolicy="NEVER"
+                                vbarPolicy="AS_NEEDED"
+                                styleClass="config-scroll"
+                                maxHeight="Infinity"
+                                maxWidth="Infinity"
+                                visible="false"
+                                managed="false">
+                        <content>
+                            <VBox spacing="18" styleClass="config-tab-inner">
+                                <padding>
+                                    <Insets top="20" right="24" bottom="32" left="20"/>
+                                </padding>
+
+                                <Label text="Inteligencia artificial" styleClass="config-page-heading"/>
+
+                                <VBox styleClass="config-section-box" spacing="12">
+                                    <Label text="Motor local" styleClass="config-section-kicker"/>
+                                    <Label text="Configura la URL y el modelo para usar un servicio local como Ollama."
+                                           styleClass="label-secondary"
+                                           wrapText="true"/>
+
+                                    <GridPane hgap="14" vgap="12" styleClass="config-form-grid">
+                                        <columnConstraints>
+                                            <ColumnConstraints halignment="RIGHT" minWidth="148" prefWidth="156"/>
+                                            <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
+                                        </columnConstraints>
+
+                                        <Label text="URL"
+                                               styleClass="config-field-label"
+                                               GridPane.rowIndex="0"
+                                               GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtOllamaUrl"
+                                                   promptText="http://localhost:11434"
+                                                   GridPane.rowIndex="0"
+                                                   GridPane.columnIndex="1"/>
+
+                                        <Label text="Modelo"
+                                               styleClass="config-field-label"
+                                               GridPane.rowIndex="1"
+                                               GridPane.columnIndex="0"/>
+                                        <TextField fx:id="txtOllamaModelo"
+                                                   promptText="llama3"
+                                                   GridPane.rowIndex="1"
+                                                   GridPane.columnIndex="1"/>
+                                    </GridPane>
+
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Button text="Guardar configuración"
+                                                onAction="#onGuardarConfigIA"
+                                                styleClass="config-primary-btn"/>
+                                        <Button text="Probar conexión"
+                                                onAction="#onTestOllama"
+                                                styleClass="config-secondary-btn"/>
+                                    </HBox>
+
+                                    <Label fx:id="lblTestIA"
+                                           text=""
+                                           styleClass="status-label"
+                                           wrapText="true"/>
+                                </VBox>
+                            </VBox>
+                        </content>
+                    </ScrollPane>
+
+                </StackPane>
+            </items>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <VBox spacing="0" styleClass="config-footer-wrap">
+            <Separator/>
+            <HBox spacing="12" alignment="CENTER_RIGHT">
+                <padding>
+                    <Insets top="14" right="22" bottom="18" left="22"/>
+                </padding>
+                <Button text="Guardar"
+                        fx:id="saveButton"
+                        defaultButton="true"
+                        styleClass="config-primary-btn"
+                        onAction="#onSaveClicked"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+</BorderPane>

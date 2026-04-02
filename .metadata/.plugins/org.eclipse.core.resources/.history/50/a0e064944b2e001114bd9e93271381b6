@@ -1,0 +1,55 @@
+package com.emailAI.controller;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
+
+public class ChatIAController {
+
+    @FXML
+    private VBox chatMessages;
+
+    @FXML
+    private TextArea txtPrompt;
+
+    @FXML
+    private Label lblEstado;
+
+    @FXML
+    private void initialize() {
+        if (lblEstado != null) {
+            lblEstado.setText("Chat IA listo");
+        }
+    }
+
+    @FXML
+    private void onEnviar() {
+        if (txtPrompt == null || chatMessages == null) {
+            return;
+        }
+
+        String texto = txtPrompt.getText();
+        if (texto == null || texto.isBlank()) {
+            if (lblEstado != null) {
+                lblEstado.setText("Escribe un mensaje");
+            }
+            return;
+        }
+
+        Label userMsg = new Label(texto);
+        userMsg.getStyleClass().add("chat-bubble-user");
+        userMsg.setWrapText(true);
+
+        Label iaMsg = new Label("Pendiente de conectar con el servicio IA.");
+        iaMsg.getStyleClass().add("chat-bubble-ia");
+        iaMsg.setWrapText(true);
+
+        chatMessages.getChildren().addAll(userMsg, iaMsg);
+        txtPrompt.clear();
+
+        if (lblEstado != null) {
+            lblEstado.setText("Mensaje enviado");
+        }
+    }
+}

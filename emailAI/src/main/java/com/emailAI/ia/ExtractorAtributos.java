@@ -14,8 +14,9 @@ public class ExtractorAtributos {
     // Construye el esquema de atributos para el modelo SPAM/LEGITIMO.
     public static Instances construirEstructura() {
         ArrayList<Attribute> atributos = new ArrayList<>();
-        atributos.add(new Attribute("long_asunto"));
-        atributos.add(new Attribute("long_cuerpo"));
+
+        atributos.add(new Attribute("longitud_asunto"));
+        atributos.add(new Attribute("longitud_cuerpo"));
         atributos.add(new Attribute("contiene_oferta"));
         atributos.add(new Attribute("contiene_gratis"));
         atributos.add(new Attribute("contiene_porcentaje"));
@@ -33,10 +34,11 @@ public class ExtractorAtributos {
     // Construye el esquema de atributos para el modelo NORMAL/URGENTE.
     public static Instances construirEstructuraPrioridad() {
         ArrayList<Attribute> atributos = new ArrayList<>();
-        atributos.add(new Attribute("es_remitente_frecuente")); 
-        atributos.add(new Attribute("contiene_pregunta"));     
-        atributos.add(new Attribute("es_respuesta_re"));       
-        atributos.add(new Attribute("long_cuerpo"));           
+
+        atributos.add(new Attribute("es_remitente_frecuente"));
+        atributos.add(new Attribute("contiene_pregunta"));
+        atributos.add(new Attribute("es_respuesta_re"));
+        atributos.add(new Attribute("longitud_cuerpo"));
 
         ArrayList<String> valoresClase = new ArrayList<>();
         valoresClase.add("NORMAL");
@@ -49,54 +51,71 @@ public class ExtractorAtributos {
     }
 
     /**
-     * Convierte ejemplos de la DB a formato Weka para detectar SPAM
+     * Convierte ejemplos de la BD a instancias Weka para entrenar SPAM.
      */
-    // Convierte ejemplos etiquetados a instancias Weka para entrenar spam.
     public static Instances convertirAEstructura(List<DAOEntrenamiento.Ejemplo> ejemplos) {
         Instances data = construirEstructura();
 
         for (DAOEntrenamiento.Ejemplo e : ejemplos) {
-            double[] vals = new double[data.numAttributes()];
+            if (e == null || e.etiqueta == null) {
+                continue;
+            }
+
             String asunto = e.asunto != null ? e.asunto.toLowerCase() : "";
             String cuerpo = e.cuerpo != null ? e.cuerpo.toLowerCase() : "";
 
+            double[] vals = new double[data.numAttributes()];
             vals[0] = asunto.length();
             vals[1] = cuerpo.length();
             vals[2] = (asunto.contains("oferta") || cuerpo.contains("oferta")) ? 1.0 : 0.0;
             vals[3] = (asunto.contains("gratis") || cuerpo.contains("gratis")) ? 1.0 : 0.0;
             vals[4] = (asunto.contains("%") || cuerpo.contains("%")) ? 1.0 : 0.0;
-            
-            // Mapea la etiqueta textual a su índice de clase para spam.
-            vals[5] = data.classAttribute().indexOfValue(e.etiqueta);
 
-            if (vals[5] != -1) data.add(new DenseInstance(1.0, vals));
+            String etiqueta = e.etiqueta.trim().toUpperCase();
+            int idxClase = data.classAttribute().indexOfValue(etiqueta);
+
+            if (idxClase != -1) {
+                vals[5] = idxClase;
+                DenseInstance inst = new DenseInstance(1.0, vals);
+                inst.setDataset(data);
+                data.add(inst);
+            }
         }
+
         return data;
     }
 
     /**
-     * Convierte ejemplos de la DB a formato Weka para detectar PRIORIDAD
+     * Convierte ejemplos de la BD a instancias Weka para entrenar PRIORIDAD.
      */
-    // Convierte ejemplos etiquetados a instancias Weka para entrenar prioridad.
     public static Instances convertirAEstructuraPrioridad(List<DAOEntrenamiento.Ejemplo> ejemplos) {
         Instances data = construirEstructuraPrioridad();
 
         for (DAOEntrenamiento.Ejemplo e : ejemplos) {
-            double[] vals = new double[data.numAttributes()];
+            if (e == null || e.etiqueta == null) {
+                continue;
+            }
+
             String asunto = e.asunto != null ? e.asunto.toLowerCase() : "";
             String cuerpo = e.cuerpo != null ? e.cuerpo.toLowerCase() : "";
 
-            // Extrae señales simples para el modelo de prioridad.
-            vals[0] = 0.0; // Placeholder para remitente frecuente
+            double[] vals = new double[data.numAttributes()];
+            vals[0] = 0.0; // Placeholder de momento
             vals[1] = (cuerpo.contains("?") || cuerpo.contains("¿")) ? 1.0 : 0.0;
-            vals[2] = (asunto.startsWith("re:") || asunto.startsWith("fwd:")) ? 1.0 : 0.0;
+            vals[2] = asunto.startsWith("re:") ? 1.0 : 0.0;
             vals[3] = cuerpo.length();
-            
-            // Mapea la etiqueta textual a su índice de clase para prioridad.
-            vals[4] = data.classAttribute().indexOfValue(e.etiqueta);
 
-            if (vals[4] != -1) data.add(new DenseInstance(1.0, vals));
+            String etiqueta = e.etiqueta.trim().toUpperCase();
+            int idxClase = data.classAttribute().indexOfValue(etiqueta);
+
+            if (idxClase != -1) {
+                vals[4] = idxClase;
+                DenseInstance inst = new DenseInstance(1.0, vals);
+                inst.setDataset(data);
+                data.add(inst);
+            }
         }
+
         return data;
     }
 }

@@ -1,0 +1,5 @@
+package com.emailAI.security;
+
+public class ThemePreferences {
+
+}
