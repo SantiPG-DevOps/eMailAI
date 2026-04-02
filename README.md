@@ -57,5 +57,5 @@ El objetivo es reducir la saturación de spam, mitigar riesgos de phishing y ofr
 
 **Santiago Pérez Gómez**  
 Proyecto Final de Ciclo — Aplicación inteligente para gestión avanzada de correo.
-📍Málaga, España
-@SantiPG-Dev
+
+📍Málaga, España @SantiPG-Dev
