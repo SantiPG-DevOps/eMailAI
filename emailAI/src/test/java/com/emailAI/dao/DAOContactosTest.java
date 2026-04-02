@@ -1,23 +1,40 @@
 package com.emailAI.dao;
 
 import com.emailAI.model.Contacto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DAOContactosTest {
 
-    @Test
-    void guardarYListar_debePersistirYDescifrarDatos() throws Exception {
-        Path db = Files.createTempFile("emailai-contactos-", ".db");
-        DAOContactos dao = new DAOContactos("jdbc:sqlite:" + db);
+    private DAOContactos dao;
 
-        Contacto c = new Contacto(null, "Ana", "ana@test.com", "123456", "proveedor");
+    @BeforeEach
+    void setUp() {
+        dao = new DAOContactos();
+
+        // Limpiar contactos existentes para aislar tests
+        for (Contacto c : dao.listarTodos()) {
+            dao.borrar(c);
+        }
+    }
+
+    @Test
+    void guardarYListar_debePersistirYDescifrarDatos() {
+        Contacto c = new Contacto(
+                null,
+                "Ana",
+                null,
+                "ana@test.com",
+                "123456",
+                "proveedor"
+        );
+
         dao.guardarOActualizar(c);
+
         assertNotNull(c.getId());
 
         List<Contacto> lista = dao.listarTodos();
@@ -25,14 +42,20 @@ class DAOContactosTest {
         assertEquals("Ana", lista.get(0).getNombre());
         assertEquals("ana@test.com", lista.get(0).getEmail());
         assertEquals("123456", lista.get(0).getTelefono());
+        assertEquals("proveedor", lista.get(0).getNotas());
     }
 
     @Test
-    void borrar_debeEliminarContacto() throws Exception {
-        Path db = Files.createTempFile("emailai-contactos-del-", ".db");
-        DAOContactos dao = new DAOContactos("jdbc:sqlite:" + db);
+    void borrar_debeEliminarContacto() {
+        Contacto c = new Contacto(
+                null,
+                "Luis",
+                null,
+                "luis@test.com",
+                "",
+                ""
+        );
 
-        Contacto c = new Contacto(null, "Luis", "luis@test.com", "", "");
         dao.guardarOActualizar(c);
         dao.borrar(c);
 

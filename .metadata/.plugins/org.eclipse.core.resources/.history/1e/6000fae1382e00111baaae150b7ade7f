@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.ContactosController">
+    <center>
+        <VBox spacing="8" maxHeight="Infinity" maxWidth="Infinity">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+
+            <!-- Barra superior -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Contactos" styleClass="section-label"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="＋ Nuevo"  onAction="#onNuevoContacto"  styleClass="small-button"/>
+                <Button fx:id="btnEditar" text="✏ Editar"  onAction="#onEditarContacto" styleClass="small-button" disable="true"/>
+                <Button fx:id="btnBorrar" text="🗑 Borrar"  onAction="#onBorrarContacto" styleClass="small-button" disable="true"/>
+            </HBox>
+
+            <!-- Filtro búsqueda -->
+            <TextField fx:id="txtBuscar"
+                       promptText="🔍  Buscar por nombre, apellido, email o teléfono…"
+                       onKeyReleased="#onBuscar"/>
+
+            <!-- 3 columnas de contactos -->
+            <HBox spacing="6" VBox.vgrow="ALWAYS">
+                <ListView fx:id="lstCol1" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Separator orientation="VERTICAL"/>
+                <ListView fx:id="lstCol2" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Separator orientation="VERTICAL"/>
+                <ListView fx:id="lstCol3" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            </HBox>
+
+            <!-- Paginación centrada con << >> -->
+            <HBox spacing="12" alignment="CENTER">
+                <Button fx:id="btnPrimera"
+                        onAction="#onPrimera"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="«"/>
+                <Button fx:id="btnAnterior"
+                        onAction="#onAnterior"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="‹"/>
+
+                <HBox styleClass="pag-indicator" alignment="CENTER" spacing="4">
+                    <Label fx:id="lblPagina" text="Pág. 1 / 1" styleClass="pag-label"/>
+                </HBox>
+
+                <Button fx:id="btnSiguiente"
+                        onAction="#onSiguiente"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="›"/>
+                <Button fx:id="btnUltima"
+                        onAction="#onUltima"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="»"/>
+
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblEstado" styleClass="status-label"/>
+            </HBox>
+
+        </VBox>
+    </center>
+</BorderPane>

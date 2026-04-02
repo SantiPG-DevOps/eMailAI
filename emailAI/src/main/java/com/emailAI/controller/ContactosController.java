@@ -46,7 +46,7 @@ public class ContactosController {
     // ── Init ──────────────────────────────────────────────────────────────────
     @FXML
     private void initialize() {
-        daoContactos = new DAOContactos("jdbc:sqlite:emailAI.db");
+        daoContactos = new DAOContactos();
         configurarLista(lstCol1);
         configurarLista(lstCol2);
         configurarLista(lstCol3);

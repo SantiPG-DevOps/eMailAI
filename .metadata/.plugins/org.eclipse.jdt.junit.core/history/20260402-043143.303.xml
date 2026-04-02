@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="DAOContactosTest" project="emailAI" tests="2" started="2" failures="2" errors="0" ignored="0">
+  <testsuite name="com.emailAI.dao.DAOContactosTest" time="0.213" displayname="DAOContactosTest" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOContactosTest]">
+    <testcase name="guardarYListar_debePersistirYDescifrarDatos" classname="com.emailAI.dao.DAOContactosTest" time="0.198" displayname="guardarYListar_debePersistirYDescifrarDatos()" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOContactosTest]/[method:guardarYListar_debePersistirYDescifrarDatos()]">
+      <failure>
+        <expected>1</expected>
+        <actual>4</actual>
+        org.opentest4j.AssertionFailedError: expected: &lt;1&gt; but was: &lt;4&gt;
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:150)
+	at org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:145)
+	at org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:531)
+	at com.emailAI.dao.DAOContactosTest.guardarYListar_debePersistirYDescifrarDatos(DAOContactosTest.java:36)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+
+      </failure>
+    </testcase>
+    <testcase name="borrar_debeEliminarContacto" classname="com.emailAI.dao.DAOContactosTest" time="0.014" displayname="borrar_debeEliminarContacto()" uniqueid="[engine:junit-jupiter]/[class:com.emailAI.dao.DAOContactosTest]/[method:borrar_debeEliminarContacto()]">
+      <failure>
+        <expected>true</expected>
+        <actual>false</actual>
+        org.opentest4j.AssertionFailedError: expected: &lt;true&gt; but was: &lt;false&gt;
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:31)
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:183)
+	at com.emailAI.dao.DAOContactosTest.borrar_debeEliminarContacto(DAOContactosTest.java:60)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+
+      </failure>
+    </testcase>
+  </testsuite>
+</testrun>

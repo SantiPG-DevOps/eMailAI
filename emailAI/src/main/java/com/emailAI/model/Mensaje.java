@@ -1,46 +1,68 @@
 package com.emailAI.model;
 
-// Modelo de dominio que representa un correo con metadatos, etiquetas de IA y campos auxiliares.
 public class Mensaje {
 
-    // Almacena el identificador lógico del mensaje en el sistema.
-    private String id;
+    private Long id;
+
+    private String uidImap;
+    private String cuentaHash;
+    private String carpetaImap;
 
     private String remitente;
     private String asunto;
-    private String cuerpo;      // texto plano (para BD + IA)
-    private String fecha;
-    private String uidImap;     // UID real IMAP
-    // Guarda la categoría inferida o asignada para clasificación del correo.
-    private String categoria;
-    private String prioridad;   // URGENTE / NORMAL / etc.
-    private String cuentaHash;  // hash de la cuenta
-    /** Nombre completo IMAP de la carpeta (ej. INBOX, [Gmail]/Sent Mail). */
-    private String carpetaImap;
-    private String html;        // cuerpo HTML solo para interfaz
+    private String cuerpo;
+    private String html;
 
-    // Guarda campos adicionales generados por servicios IA.
+    private String fecha;
+
+    private String categoria;
+    private String prioridad;
+
     private String resumenIA;
     private String sugerenciaIA;
 
-    // Constructor vacío usado por frameworks y DAOs.
     public Mensaje() {
     }
 
-    // Constructor rápido para instanciar un mensaje mínimo desde IMAP.
-    public Mensaje(String id, String remitente, String asunto, String cuerpo) {
-        this.id = id;
+    public Mensaje(String uidImap, String remitente, String asunto, String cuerpo) {
+        this.uidImap = uidImap;
         this.remitente = remitente;
         this.asunto = asunto;
         this.cuerpo = cuerpo;
+        this.categoria = "DESCONOCIDO";
+        this.prioridad = "NORMAL";
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUidImap() {
+        return uidImap;
+    }
+
+    public void setUidImap(String uidImap) {
+        this.uidImap = uidImap;
+    }
+
+    public String getCuentaHash() {
+        return cuentaHash;
+    }
+
+    public void setCuentaHash(String cuentaHash) {
+        this.cuentaHash = cuentaHash;
+    }
+
+    public String getCarpetaImap() {
+        return carpetaImap;
+    }
+
+    public void setCarpetaImap(String carpetaImap) {
+        this.carpetaImap = carpetaImap;
     }
 
     public String getRemitente() {
@@ -67,20 +89,20 @@ public class Mensaje {
         this.cuerpo = cuerpo;
     }
 
+    public String getHtml() {
+        return html;
+    }
+
+    public void setHtml(String html) {
+        this.html = html;
+    }
+
     public String getFecha() {
         return fecha;
     }
 
     public void setFecha(String fecha) {
         this.fecha = fecha;
-    }
-
-    public String getUidImap() {
-        return uidImap;
-    }
-
-    public void setUidImap(String uidImap) {
-        this.uidImap = uidImap;
     }
 
     public String getCategoria() {
@@ -99,30 +121,6 @@ public class Mensaje {
         this.prioridad = prioridad;
     }
 
-    public String getCuentaHash() {
-        return cuentaHash;
-    }
-
-    public void setCuentaHash(String cuentaHash) {
-        this.cuentaHash = cuentaHash;
-    }
-
-    public String getCarpetaImap() {
-        return carpetaImap;
-    }
-
-    public void setCarpetaImap(String carpetaImap) {
-        this.carpetaImap = carpetaImap;
-    }
-
-    public String getHtml() {
-        return html;
-    }
-
-    public void setHtml(String html) {
-        this.html = html;
-    }
-
     public String getResumenIA() {
         return resumenIA;
     }
@@ -139,10 +137,18 @@ public class Mensaje {
         this.sugerenciaIA = sugerenciaIA;
     }
 
+    public String getFechaRecepcion() {
+        return fecha;
+    }
+
+    public void setFechaRecepcion(String fechaRecepcion) {
+        this.fecha = fechaRecepcion;
+    }
+
     @Override
     public String toString() {
-        String r = remitente != null ? remitente : "";
-        String a = asunto != null ? asunto : "";
-        return r + " - " + a;
+        String rem = remitente != null ? remitente : "";
+        String asu = asunto != null ? asunto : "";
+        return rem + " - " + asu;
     }
 }

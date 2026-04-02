@@ -7,17 +7,20 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO de contactos → contactos.db
 public class DAOContactos {
 
-    private final String url;
+    public DAOContactos() {
+        inicializarTabla();
+    }
 
+    /** @deprecated Usar constructor sin argumentos. */
+    @Deprecated
     public DAOContactos(String url) {
-        this.url = url;
         inicializarTabla();
     }
 
     private void inicializarTabla() {
-        // Crea la tabla con la columna apellido incluida
         String sql = """
                 CREATE TABLE IF NOT EXISTS contactos (
                     id                INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,18 +31,10 @@ public class DAOContactos {
                     notas_cifrado     TEXT
                 )
                 """;
-        try (Connection conn = DriverManager.getConnection(url);
+        try (Connection conn = ConexionBD.getConnectionContactos();
              Statement st = conn.createStatement()) {
             st.execute(sql);
-            // Migración: añade la columna si la tabla ya existía sin ella
-            try {
-                st.execute("ALTER TABLE contactos ADD COLUMN apellido_cifrado TEXT");
-            } catch (SQLException ignored) {
-                // Ya existe — ignorar
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public List<Contacto> listarTodos() {
@@ -48,24 +43,21 @@ public class DAOContactos {
                 SELECT id, nombre, apellido_cifrado, email_cifrado, telefono_cifrado, notas_cifrado
                 FROM contactos
                 """;
-        try (Connection conn = DriverManager.getConnection(url);
+        try (Connection conn = ConexionBD.getConnectionContactos();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
-                int    id       = rs.getInt("id");
-                String nombre   = rs.getString("nombre");
-                String apellido = descifrarSeguro(rs.getString("apellido_cifrado"));
-                String email    = descifrarSeguro(rs.getString("email_cifrado"));
-                String tel      = descifrarSeguro(rs.getString("telefono_cifrado"));
-                String notas    = descifrarSeguro(rs.getString("notas_cifrado"));
-                lista.add(new Contacto(id, nombre, apellido, email, tel, notas));
+                lista.add(new Contacto(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        descifrarSeguro(rs.getString("apellido_cifrado")),
+                        descifrarSeguro(rs.getString("email_cifrado")),
+                        descifrarSeguro(rs.getString("telefono_cifrado")),
+                        descifrarSeguro(rs.getString("notas_cifrado"))
+                ));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
         return lista;
-        // El ordenado se hace en el controlador para respetar tildes y normalización
     }
 
     public void guardarOActualizar(Contacto c) {
@@ -78,33 +70,29 @@ public class DAOContactos {
                 INSERT INTO contactos (nombre, apellido_cifrado, email_cifrado, telefono_cifrado, notas_cifrado)
                 VALUES (?, ?, ?, ?, ?)
                 """;
-        try (Connection conn = DriverManager.getConnection(url);
+        try (Connection conn = ConexionBD.getConnectionContactos();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
             ps.setString(1, c.getNombre());
             ps.setString(2, cifrarSeguro(c.getApellido()));
             ps.setString(3, cifrarSeguro(c.getEmail()));
             ps.setString(4, cifrarSeguro(c.getTelefono()));
             ps.setString(5, cifrarSeguro(c.getNotas()));
             ps.executeUpdate();
-
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) c.setId(rs.getInt(1));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     private void actualizar(Contacto c) {
         String sql = """
                 UPDATE contactos
-                SET nombre = ?, apellido_cifrado = ?, email_cifrado = ?, telefono_cifrado = ?, notas_cifrado = ?
+                SET nombre = ?, apellido_cifrado = ?, email_cifrado = ?,
+                    telefono_cifrado = ?, notas_cifrado = ?
                 WHERE id = ?
                 """;
-        try (Connection conn = DriverManager.getConnection(url);
+        try (Connection conn = ConexionBD.getConnectionContactos();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, c.getNombre());
             ps.setString(2, cifrarSeguro(c.getApellido()));
             ps.setString(3, cifrarSeguro(c.getEmail()));
@@ -112,21 +100,17 @@ public class DAOContactos {
             ps.setString(5, cifrarSeguro(c.getNotas()));
             ps.setInt(6, c.getId());
             ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public void borrar(Contacto c) {
         if (c.getId() == null) return;
         String sql = "DELETE FROM contactos WHERE id = ?";
-        try (Connection conn = DriverManager.getConnection(url);
+        try (Connection conn = ConexionBD.getConnectionContactos();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, c.getId());
             ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     private String cifrarSeguro(String texto) {

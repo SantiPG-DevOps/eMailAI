@@ -554,4 +554,80 @@
     -fx-border-color: #334155;
 }
 
-.pag-label { -fx-text-fill: #CBD5E1; }
+.pag-label { 
+	-fx-text-fill: #CBD5E1;
+}
+
+/* ── Filtro HOY → rojo oscuro ── */
+.task-filter-hoy {
+    -fx-background-color: #c62828;
+    -fx-text-fill: white;
+}
+.task-filter-hoy:hover {
+    -fx-background-color: #b71c1c;
+    -fx-text-fill: white;
+}
+.task-filter-hoy:selected {
+    -fx-background-color: #ff5252;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ── Filtro MAÑANA → naranja oscuro ── */
+.task-filter-manana {
+    -fx-background-color: #e65100;
+    -fx-text-fill: white;
+}
+.task-filter-manana:hover {
+    -fx-background-color: #bf360c;
+    -fx-text-fill: white;
+}
+.task-filter-manana:selected {
+    -fx-background-color: #ff6d00;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ── Filtro SEMANA → amarillo oscuro ── */
+.task-filter-semana {
+    -fx-background-color: #f9a825;
+    -fx-text-fill: #111;
+}
+.task-filter-semana:hover {
+    -fx-background-color: #f57f17;
+    -fx-text-fill: #111;
+}
+.task-filter-semana:selected {
+    -fx-background-color: #ffca28;
+    -fx-text-fill: #111;
+    -fx-font-weight: bold;
+}
+
+/* ── Filtro MES → verde oscuro ── */
+.task-filter-mes {
+    -fx-background-color: #2e7d32;
+    -fx-text-fill: white;
+}
+.task-filter-mes:hover {
+    -fx-background-color: #1b5e20;
+    -fx-text-fill: white;
+}
+.task-filter-mes:selected {
+    -fx-background-color: #69f0ae;
+    -fx-text-fill: #111;
+    -fx-font-weight: bold;
+}
+
+/* ── Badges prioridad ── */
+.task-priority-alta  { -fx-background-color: #ff5252; -fx-text-fill: white; }
+.task-priority-media { -fx-background-color: #ffca28; -fx-text-fill: #111;  }
+.task-priority-baja  { -fx-background-color: #69f0ae; -fx-text-fill: #111;  }
+
+/* — Añadir en styles-dark.css — */
+.chat-bubble-user { -fx-background-color: #01696f; -fx-text-fill: white; }
+.chat-bubble-ia   { -fx-background-color: #201f1d; -fx-text-fill: #cdccca;
+                    -fx-border-color: #393836; }
+.chat-header      { -fx-background-color: #1c1b19; -fx-border-color: #393836; }
+.chat-input-bar   { -fx-background-color: #1c1b19; -fx-border-color: #393836; }
+.chat-model-label { -fx-text-fill: #797876; }
+.chat-typing-label{ -fx-text-fill: #797876; }

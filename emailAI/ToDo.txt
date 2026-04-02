@@ -4,9 +4,9 @@ Importante
 	Arreglar alertas de controllers. - Creo que son avisos de imports sin uso, pero revisar. ✅ 
 
 Login
-	Terminar de implementar un menu cuenta nueva en login adecuado. Que no salte la ventana de config como esta ahora. ❌
+	Terminar de implementar un menu cuenta nueva en login adecuado. Que no salte la ventana de config como esta ahora. ✅ 
 
-Config 
+Config ❌
 	General
 		Añadir en la parte general debajo de la seleccion de tema, el cambio de colores permanente de cada parte.
 	Correo  
@@ -22,7 +22,7 @@ Config
 		Añadir opciones para implementar un API de IA local.
 		
 
-Correo
+Correo ❌
 	Arreglar la llamada al explorador externo al accion sobre enlace
 	Ponerle a las etiquetas de los correos un borde de color, ROJO (Spam Phishing), Amarillo (sin calificar), Verde (legit).
 	Implementar la ia
@@ -31,13 +31,13 @@ Correo
 		Y al seleecionar correo, salgan un submenu debajo de correo, donde este bandeja de entrada, bandeja de salida etc.
 	Implementar protocolo, por el cual cada X min se llame a enviar/recibir.
 	
-Calendario
+Calendario ❌
 	Eliminar eventos a la derecha y hacer el calendario ocupe todo
 	Añadir un boton nuevo donde se accione un popup de nuevo evento.
 	Arreglar un evento en segundo plano para colorear los eventos en rojo, al entrar en la semana que tienen q ser finalizados;
 	A la semana siguiente sera en amarillo, y el resto en verde.
 	
-Tareas
+Tareas ❌
 	Cambiar el orden del menu lateral.
 	La bandeja de tareas sera bandeja de entrada.
 	Cambiar el calendario de tareas por "proximas tareas", y cambiarlo a una vista diaria. 
@@ -45,10 +45,10 @@ Tareas
 	Colorear de rojo el "Filtro" hoy, mañana naranja, semana amarillo, y mes en verde. Planificado y etiquetas en gris.
 	Terminar integracion con calendario y con todoist para soporte en linea.
 	
-Contactos
+Contactos ❌
 	Cambiar a vista en 3 columnas, donde el boton nuevo, acciona popup, para añadir nuevo contacto.
 	Añadir etiquetas, de personal trabajo. y colorear las tarjetas segun etiquetas.
 	
-Chat IA
+Chat IA ❌
 	Terminar de diseñar e implementar la interfaz de usuario para charlar con la IA. Opcion solo disponible con IA local.
 	

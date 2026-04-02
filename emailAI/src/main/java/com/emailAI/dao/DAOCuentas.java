@@ -4,113 +4,93 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// DAO para la tabla de cuentas de correo almacenadas localmente (servidores, email cifrado y hash).
+// DAO de cuentas de correo → correos.db
 public class DAOCuentas {
 
-    // Representa una fila de la tabla cuentas con los datos mínimos para login.
-    public static class CuentaGuardada {
-        public int id;
-        public String servidorImap;
-        public String servidorSmtp;
-        public String emailCifrado;
-        public String passMaestraHash;
+    public record CuentaGuardada(String email, String servidor, int puerto,
+                                  String usuarioCifrado, String passwordCifrada,
+                                  boolean esDefault) {}
 
-        public CuentaGuardada(int id,
-                              String servidorImap,
-                              String servidorSmtp,
-                              String emailCifrado,
-                              String passMaestraHash) {
-            this.id = id;
-            this.servidorImap = servidorImap;
-            this.servidorSmtp = servidorSmtp;
-            this.emailCifrado = emailCifrado;
-            this.passMaestraHash = passMaestraHash;
-        }
-    }
-
-    // Crea la tabla de cuentas si no existe aún.
-    public DAOCuentas() throws SQLException {
+    public DAOCuentas() {
         crearTablaSiNoExiste();
     }
 
-    // Ejecuta el DDL necesario para tener la tabla de cuentas preparada.
-    private void crearTablaSiNoExiste() throws SQLException {
+    /** @deprecated Usar constructor sin argumentos. */
+    @Deprecated
+    public DAOCuentas(String url) {
+        crearTablaSiNoExiste();
+    }
+
+    private void crearTablaSiNoExiste() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS cuentas (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    servidor_imap      TEXT NOT NULL,
-                    servidor_smtp      TEXT NOT NULL,
-                    email_cifrado      TEXT NOT NULL UNIQUE,
-                    pass_maestra_hash  TEXT NOT NULL
-                );
+                    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email            TEXT NOT NULL UNIQUE,
+                    servidor         TEXT,
+                    puerto           INTEGER,
+                    usuario_cifrado  TEXT,
+                    password_cifrada TEXT,
+                    es_default       INTEGER DEFAULT 0
+                )
                 """;
-
-        try (Connection conn = ConexionBD.getConnection();
+        try (Connection conn = ConexionBD.getConnectionCorreos();
              Statement st = conn.createStatement()) {
             st.execute(sql);
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    // Inserta una nueva cuenta con servidores, email cifrado y hash de contraseña maestra.
-    public void guardarCuenta(String servidorImap,
-                              String servidorSmtp,
-                              String emailCifrado,
-                              String passMaestraHash) throws SQLException {
-
+    public void guardar(CuentaGuardada c) {
         String sql = """
-                INSERT INTO cuentas(servidor_imap, servidor_smtp, email_cifrado, pass_maestra_hash)
-                VALUES (?, ?, ?, ?);
+                INSERT INTO cuentas(email, servidor, puerto, usuario_cifrado, password_cifrada, es_default)
+                VALUES(?, ?, ?, ?, ?, ?)
+                ON CONFLICT(email) DO UPDATE SET
+                    servidor         = excluded.servidor,
+                    puerto           = excluded.puerto,
+                    usuario_cifrado  = excluded.usuario_cifrado,
+                    password_cifrada = excluded.password_cifrada,
+                    es_default       = excluded.es_default
                 """;
-
-        try (Connection conn = ConexionBD.getConnection();
+        try (Connection conn = ConexionBD.getConnectionCorreos();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, servidorImap);
-            ps.setString(2, servidorSmtp);
-            ps.setString(3, emailCifrado);
-            ps.setString(4, passMaestraHash);
+            ps.setString(1, c.email());
+            ps.setString(2, c.servidor());
+            ps.setInt(3, c.puerto());
+            ps.setString(4, c.usuarioCifrado());
+            ps.setString(5, c.passwordCifrada());
+            ps.setInt(6, c.esDefault() ? 1 : 0);
             ps.executeUpdate();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
-    // Recupera todas las cuentas guardadas en forma de lista utilizable por la UI.
-    public List<CuentaGuardada> listarCuentas() throws SQLException {
-        String sql = "SELECT id, servidor_imap, servidor_smtp, email_cifrado, pass_maestra_hash FROM cuentas";
+    public List<CuentaGuardada> listarTodas() {
         List<CuentaGuardada> lista = new ArrayList<>();
-
-        try (Connection conn = ConexionBD.getConnection();
+        String sql = """
+                SELECT email, servidor, puerto, usuario_cifrado, password_cifrada, es_default
+                FROM cuentas
+                """;
+        try (Connection conn = ConexionBD.getConnectionCorreos();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
                 lista.add(new CuentaGuardada(
-                        rs.getInt("id"),
-                        rs.getString("servidor_imap"),
-                        rs.getString("servidor_smtp"),
-                        rs.getString("email_cifrado"),
-                        rs.getString("pass_maestra_hash")
+                        rs.getString("email"),
+                        rs.getString("servidor"),
+                        rs.getInt("puerto"),
+                        rs.getString("usuario_cifrado"),
+                        rs.getString("password_cifrada"),
+                        rs.getInt("es_default") == 1
                 ));
             }
-        }
-
+        } catch (SQLException e) { e.printStackTrace(); }
         return lista;
     }
 
-    // Para AppConsole antigua
-    // Método legado para la consola antigua que devuelve solo la primera cuenta.
-    public ResultSet obtenerPrimeraCuenta(Connection conn) throws SQLException {
-        String sql = "SELECT * FROM cuentas LIMIT 1";
-        PreparedStatement ps = conn.prepareStatement(sql);
-        return ps.executeQuery();
-    }
-    
-    // Elimina una cuenta a partir de su id primario.
-    public void eliminarCuentaPorId(int id) throws SQLException {
-        String sql = "DELETE FROM cuentas WHERE id = ?";
-
-        try (Connection conn = ConexionBD.getConnection();
+    public void eliminar(String email) {
+        String sql = "DELETE FROM cuentas WHERE email = ?";
+        try (Connection conn = ConexionBD.getConnectionCorreos();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setString(1, email);
             ps.executeUpdate();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 }

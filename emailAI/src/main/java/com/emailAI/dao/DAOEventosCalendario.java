@@ -1,8 +1,6 @@
 package com.emailAI.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -10,46 +8,37 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+// DAO de eventos de calendario → agenda.db (compartida con tareas)
 public class DAOEventosCalendario {
 
-    // Añadido campo hora (puede ser null si no se especifica)
-    public record Evento(int id, LocalDate fecha, LocalTime hora, String titulo, String detalle, String origen) {}
+    public record Evento(int id, LocalDate fecha, LocalTime hora,
+                         String titulo, String detalle, String origen) {}
 
     public DAOEventosCalendario() throws Exception {
         crearTablaSiNoExiste();
-        migrarAgregarHora(); // añade columna hora si la BD ya existía sin ella
     }
 
     private void crearTablaSiNoExiste() throws Exception {
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement st = conn.prepareStatement("""
-                    CREATE TABLE IF NOT EXISTS eventos_calendario (
-                        id      INTEGER PRIMARY KEY AUTOINCREMENT,
-                        fecha   TEXT NOT NULL,
-                        hora    TEXT,
-                        titulo  TEXT NOT NULL,
-                        detalle TEXT,
-                        origen  TEXT DEFAULT 'local'
-                    )
-                """)) {
-            st.executeUpdate();
+        String sql = """
+                CREATE TABLE IF NOT EXISTS eventos_calendario (
+                    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                    fecha   TEXT NOT NULL,
+                    hora    TEXT,
+                    titulo  TEXT NOT NULL,
+                    detalle TEXT,
+                    origen  TEXT DEFAULT 'local'
+                )
+                """;
+        try (Connection conn = ConexionBD.getConnectionAgenda();
+             Statement st = conn.createStatement()) {
+            st.execute(sql);
         }
     }
 
-    // Migración segura: añade columna hora si ya existía la tabla sin ella
-    private void migrarAgregarHora() {
-        try (Connection conn = ConexionBD.getConnection();
-             PreparedStatement st = conn.prepareStatement(
-                     "ALTER TABLE eventos_calendario ADD COLUMN hora TEXT")) {
-            st.executeUpdate();
-        } catch (Exception ignored) {
-            // Si ya existe la columna, SQLite lanza excepción — se ignora
-        }
-    }
-
-    public void guardarEvento(LocalDate fecha, LocalTime hora, String titulo, String detalle, String origen) throws Exception {
+    public void guardarEvento(LocalDate fecha, LocalTime hora,
+                               String titulo, String detalle, String origen) throws Exception {
         String sql = "INSERT INTO eventos_calendario(fecha, hora, titulo, detalle, origen) VALUES(?, ?, ?, ?, ?)";
-        try (Connection conn = ConexionBD.getConnection();
+        try (Connection conn = ConexionBD.getConnectionAgenda();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, fecha.toString());
             st.setString(2, hora != null ? hora.toString() : null);
@@ -61,19 +50,23 @@ public class DAOEventosCalendario {
     }
 
     public List<Evento> listarPorFecha(LocalDate fecha) throws Exception {
-        String sql = "SELECT id, fecha, hora, titulo, detalle, origen FROM eventos_calendario WHERE fecha = ? ORDER BY hora, id";
+        String sql = """
+                SELECT id, fecha, hora, titulo, detalle, origen
+                FROM eventos_calendario
+                WHERE fecha = ?
+                ORDER BY hora, id
+                """;
         List<Evento> lista = new ArrayList<>();
-        try (Connection conn = ConexionBD.getConnection();
+        try (Connection conn = ConexionBD.getConnectionAgenda();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, fecha.toString());
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     String horaStr = rs.getString("hora");
-                    LocalTime hora = horaStr != null ? LocalTime.parse(horaStr) : null;
                     lista.add(new Evento(
                             rs.getInt("id"),
                             LocalDate.parse(rs.getString("fecha")),
-                            hora,
+                            horaStr != null ? LocalTime.parse(horaStr) : null,
                             rs.getString("titulo"),
                             rs.getString("detalle"),
                             rs.getString("origen")
@@ -86,9 +79,12 @@ public class DAOEventosCalendario {
 
     public Set<LocalDate> fechasConEventosEnRango(LocalDate desde, LocalDate hasta) throws Exception {
         if (desde == null || hasta == null) return Set.of();
-        String sql = "SELECT DISTINCT fecha FROM eventos_calendario WHERE fecha >= ? AND fecha <= ?";
+        String sql = """
+                SELECT DISTINCT fecha FROM eventos_calendario
+                WHERE fecha >= ? AND fecha <= ?
+                """;
         Set<LocalDate> set = new HashSet<>();
-        try (Connection conn = ConexionBD.getConnection();
+        try (Connection conn = ConexionBD.getConnectionAgenda();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, desde.toString());
             st.setString(2, hasta.toString());
@@ -101,7 +97,7 @@ public class DAOEventosCalendario {
 
     public void borrarEvento(int id) throws Exception {
         String sql = "DELETE FROM eventos_calendario WHERE id = ?";
-        try (Connection conn = ConexionBD.getConnection();
+        try (Connection conn = ConexionBD.getConnectionAgenda();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setInt(1, id);
             st.executeUpdate();
@@ -109,8 +105,12 @@ public class DAOEventosCalendario {
     }
 
     public void actualizarEvento(Evento evento) throws Exception {
-        String sql = "UPDATE eventos_calendario SET fecha = ?, hora = ?, titulo = ?, detalle = ?, origen = ? WHERE id = ?";
-        try (Connection conn = ConexionBD.getConnection();
+        String sql = """
+                UPDATE eventos_calendario
+                SET fecha = ?, hora = ?, titulo = ?, detalle = ?, origen = ?
+                WHERE id = ?
+                """;
+        try (Connection conn = ConexionBD.getConnectionAgenda();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, evento.fecha().toString());
             st.setString(2, evento.hora() != null ? evento.hora().toString() : null);

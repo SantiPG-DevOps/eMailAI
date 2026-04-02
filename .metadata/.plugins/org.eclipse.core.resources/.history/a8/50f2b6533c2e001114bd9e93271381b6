@@ -1,0 +1,62 @@
+package com.emailAI.dao;
+
+import com.emailAI.model.Contacto;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class DAOContactosTest {
+
+    @TempDir
+    Path tempDir;
+
+    @Test
+    void guardarYListar_debePersistirYDescifrarDatos() {
+        Path db = tempDir.resolve("contactos-test.db");
+        DAOContactos dao = new DAOContactos("jdbc:sqlite:" + db);
+
+        Contacto c = new Contacto(
+                null,
+                "Ana",
+                null,
+                "ana@test.com",
+                "123456",
+                "proveedor"
+        );
+
+        dao.guardarOActualizar(c);
+
+        assertNotNull(c.getId());
+
+        List<Contacto> lista = dao.listarTodos();
+        assertEquals(1, lista.size());
+        assertEquals("Ana", lista.get(0).getNombre());
+        assertEquals("ana@test.com", lista.get(0).getEmail());
+        assertEquals("123456", lista.get(0).getTelefono());
+        assertEquals("proveedor", lista.get(0).getNotas());
+    }
+
+    @Test
+    void borrar_debeEliminarContacto() {
+        Path db = tempDir.resolve("contactos-del-test.db");
+        DAOContactos dao = new DAOContactos("jdbc:sqlite:" + db);
+
+        Contacto c = new Contacto(
+                null,
+                "Luis",
+                null,
+                "luis@test.com",
+                "",
+                ""
+        );
+
+        dao.guardarOActualizar(c);
+        dao.borrar(c);
+
+        assertTrue(dao.listarTodos().isEmpty());
+    }
+}

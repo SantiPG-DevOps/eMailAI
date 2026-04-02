@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane prefHeight="555.0" prefWidth="900.0"
-            xmlns="http://javafx.com/javafx/24.0.1"
+            xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.emailAI.controller.LoginController">
 

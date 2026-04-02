@@ -1,8 +1,13 @@
+/* ═══════════════════════════════════════════════
+   styles-basic.css  —  estructura, sin colores
+   Los colores van en styles-dark.css / styles-light.css
+   ═══════════════════════════════════════════════ */
+
 .root {
     -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
 }
 
-/* Títulos y secciones */
+/* ── Tipografía ── */
 .title-label {
     -fx-font-size: 26px;
     -fx-font-weight: bold;
@@ -13,29 +18,55 @@
     -fx-font-weight: bold;
 }
 
-/* Estado */
 .status-label,
 .label-secondary {
     -fx-font-size: 11px;
 }
 
-/* Botón pequeño */
+/* ── Botones ── */
 .small-button {
     -fx-font-size: 11px;
     -fx-padding: 4 10 4 10;
 }
 
-/* Tarjetas de cuentas (genérico) */
+.primary-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-padding: 4 10 4 10;
+    -fx-cursor: hand;
+}
+
+.btn-primary {
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+.btn-secondary {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+}
+
+/* ── Cuentas ── */
 .account-card {
     -fx-padding: 10;
     -fx-background-radius: 12;
     -fx-border-radius: 12;
     -fx-border-width: 1;
     -fx-cursor: hand;
-}
-
-.account-card-selected {
-    /* colores concretos se definen en dark/light */
 }
 
 .account-email {
@@ -46,7 +77,7 @@
     -fx-font-size: 11px;
 }
 
-/* Lista de mensajes como tarjetas */
+/* ── Mensajes ── */
 .list-view .message-card {
     -fx-padding: 8;
     -fx-background-radius: 10;
@@ -57,7 +88,7 @@
     -fx-font-weight: bold;
 }
 
-/* Tarjetas de contactos */
+/* ── Contactos ── */
 .list-cell.contact-card-cell {
     -fx-padding: 4 6 4 6;
     -fx-background-color: transparent;
@@ -83,7 +114,6 @@
     -fx-font-weight: normal;
 }
 
-/* Separadores de letra en lista contactos */
 .contact-separator-cell {
     -fx-background-color: transparent;
     -fx-padding: 4 8 2 8;
@@ -95,19 +125,18 @@
     -fx-opacity: 0.75;
 }
 
-/* Chips IA */
+/* ── Chips / IA panel ── */
 .chip {
     -fx-background-radius: 999;
     -fx-padding: 4 12 4 12;
 }
 
-/* Panel IA */
 .ia-panel {
     -fx-background-radius: 8;
     -fx-padding: 8 10 8 10;
 }
 
-/* Sidebar */
+/* ── Sidebar ── */
 .sidebar {
     -fx-padding: 10 5 10 5;
     -fx-spacing: 10;
@@ -126,7 +155,6 @@
     -fx-font-size: 11px;
 }
 
-/* Menú principal */
 .main-sidebar-scroll {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
@@ -147,24 +175,11 @@
     -fx-font-weight: bold;
 }
 
-/* Barra superior correo */
+/* ── Top bar ── */
 .top-bar {
     -fx-spacing: 8;
 }
 
-.login-password {
-    /* hereda de .text-field */
-}
-
-.primary-button {
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-padding: 10 14 10 14;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-}
-
-/* Toggle sol/luna */
 .theme-toggle {
     -fx-font-size: 14px;
     -fx-background-radius: 999;
@@ -172,7 +187,7 @@
     -fx-padding: 4 10 4 10;
 }
 
-/* ── CALENDARIO: solo estructura, sin colores ── */
+/* ── Calendario ── */
 .cal-dia {
     -fx-border-radius: 6;
     -fx-background-radius: 6;
@@ -195,110 +210,23 @@
     -fx-max-width: Infinity;
 }
 
-/* Botones de filtro de tareas */
+/* ── Tareas ── */
 .task-filter-btn {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
     -fx-padding: 4 12 4 12;
     -fx-font-size: 11px;
-}
-
-/* ── CONFIGURACIÓN ── */
-.config-root {
-    -fx-min-width: 0;
-    -fx-min-height: 0;
-}
-
-.config-header-wrap {
-    -fx-border-width: 0 0 1 0;
-}
-
-.config-footer-wrap {
-    -fx-border-width: 0;
-}
-
-.config-screen-title {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-}
-
-.config-page-heading {
-    -fx-font-size: 18px;
-    -fx-font-weight: bold;
-}
-
-.config-section-kicker {
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-}
-
-.config-field-label {
-    -fx-font-size: 12px;
-}
-
-.config-nav-heading {
-    -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-padding: 0 0 8 4;
-}
-
-.config-sep {
-    -fx-opacity: 0.65;
-}
-
-.config-content-stack {
-    -fx-padding: 0;
-    -fx-background-insets: 0;
-}
-
-.config-scroll {
-    -fx-background-color: transparent;
-    -fx-background-insets: 0;
-    -fx-padding: 0;
-}
-
-.config-scroll > .viewport {
-    -fx-background-color: transparent;
-}
-
-.config-tab-inner {
-    -fx-max-width: 760;
-}
-
-.config-section-box {
-    -fx-padding: 16 20 18 20;
-    -fx-spacing: 10;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
-    -fx-border-width: 1;
-}
-
-.config-nav-list {
-    -fx-background-insets: 0;
-    -fx-padding: 4 0 8 0;
-    -fx-border-width: 0;
-}
-
-.config-nav-list .list-cell {
-    -fx-background-insets: 2 4;
-    -fx-padding: 0 12 0 12;
-    -fx-background-radius: 8;
-}
-
-.config-nav-list .list-cell:filled:hover {
     -fx-cursor: hand;
 }
 
-.config-split {
-    -fx-padding: 0;
-    -fx-background-insets: 0;
+.task-priority-badge {
+    -fx-padding: 2 6 2 6;
+    -fx-background-radius: 4;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
 }
 
-.config-split > .split-pane-divider {
-    -fx-padding: 0 2 0 2;
-}
-
-/* ── PAGINACIÓN: solo estructura, sin colores ── */
+/* ── Paginación ── */
 .btn-pag {
     -fx-background-radius: 50%;
     -fx-min-width: 36px;
@@ -321,3 +249,124 @@
     -fx-font-weight: bold;
     -fx-font-size: 13px;
 }
+
+/* ── Configuración ── */
+.config-root {
+    -fx-min-width: 0;
+    -fx-min-height: 0;
+}
+
+.config-header-wrap  { -fx-border-width: 0 0 1 0; }
+.config-footer-wrap  { -fx-border-width: 0; }
+
+.config-screen-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.config-page-heading {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.config-section-kicker {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.config-field-label  { -fx-font-size: 12px; }
+
+.config-nav-heading {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 8 4;
+}
+
+.config-sep          { -fx-opacity: 0.65; }
+
+.config-content-stack {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.config-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.config-scroll > .viewport { -fx-background-color: transparent; }
+
+.config-tab-inner    { -fx-max-width: 760; }
+
+.config-section-box {
+    -fx-padding: 16 20 18 20;
+    -fx-spacing: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.config-nav-list {
+    -fx-background-insets: 0;
+    -fx-padding: 4 0 8 0;
+    -fx-border-width: 0;
+}
+
+.config-nav-list .list-cell {
+    -fx-background-insets: 2 4;
+    -fx-padding: 0 12 0 12;
+    -fx-background-radius: 8;
+}
+
+.config-nav-list .list-cell:filled:hover { -fx-cursor: hand; }
+
+.config-split        { -fx-padding: 0; -fx-background-insets: 0; }
+.config-split > .split-pane-divider { -fx-padding: 0 2 0 2; }
+
+/* ── Chat IA  (estructura sin colores) ── */
+.chat-header {
+    -fx-padding: 12 16 12 16;
+    -fx-border-width: 0 0 1 0;
+}
+
+.chat-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.chat-model-label    { -fx-font-size: 12px; }
+
+.chat-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.chat-scroll > .viewport { -fx-background-color: transparent; }
+
+.chat-messages       { -fx-padding: 16; }
+.chat-bubble-row     { -fx-padding: 2 0; }
+
+.chat-bubble-user {
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 16 16 4 16;
+    -fx-font-size: 13px;
+}
+
+.chat-bubble-ia {
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 16 16 16 4;
+    -fx-font-size: 13px;
+    -fx-border-radius: 16 16 16 4;
+    -fx-border-width: 1;
+}
+
+.chat-input-bar {
+    -fx-padding: 10 16 10 16;
+    -fx-border-width: 1 0 0 0;
+}
+
+.chat-input          { -fx-font-size: 13px; }
+.chat-typing         { -fx-padding: 4 16 4 16; }
+.chat-typing-label   { -fx-font-size: 12px; }

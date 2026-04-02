@@ -40,8 +40,6 @@ public class CalendarioController {
 
     private DAOEventosCalendario dao;
     private Evento eventoSeleccionado; // evento actualmente seleccionado en el calendario
-    private Evento eventoEnEdicion;
-
     private YearMonth mesActual;
     private LocalDate fechaSeleccionada;
     private Timeline timelineRefresco;

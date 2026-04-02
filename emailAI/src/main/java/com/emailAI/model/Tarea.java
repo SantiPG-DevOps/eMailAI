@@ -2,27 +2,34 @@ package com.emailAI.model;
 
 import java.time.LocalDate;
 
-// Modelo de tarea con campos de planificación y estado de ejecución.
+// Modelo de tarea con campos de planificación, estado y prioridad.
 public class Tarea {
 
     private Integer id;
     private String titulo;
     private String descripcion;
-    private LocalDate fechaVencimiento;   // due date
-    private String estado;                // PENDIENTE, EN_PROGRESO, COMPLETADA
-    private String etiquetas;             // tags separados por comas, de momento texto plano
+    private LocalDate fechaVencimiento;
+    private String estado;        // PENDIENTE, EN_PROGRESO, COMPLETADA
+    private String etiquetas;     // tags separados por comas
+    private String prioridad;     // ALTA, MEDIA, BAJA
 
-    public Tarea() {} // Constructor vacío para creación incremental y mapeo desde BD.
+    public Tarea() {}
 
-    // Constructor completo para crear una tarea con todos sus atributos.
     public Tarea(Integer id, String titulo, String descripcion,
-                 LocalDate fechaVencimiento, String estado, String etiquetas) {
+                 LocalDate fechaVencimiento, String estado, String etiquetas, String prioridad) {
         this.id = id;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.fechaVencimiento = fechaVencimiento;
         this.estado = estado;
         this.etiquetas = etiquetas;
+        this.prioridad = prioridad;
+    }
+
+    // Constructor de compatibilidad sin prioridad (para código existente).
+    public Tarea(Integer id, String titulo, String descripcion,
+                 LocalDate fechaVencimiento, String estado, String etiquetas) {
+        this(id, titulo, descripcion, fechaVencimiento, estado, etiquetas, "MEDIA");
     }
 
     public Integer getId() { return id; }
@@ -42,4 +49,7 @@ public class Tarea {
 
     public String getEtiquetas() { return etiquetas; }
     public void setEtiquetas(String etiquetas) { this.etiquetas = etiquetas; }
+
+    public String getPrioridad() { return prioridad; }
+    public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
 }

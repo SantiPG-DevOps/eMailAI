@@ -1,0 +1,43 @@
+package com.emailAI.dao;
+
+import com.emailAI.model.Mensaje;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class DAOMensajesTest {
+
+    private DAOMensajes dao;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        dao = new DAOMensajes();
+
+        // Limpieza básica para no arrastrar datos previos del mismo buzón/carpeta
+        List<Mensaje> existentes = dao.listarPorCuentaHashYCarpeta("cuenta1", "INBOX");
+        for (Mensaje m : existentes) {
+            dao.borrarPorUid(m.getUidImap(), "cuenta1", "INBOX");
+        }
+    }
+
+    @Test
+    void guardarModificarYActualizarCategoria_debeAplicarCambios() throws Exception {
+        Mensaje m = new Mensaje("uid-1", "a@test.com", "Asunto", "Cuerpo");
+        m.setUidImap("uid-1");
+        m.setCarpetaImap("INBOX");
+        m.setCategoria("DESCONOCIDO");
+        m.setPrioridad("NORMAL");
+
+        dao.guardarOModificar(List.of(m), "cuenta1", "INBOX");
+
+        assertEquals(1, dao.listarPorCuentaHashYCarpeta("cuenta1", "INBOX").size());
+
+        dao.actualizarCategoriaPrioridad("uid-1", "cuenta1", "INBOX", "SPAM", "NORMAL");
+
+        Mensaje actualizado = dao.listarPorCuentaHashYCarpeta("cuenta1", "INBOX").get(0);
+        assertEquals("SPAM", actualizado.getCategoria());
+    }
+}

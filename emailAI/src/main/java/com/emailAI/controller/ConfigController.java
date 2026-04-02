@@ -13,270 +13,224 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-// Controla la pantalla de configuración: tema, alta de cuentas y borrado de cuentas almacenadas.
 public class ConfigController {
 
-    // Gestiona los campos de alta de una cuenta de correo nueva.
+    @FXML private ComboBox<String>  providerCombo;
+    @FXML private TextField         emailField;
+    @FXML private PasswordField     masterPassField;
+    @FXML private TextField         imapField;
+    @FXML private TextField         smtpField;
+    @FXML private Label             imapLabel;
+    @FXML private Label             smtpLabel;
+    @FXML private Label             statusLabel;
+    @FXML private RadioButton       rbTemaClaro;
+    @FXML private RadioButton       rbTemaOscuro;
+    @FXML private ComboBox<String>  comboCuentasExistentes;
+    @FXML private Spinner<Integer>  spinnerSyncMinutos;
+    @FXML private ListView<String>  configNavList;
+    @FXML private StackPane         configStack;
 
-    // Selector de proveedor (Gmail, Outlook, personalizado, etc.).
-    @FXML
-    private ComboBox<String> providerCombo;
+    @FXML private TextField txtOllamaUrl;
+    @FXML private TextField txtOllamaModelo;
+    @FXML private Label     lblTestIA;
 
-    // Campo de correo electrónico del usuario a guardar.
-    @FXML
-    private TextField emailField;
+    private static final String PREF_OLLAMA_URL   = "ollama_url";
+    private static final String PREF_OLLAMA_MODEL = "ollama_model";
 
-    // Contraseña maestra para proteger la cuenta a nivel local.
-    @FXML
-    private PasswordField masterPassField;
+    private final Map<String, String>   mapaEmailAEmailCifrado = new HashMap<>();
+    private final Map<String, String[]> proveedores            = new HashMap<>();
 
-    // Campo para el host IMAP cuando el proveedor es personalizado.
-    @FXML
-    private TextField imapField;
-
-    // Campo para el host SMTP cuando el proveedor es personalizado.
-    @FXML
-    private TextField smtpField;
-
-    // Etiqueta asociada al campo IMAP (se oculta para proveedores conocidos).
-    @FXML
-    private Label imapLabel;
-
-    // Etiqueta asociada al campo SMTP (se oculta para proveedores conocidos).
-    @FXML
-    private Label smtpLabel;
-
-    // Muestra errores o mensajes de confirmación en la pantalla de configuración.
-    @FXML
-    private Label statusLabel;
-
-    // Gestiona los controles de apariencia de la pestaña General.
-
-    // RadioButton para seleccionar tema claro desde la pestaña General.
-    @FXML
-    private RadioButton rbTemaClaro;
-
-    // RadioButton para seleccionar tema oscuro desde la pestaña General.
-    @FXML
-    private RadioButton rbTemaOscuro;
-
-    // Gestiona la selección y borrado de cuentas guardadas.
-
-    // Selector de cuentas ya existentes para poder "olvidarlas".
-    @FXML
-    private ComboBox<String> comboCuentasExistentes;
-
-    @FXML
-    private Spinner<Integer> spinnerSyncMinutos;
-
-    // Navegación lateral de la pantalla de ajustes (sustituye al TabPane).
-    @FXML
-    private ListView<String> configNavList;
-
-    @FXML
-    private StackPane configStack;
-
-    private final Map<String, Integer> mapaEmailAId = new HashMap<>();
-
-    // Mantiene los proveedores preconfigurados y sus hosts por defecto.
-
-    private final Map<String, String[]> proveedores = new HashMap<>();
-    private static final String PERSONALIZADO = "Servidor personalizado";
-
+    private static final String PERSONALIZADO           = "Servidor personalizado";
     private static final String PREF_SYNC_INTERVAL_MINUTES = "sync_interval_minutes";
 
-    // Conserva referencia al MainController para aplicar cambios de tema globales.
+    private MainController mainController;
 
-    private MainController mainController; // Referencia opcional al controlador principal para aplicar tema global.
-
-    // Recibe el MainController y sincroniza el estado inicial de los radios de tema.
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
-
         boolean light = mainController != null && mainController.isTemaClaro();
-
         if (rbTemaClaro != null && rbTemaOscuro != null) {
-            if (light) {
-                rbTemaClaro.setSelected(true);
-            } else {
-                rbTemaOscuro.setSelected(true);
-            }
+            if (light) rbTemaClaro.setSelected(true);
+            else       rbTemaOscuro.setSelected(true);
         }
     }
 
-    // Inicializa la pantalla: proveedores por defecto y carga de cuentas existentes.
     @FXML
     private void initialize() {
-        if (statusLabel != null) {
-            statusLabel.setText("");
-        }
+        if (statusLabel != null) statusLabel.setText("");
 
-        // Carga el catálogo de proveedores soportados con sus hosts conocidos.
-        proveedores.put("Gmail",                 new String[]{"imap.gmail.com", "smtp.gmail.com"});
-        proveedores.put("Outlook/Hotmail",      new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
-        proveedores.put("Yahoo",                new String[]{"imap.mail.yahoo.com", "smtp.mail.yahoo.com"});
-        proveedores.put("iCloud",               new String[]{"imap.mail.me.com", "smtp.mail.me.com"});
-        proveedores.put("GMX",                  new String[]{"imap.gmx.com", "mail.gmx.com"});
-        proveedores.put("ProtonMail (Bridge)",  new String[]{"127.0.0.1", "127.0.0.1"});
-        proveedores.put("Zoho Mail",            new String[]{"imap.zoho.com", "smtp.zoho.com"});
+        proveedores.put("Gmail",               new String[]{"imap.gmail.com",        "smtp.gmail.com"});
+        proveedores.put("Outlook/Hotmail",     new String[]{"imap-mail.outlook.com", "smtp-mail.outlook.com"});
+        proveedores.put("Yahoo",               new String[]{"imap.mail.yahoo.com",   "smtp.mail.yahoo.com"});
+        proveedores.put("iCloud",              new String[]{"imap.mail.me.com",      "smtp.mail.me.com"});
+        proveedores.put("GMX",                 new String[]{"imap.gmx.com",          "mail.gmx.com"});
+        proveedores.put("ProtonMail (Bridge)", new String[]{"127.0.0.1",             "127.0.0.1"});
+        proveedores.put("Zoho Mail",           new String[]{"imap.zoho.com",         "smtp.zoho.com"});
 
         if (providerCombo != null) {
             providerCombo.getItems().addAll(
-                    "Gmail",
-                    "Outlook/Hotmail",
-                    "Yahoo",
-                    "iCloud",
-                    "GMX",
-                    "ProtonMail (Bridge)",
-                    "Zoho Mail",
-                    PERSONALIZADO
-            );
+                    "Gmail", "Outlook/Hotmail", "Yahoo", "iCloud",
+                    "GMX", "ProtonMail (Bridge)", "Zoho Mail", PERSONALIZADO);
             providerCombo.getSelectionModel().selectFirst();
             aplicarProveedorSeleccionado();
         }
 
-        // Carga la lista de cuentas para el bloque de "Olvidar cuenta".
         cargarCuentasExistentes();
-
         configurarSpinnerSincronizacion();
-
         configurarNavegacionAjustes();
+        cargarConfigIA(); // ← corregido: ahora se llama
     }
 
-    private void configurarSpinnerSincronizacion() {
-        if (spinnerSyncMinutos == null) {
+    // ── Config IA ─────────────────────────────────────────────────────────────
+
+    private void cargarConfigIA() {
+        Preferences prefs = Preferences.userRoot().node("com/emailAI");
+        if (txtOllamaUrl    != null) txtOllamaUrl.setText(
+                prefs.get(PREF_OLLAMA_URL,   "http://localhost:11434"));
+        if (txtOllamaModelo != null) txtOllamaModelo.setText(
+                prefs.get(PREF_OLLAMA_MODEL, "llama3"));
+    }
+
+    @FXML
+    private void onGuardarConfigIA() {
+        String url   = txtOllamaUrl    != null ? txtOllamaUrl.getText().trim()    : "";
+        String model = txtOllamaModelo != null ? txtOllamaModelo.getText().trim() : "";
+        if (url.isBlank() || model.isBlank()) {
+            if (lblTestIA != null) lblTestIA.setText("Rellena URL y modelo.");
             return;
         }
-        int guardado = Preferences.userNodeForPackage(AppFX.class).getInt(PREF_SYNC_INTERVAL_MINUTES, 15);
-        guardado = Math.max(5, Math.min(120, guardado));
-        SpinnerValueFactory.IntegerSpinnerValueFactory factory =
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 120, guardado, 1);
-        spinnerSyncMinutos.setValueFactory(factory);
+        Preferences prefs = Preferences.userRoot().node("com/emailAI");
+        prefs.put(PREF_OLLAMA_URL,   url);
+        prefs.put(PREF_OLLAMA_MODEL, model);
+        if (lblTestIA != null) lblTestIA.setText("Configuración guardada.");
+    }
+
+    @FXML
+    private void onTestOllama() {
+        String url = txtOllamaUrl != null ? txtOllamaUrl.getText().trim() : "";
+        if (url.isBlank()) {
+            if (lblTestIA != null) lblTestIA.setText("Introduce la URL primero.");
+            return;
+        }
+        if (lblTestIA != null) lblTestIA.setText("Probando conexión…");
+
+        Thread t = new Thread(() -> {
+            try {
+                // URI.create().toURL() — sustituye a new URL() deprecated en Java 21
+                HttpURLConnection conn = (HttpURLConnection)
+                        URI.create(url + "/api/tags").toURL().openConnection();
+                conn.setConnectTimeout(5_000);
+                conn.setReadTimeout(5_000);
+                int code = conn.getResponseCode();
+                String msg = code == 200
+                        ? "✓ Ollama responde correctamente."
+                        : "⚠ HTTP " + code;
+                javafx.application.Platform.runLater(() -> {
+                    if (lblTestIA != null) lblTestIA.setText(msg);
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    if (lblTestIA != null) lblTestIA.setText("✗ Sin conexión: " + e.getMessage());
+                });
+            }
+        }, "test-ollama");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ── Sincronización ────────────────────────────────────────────────────────
+
+    private void configurarSpinnerSincronizacion() {
+        if (spinnerSyncMinutos == null) return;
+        int guardado = Math.max(5, Math.min(120,
+                Preferences.userNodeForPackage(AppFX.class)
+                        .getInt(PREF_SYNC_INTERVAL_MINUTES, 15)));
+        spinnerSyncMinutos.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 120, guardado, 1));
         spinnerSyncMinutos.setEditable(true);
     }
 
     @FXML
     private void onAplicarIntervaloSync(ActionEvent event) {
-        if (spinnerSyncMinutos == null || spinnerSyncMinutos.getValue() == null) {
-            return;
-        }
+        if (spinnerSyncMinutos == null || spinnerSyncMinutos.getValue() == null) return;
         int m = Math.max(5, Math.min(120, spinnerSyncMinutos.getValue()));
         spinnerSyncMinutos.getValueFactory().setValue(m);
         Preferences.userNodeForPackage(AppFX.class).putInt(PREF_SYNC_INTERVAL_MINUTES, m);
-        if (mainController != null) {
-            mainController.reprogramarSincronizacionCorreo();
-        }
-        if (statusLabel != null) {
-            statusLabel.setText("Intervalo de sincronización de INBOX guardado: cada " + m + " min.");
-        }
+        if (mainController != null) mainController.reprogramarSincronizacionCorreo();
+        if (statusLabel != null)
+            statusLabel.setText("Intervalo guardado: cada " + m + " min.");
     }
 
-    // Enlaza la lista lateral con las páginas apiladas del centro.
+    // ── Navegación config ─────────────────────────────────────────────────────
+
     private void configurarNavegacionAjustes() {
-        if (configNavList == null || configStack == null) {
-            return;
-        }
-
+        if (configNavList == null || configStack == null) return;
         configNavList.getItems().addAll(
-                "General",
-                "Correo",
-                "Calendario y tareas",
-                "Contactos",
-                "IA"
-        );
+                "General", "Correo", "Calendario y tareas", "Contactos", "IA");
         configNavList.setFixedCellSize(44);
-
-        configNavList.getSelectionModel().selectedIndexProperty().addListener((obs, anterior, idx) -> {
-            if (idx != null && idx.intValue() >= 0) {
-                mostrarPaginaConfig(idx.intValue());
-            }
-        });
-
+        configNavList.getSelectionModel().selectedIndexProperty().addListener(
+                (obs, anterior, idx) -> {
+                    if (idx != null && idx.intValue() >= 0)
+                        mostrarPaginaConfig(idx.intValue());
+                });
         configNavList.getSelectionModel().select(0);
     }
 
     private void mostrarPaginaConfig(int indice) {
-        if (configStack == null) {
-            return;
-        }
+        if (configStack == null) return;
         var hijos = configStack.getChildren();
         for (int i = 0; i < hijos.size(); i++) {
-            Node n = hijos.get(i);
             boolean activa = (i == indice);
-            n.setVisible(activa);
-            n.setManaged(activa);
+            hijos.get(i).setVisible(activa);
+            hijos.get(i).setManaged(activa);
         }
     }
 
-    // Handler cuando se cambia de proveedor para ajustar visibilidad/valores de IMAP/SMTP.
-    @FXML
-    private void onProviderChanged(ActionEvent event) {
-        aplicarProveedorSeleccionado();
-    }
+    // ── Proveedor ─────────────────────────────────────────────────────────────
 
-    // Rellena o limpia los campos de servidor según el proveedor actualmente elegido.
+    @FXML
+    private void onProviderChanged(ActionEvent event) { aplicarProveedorSeleccionado(); }
+
     private void aplicarProveedorSeleccionado() {
         if (providerCombo == null) return;
-
         String proveedor = providerCombo.getSelectionModel().getSelectedItem();
         if (proveedor == null) return;
 
         if (PERSONALIZADO.equals(proveedor)) {
             if (imapLabel != null) imapLabel.setVisible(true);
-            if (imapField != null) {
-                imapField.setVisible(true);
-                imapField.clear();
-                imapField.setEditable(true);
-            }
+            if (imapField != null) { imapField.setVisible(true); imapField.clear(); imapField.setEditable(true); }
             if (smtpLabel != null) smtpLabel.setVisible(true);
-            if (smtpField != null) {
-                smtpField.setVisible(true);
-                smtpField.clear();
-                smtpField.setEditable(true);
-            }
+            if (smtpField != null) { smtpField.setVisible(true); smtpField.clear(); smtpField.setEditable(true); }
         } else {
             String[] datos = proveedores.get(proveedor);
-            String imap = datos[0];
-            String smtp = datos[1];
-
-            if (imapField != null) {
-                imapField.setText(imap);
-                imapField.setVisible(false);
-            }
+            if (imapField != null) { imapField.setText(datos[0]); imapField.setVisible(false); }
             if (imapLabel != null) imapLabel.setVisible(false);
-
-            if (smtpField != null) {
-                smtpField.setText(smtp);
-                smtpField.setVisible(false);
-            }
+            if (smtpField != null) { smtpField.setText(datos[1]); smtpField.setVisible(false); }
             if (smtpLabel != null) smtpLabel.setVisible(false);
         }
     }
 
-    // Valida el formulario y guarda la nueva cuenta en la base de datos.
+    // ── Guardar cuenta ────────────────────────────────────────────────────────
+
     @FXML
     private void onSaveClicked(ActionEvent event) {
         if (statusLabel != null) statusLabel.setText("");
 
-        String proveedor = providerCombo != null
-                ? providerCombo.getSelectionModel().getSelectedItem()
-                : null;
-        String email = emailField != null ? emailField.getText() : null;
+        String proveedor  = providerCombo  != null ? providerCombo.getSelectionModel().getSelectedItem() : null;
+        String email      = emailField     != null ? emailField.getText()      : null;
         String masterPass = masterPassField != null ? masterPassField.getText() : null;
-
-        String imap;
-        String smtp;
 
         if (proveedor == null) {
             if (statusLabel != null) statusLabel.setText("Selecciona un proveedor.");
             return;
         }
 
+        String imap, smtp;
         if (PERSONALIZADO.equals(proveedor)) {
             imap = imapField != null ? imapField.getText() : null;
             smtp = smtpField != null ? smtpField.getText() : null;
@@ -290,153 +244,104 @@ public class ConfigController {
                 || masterPass == null || masterPass.isBlank()
                 || imap == null || imap.isBlank()
                 || smtp == null || smtp.isBlank()) {
-            if (statusLabel != null) statusLabel.setText("Rellena todos los campos necesarios.");
+            if (statusLabel != null) statusLabel.setText("Rellena todos los campos.");
             return;
         }
 
         try {
             String emailCifrado = UtilidadCifrado.cifrar(email);
-            String passHash = UtilidadCifrado.hash(masterPass);
-
-            DAOCuentas dao = new DAOCuentas();
-            dao.guardarCuenta(imap, smtp, emailCifrado, passHash);
-
+            String passHash     = UtilidadCifrado.hash(masterPass);
+            DAOCuentas dao      = new DAOCuentas();
+            dao.guardar(new DAOCuentas.CuentaGuardada(
+                    emailCifrado, imap, 993, smtp, passHash, false));
             if (statusLabel != null) statusLabel.setText("Cuenta guardada correctamente.");
             cargarCuentasExistentes();
-
         } catch (Exception e) {
             if (statusLabel != null) statusLabel.setText("Error guardando cuenta: " + e.getMessage());
         }
     }
 
-    // Rellena el combo de cuentas olvidables leyendo de la base de datos.
     private void cargarCuentasExistentes() {
         if (comboCuentasExistentes == null) return;
-
         try {
             DAOCuentas dao = new DAOCuentas();
-            var cuentas = dao.listarCuentas();
-
             comboCuentasExistentes.getItems().clear();
-            mapaEmailAId.clear();
-
-            for (DAOCuentas.CuentaGuardada c : cuentas) {
-                String emailPlano = UtilidadCifrado.descifrar(c.emailCifrado);
+            mapaEmailAEmailCifrado.clear();
+            for (DAOCuentas.CuentaGuardada c : dao.listarTodas()) {
+                String emailPlano = UtilidadCifrado.descifrar(c.email());
                 comboCuentasExistentes.getItems().add(emailPlano);
-                mapaEmailAId.put(emailPlano, c.id);
+                mapaEmailAEmailCifrado.put(emailPlano, c.email());
             }
         } catch (Exception e) {
             if (statusLabel != null) statusLabel.setText("Error cargando cuentas: " + e.getMessage());
         }
     }
 
-    // Elimina de la base de datos la cuenta seleccionada en el combo.
     @FXML
     private void onOlvidarCuentaClicked(ActionEvent event) {
         if (comboCuentasExistentes == null) return;
-
         String seleccion = comboCuentasExistentes.getSelectionModel().getSelectedItem();
         if (seleccion == null || seleccion.isBlank()) {
             if (statusLabel != null) statusLabel.setText("Selecciona una cuenta para olvidar.");
             return;
         }
-
-        Integer id = mapaEmailAId.get(seleccion);
-        if (id == null) {
+        String emailCifrado = mapaEmailAEmailCifrado.get(seleccion);
+        if (emailCifrado == null) {
             if (statusLabel != null) statusLabel.setText("Cuenta no encontrada.");
             return;
         }
-
         try {
-            DAOCuentas dao = new DAOCuentas();
-            dao.eliminarCuentaPorId(id);
-
+            new DAOCuentas().eliminar(emailCifrado);
             if (statusLabel != null) statusLabel.setText("Cuenta olvidada correctamente.");
             cargarCuentasExistentes();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             if (statusLabel != null) statusLabel.setText("Error al olvidar cuenta: " + e.getMessage());
         }
     }
 
-    // Cambia el tema a claro, usando MainController si está disponible.
-    @FXML
-    private void onTemaClaro() {
-        if (mainController != null) {
-            mainController.aplicarTema(true);
-        } else {
-            aplicarTemaLocal(true);
-        }
+    // ── Tema ──────────────────────────────────────────────────────────────────
+
+    @FXML private void onTemaClaro()  {
+        if (mainController != null) mainController.aplicarTema(true);
+        else aplicarTemaLocal(true);
     }
 
-    // Cambia el tema a oscuro, usando MainController si está disponible.
-    @FXML
-    private void onTemaOscuro() {
-        if (mainController != null) {
-            mainController.aplicarTema(false);
-        } else {
-            aplicarTemaLocal(false);
-        }
+    @FXML private void onTemaOscuro() {
+        if (mainController != null) mainController.aplicarTema(false);
+        else aplicarTemaLocal(false);
     }
 
-    // Aplica el tema localmente cuando la vista no recibió MainController.
     private void aplicarTemaLocal(boolean light) {
         Scene scene = rbTemaClaro != null ? rbTemaClaro.getScene() : null;
         if (scene == null) return;
-
         scene.getStylesheets().clear();
-        scene.getStylesheets().add(
-                AppFX.class.getResource("/styles-basic.css").toExternalForm()
-        );
-        if (light) {
-            scene.getStylesheets().add(
-                    AppFX.class.getResource("/styles-light.css").toExternalForm()
-            );
-        } else {
-            scene.getStylesheets().add(
-                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
-            );
-        }
+        scene.getStylesheets().add(AppFX.class.getResource("/styles-basic.css").toExternalForm());
+        scene.getStylesheets().add(AppFX.class.getResource(
+                light ? "/styles-light.css" : "/styles-dark.css").toExternalForm());
     }
 
-    // Vuelve a la pantalla de login manteniendo el tema actual.
+    // ── Cancelar / Login ──────────────────────────────────────────────────────
+
     @FXML
     private void onCancelClicked(ActionEvent event) {
-        try {
-            irALogin(event);
-        } catch (Exception e) {
+        try { irALogin(event); }
+        catch (Exception e) {
             if (statusLabel != null) statusLabel.setText("Error al volver al login: " + e.getMessage());
         }
     }
 
-    // Carga la escena de login y le aplica el tema claro u oscuro correspondiente.
     private void irALogin(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
-        Scene loginScene = new Scene(loader.load());
-
+        Scene loginScene  = new Scene(loader.load());
         loginScene.getStylesheets().add(
-                AppFX.class.getResource("/styles-basic.css").toExternalForm()
-        );
+                AppFX.class.getResource("/styles-basic.css").toExternalForm());
 
-        Scene currentScene = ((Node) event.getSource()).getScene();
-        boolean light = false;
-        if (currentScene != null) {
-            for (String s : currentScene.getStylesheets()) {
-                if (s.contains("styles-light.css")) {
-                    light = true;
-                    break;
-                }
-            }
-        }
+        Scene current = ((Node) event.getSource()).getScene();
+        boolean light = current != null && current.getStylesheets()
+                .stream().anyMatch(s -> s.contains("styles-light.css"));
 
-        if (light) {
-            loginScene.getStylesheets().add(
-                    AppFX.class.getResource("/styles-light.css").toExternalForm()
-            );
-        } else {
-            loginScene.getStylesheets().add(
-                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
-            );
-        }
+        loginScene.getStylesheets().add(AppFX.class.getResource(
+                light ? "/styles-light.css" : "/styles-dark.css").toExternalForm());
 
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setTitle("eMailAI - Login");

@@ -1,0 +1,625 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOMensajes;
+
+import com.emailAI.dao.DAORemitentesConfiables;
+import com.emailAI.model.Mensaje;
+import com.emailAI.service.MailService;
+import com.emailAI.service.SpamIaService;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import netscape.javascript.JSObject;
+
+import java.awt.Desktop;
+import java.net.URI;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+// Controla la bandeja de entrada, detalle de mensajes y acciones de IA sobre el correo.
+public class CorreoController {
+
+    // Lista de mensajes mostrada en la columna izquierda.
+    @FXML
+    private ListView<Mensaje> lstMensajes;
+
+    // Etiqueta con el asunto del mensaje seleccionado.
+    @FXML
+    private Label lblAsunto;
+
+    // Etiqueta con el remitente del mensaje seleccionado.
+    @FXML
+    private Label lblRemitente;
+
+    // Etiqueta de estado general de la aplicación (mensajes de información/errores).
+    @FXML
+    private Label lblEstadoApp;
+
+    // Etiqueta de estado específico de la IA (entrenamiento, clasificación, etc.).
+    @FXML
+    private Label lblEstadoIA;
+
+    // Visor HTML para cuerpos de correo en formato HTML.
+    @FXML
+    private WebView webViewCuerpo;
+
+    // TextArea de fallback para mostrar solo texto plano cuando no hay HTML.
+    @FXML
+    private TextArea txtCuerpo;
+
+    // Botón para forzar reentrenado del modelo de spam.
+    @FXML
+    private Button btnReentrenar;
+
+    // Botón para marcar el mensaje actual como spam.
+    @FXML
+    private Button btnSpam;
+
+    // Botón para marcar el mensaje actual como legítimo.
+    @FXML
+    private Button btnLegitimo;
+
+    // Botón para aplicar la primera sugerencia de respuesta IA.
+    @FXML
+    private Button btnSug1;
+
+    // Botón para aplicar la segunda sugerencia de respuesta IA.
+    @FXML
+    private Button btnSug2;
+
+    // Botón para aplicar la tercera sugerencia de respuesta IA.
+    @FXML
+    private Button btnSug3;
+
+    // Botón para anular la suscripción sugerida por la IA (placeholder).
+    @FXML
+    private Button btnAnularSub;
+
+    // Botón para refrescar bandeja y sincronizar con el servidor.
+    @FXML
+    private Button btnActualizar;
+
+    // Botón para borrar el mensaje actualmente seleccionado.
+    @FXML
+    private Button btnBorrarSeleccionado;
+
+    // Botón que permite cargar imágenes externas de remitentes marcados como confiables.
+    @FXML
+    private Button btnPermitirImagenes;
+
+    private MailService mailService;
+    private SpamIaService spamIaService;
+    private DAOMensajes daoMensajes;
+    private DAORemitentesConfiables daoRemitentes;
+    private String cuentaHash;
+
+    private final ObservableList<Mensaje> modeloMensajes = FXCollections.observableArrayList(); // Modelo observable para la ListView.
+    private Mensaje mensajeActual; // Mensaje actualmente mostrado en el panel derecho.
+
+    /** Nombre IMAP completo de la carpeta mostrada (coincide con BD y con el servidor). */
+    private String carpetaImapActiva = "INBOX";
+
+    private final WebLinkBridge webLinkBridge = new WebLinkBridge(this::abrirEnNavegadorSeguro);
+
+    /** Expuesto al motor WebKit para abrir http(s) en el navegador del sistema. */
+    public static final class WebLinkBridge {
+        private final Consumer<String> onUrl;
+
+        public WebLinkBridge(Consumer<String> onUrl) {
+            this.onUrl = onUrl;
+        }
+
+        public void openExternal(String url) {
+            Platform.runLater(() -> onUrl.accept(url));
+        }
+    }
+
+    @FXML
+    private void initialize() {
+        lstMensajes.setItems(modeloMensajes); // Enlaza el modelo observable a la lista visual.
+
+        // Define cómo se pinta cada elemento de la lista de mensajes.
+        lstMensajes.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Mensaje msg, boolean empty) {
+                super.updateItem(msg, empty);
+
+                if (empty || msg == null) {
+                    setText(null);
+                    getStyleClass().removeAll(
+                            "message-card",
+                            "message-card-spam",
+                            "message-card-risk",
+                            "message-card-legit",
+                            "message-card-pending");
+                    return;
+                }
+
+                String remitente = msg.getRemitente() != null ? msg.getRemitente() : "";
+                String asunto    = msg.getAsunto() != null ? msg.getAsunto() : "";
+
+                setText(remitente + "\n" + asunto);
+
+                getStyleClass().removeAll(
+                        "message-card",
+                        "message-card-spam",
+                        "message-card-risk",
+                        "message-card-legit",
+                        "message-card-pending");
+
+                String cat = msg.getCategoria();
+                if (cat == null || cat.isBlank()) {
+                    getStyleClass().add("message-card-pending");
+                } else if ("SPAM".equalsIgnoreCase(cat) || "PHISHING".equalsIgnoreCase(cat)) {
+                    getStyleClass().add("message-card-risk");
+                } else if ("LEGITIMO".equalsIgnoreCase(cat) || "LEGIT".equalsIgnoreCase(cat)) {
+                    getStyleClass().add("message-card-legit");
+                } else if ("DESCONOCIDO".equalsIgnoreCase(cat)) {
+                    getStyleClass().add("message-card-pending");
+                } else {
+                    getStyleClass().add("message-card-pending");
+                }
+            }
+        });
+
+        // Cuando cambia la selección, se muestra el nuevo mensaje en el panel derecho.
+        lstMensajes.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSel, newSel) -> mostrarMensaje(newSel)
+        );
+
+        configurarWebViewEnlacesExternos(); // Configura el WebView para abrir enlaces en el navegador externo.
+    }
+
+    // Enlaces http(s) del WebView: puente JavaScript → Java (loadContent no deja URL estable para about:).
+    private void configurarWebViewEnlacesExternos() {
+        WebEngine engine = webViewCuerpo.getEngine();
+
+        engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState != Worker.State.SUCCEEDED) return;
+
+            try {
+                JSObject window = (JSObject) engine.executeScript("window");
+                window.setMember("emailApp", webLinkBridge);
+
+                String script =
+                        "(function(){"
+                                + "function findAnchor(el){"
+                                + "var n=el;"
+                                + "while(n){if(n.tagName==='A')return n;n=n.parentNode;}"
+                                + "return null;"
+                                + "}"
+                                + "document.addEventListener('click',function(e){"
+                                + "var a=findAnchor(e.target);"
+                                + "if(!a)return;"
+                                + "var href=a.getAttribute('href');"
+                                + "if(!href)return;"
+                                + "var h=href.trim();"
+                                + "var lo=h.toLowerCase();"
+                                + "if(lo.indexOf('http://')===0||lo.indexOf('https://')===0){"
+                                + "e.preventDefault();"
+                                + "if(e.stopPropagation)e.stopPropagation();"
+                                + "if(e.stopImmediatePropagation)e.stopImmediatePropagation();"
+                                + "emailApp.openExternal(h);"
+                                + "}"
+                                + "},true);"
+                                + "})();";
+
+                engine.executeScript(script);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void abrirEnNavegadorSeguro(String url) {
+        if (url == null) return;
+        String u = url.trim();
+        if (!u.startsWith("http://") && !u.startsWith("https://")) {
+            return;
+        }
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(u));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Cambia la carpeta IMAP mostrada (desde el menú lateral principal). */
+    public void setCarpetaImap(String imapFullName) {
+        if (imapFullName == null || imapFullName.isBlank()) {
+            imapFullName = "INBOX";
+        }
+        this.carpetaImapActiva = imapFullName;
+        cargarDesdeBD();
+        cargarBandejaEntradaAsync();
+    }
+
+    public String getCarpetaImapActiva() {
+        return carpetaImapActiva;
+    }
+
+    /** Llamado por un temporizador global: solo sincroniza la bandeja de entrada en segundo plano. */
+    public void sincronizarEnFondoSiBandejaEntrada() {
+        if (!"INBOX".equalsIgnoreCase(carpetaImapActiva)) {
+            return;
+        }
+        if (mailService == null || daoMensajes == null || cuentaHash == null) {
+            return;
+        }
+        cargarBandejaEntradaAsync();
+    }
+
+    // Lo llama MainController después de crear la vista
+    // Recibe el MailService ya conectado y prepara DAOs y datos iniciales.
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+        if (mailService != null) {
+            this.cuentaHash = mailService.getCuentaHash();
+            this.spamIaService = mailService.getSpamIaService();
+
+            String url = "jdbc:sqlite:emailAI.db";
+            this.daoMensajes = new DAOMensajes(url);
+            this.daoRemitentes = new DAORemitentesConfiables(url);
+
+            cargarDesdeBD();
+            cargarBandejaEntradaAsync();
+        }
+    }
+
+    // ================== CARGA DESDE BD ==================
+
+    // Carga mensajes desde la base de datos local para la cuenta actual.
+    private void cargarDesdeBD() {
+        if (daoMensajes == null || cuentaHash == null) return;
+
+        List<Mensaje> lista = daoMensajes.listarPorCuentaHashYCarpeta(cuentaHash, carpetaImapActiva);
+        modeloMensajes.setAll(lista);
+
+        if (!modeloMensajes.isEmpty()) {
+            lstMensajes.getSelectionModel().selectFirst();
+        } else {
+            limpiarDetalle();
+        }
+    }
+
+    // ================== CARGA DESDE IMAP (ASYNC) ==================
+
+    // Sincroniza la bandeja de entrada contra IMAP en un hilo en segundo plano.
+    public void cargarBandejaEntradaAsync() {
+        if (mailService == null || daoMensajes == null || cuentaHash == null) return;
+
+        String uidSeleccionado = null;
+        Mensaje actual = lstMensajes.getSelectionModel().getSelectedItem();
+        if (actual != null) {
+            uidSeleccionado = actual.getUidImap();
+        }
+        final String uidSelFinal = uidSeleccionado;
+
+        final String carpetaSync = carpetaImapActiva;
+
+        Task<List<Mensaje>> task = new Task<>() {
+            @Override
+            protected List<Mensaje> call() {
+                try {
+                    List<Mensaje> mensajesImap = mailService.listMensajesDeCarpeta(carpetaSync, 20);
+                    daoMensajes.guardarOModificar(mensajesImap, cuentaHash, carpetaSync);
+                    return mensajesImap;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        };
+
+        task.setOnSucceeded(ev -> {
+            List<Mensaje> nuevos = task.getValue();
+            if (nuevos == null) return;
+
+            modeloMensajes.setAll(nuevos);
+
+            if (uidSelFinal != null) {
+                for (Mensaje m : modeloMensajes) {
+                    if (uidSelFinal.equals(m.getUidImap())) {
+                        lstMensajes.getSelectionModel().select(m);
+                        return;
+                    }
+                }
+            }
+
+            if (!modeloMensajes.isEmpty()) {
+                lstMensajes.getSelectionModel().selectFirst();
+            } else {
+                limpiarDetalle();
+            }
+        });
+
+        task.setOnFailed(ev -> {
+            Throwable ex = task.getException();
+            if (ex != null) ex.printStackTrace();
+        });
+
+        Thread t = new Thread(task, "cargar-bandeja-imap");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ================== UI DETALLE ==================
+
+    // Limpia el panel de detalle cuando no hay mensaje seleccionado.
+    private void limpiarDetalle() {
+        lblAsunto.setText("");
+        lblRemitente.setText("");
+        webViewCuerpo.getEngine().loadContent("");
+        txtCuerpo.clear();
+        mensajeActual = null;
+        if (btnPermitirImagenes != null) {
+            btnPermitirImagenes.setDisable(true);
+        }
+    }
+
+    // Actualiza el panel de detalle con el contenido del mensaje seleccionado.
+    private void mostrarMensaje(Mensaje msg) {
+        mensajeActual = msg;
+
+        if (msg == null) {
+            limpiarDetalle();
+            return;
+        }
+
+        lblAsunto.setText(msg.getAsunto());
+        lblRemitente.setText(msg.getRemitente());
+
+        String html  = msg.getHtml();
+        String texto = msg.getCuerpo();
+
+        if (html != null && !html.isBlank()) {
+            String remitente = msg.getRemitente();
+            boolean remitenteConfiable = remitente != null
+                    && !remitente.isBlank()
+                    && daoRemitentes != null
+                    && daoRemitentes.esConfiable(remitente);
+            boolean tieneImagenesExternas = contieneImagenesExternas(html);
+            String htmlRender = remitenteConfiable ? html : eliminarImagenesExternas(html);
+
+            webViewCuerpo.setVisible(true);
+            webViewCuerpo.setManaged(true);
+            webViewCuerpo.getEngine().loadContent(htmlRender, "text/html");
+
+            txtCuerpo.setVisible(false);
+            txtCuerpo.setManaged(false);
+
+            if (btnPermitirImagenes != null) {
+                btnPermitirImagenes.setDisable(remitenteConfiable || !tieneImagenesExternas);
+            }
+        } else {
+            txtCuerpo.setVisible(true);
+            txtCuerpo.setManaged(true);
+            txtCuerpo.setText(texto != null ? texto : "");
+
+            webViewCuerpo.setVisible(false);
+            webViewCuerpo.setManaged(false);
+            if (btnPermitirImagenes != null) {
+                btnPermitirImagenes.setDisable(true);
+            }
+        }
+    }
+
+    // Elimina etiquetas <img> que cargan recursos externos vía HTTP/HTTPS.
+    private String eliminarImagenesExternas(String html) {
+        return html.replaceAll("(?i)<img\\b[^>]*src\\s*=\\s*\"https?://[^>\"]*\"[^>]*>", "");
+    }
+
+    // Indica si el HTML contiene al menos una imagen externa.
+    private boolean contieneImagenesExternas(String html) {
+        if (html == null || html.isBlank()) return false;
+        return html.matches("(?is).*<img\\b[^>]*src\\s*=\\s*\"https?://[^>\"]*\"[^>]*>.*");
+    }
+
+    // Marca el remitente como confiable y vuelve a mostrar el mensaje con imágenes permitidas.
+    @FXML
+    private void onPermitirImagenes() {
+        if (mensajeActual == null || daoRemitentes == null) return;
+        String remitente = mensajeActual.getRemitente();
+        if (remitente == null || remitente.isBlank()) return;
+
+        daoRemitentes.marcarConfiable(remitente);
+        mostrarMensaje(mensajeActual);
+    }
+
+    // ================== COMPOSE WINDOW ==================
+
+    // Abre la ventana modal de redacción aplicando una inicialización específica (nuevo, responder, reenviar).
+    private void abrirVentanaCompose(Consumer<ComposeController> init) {
+        try {
+            var url = getClass().getResource("/ui/compose-view.fxml");
+            if (url == null) {
+                System.err.println("No se encontró /ui/compose-view.fxml en el classpath");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(url);
+            Scene scene = new Scene(loader.load());
+
+            ComposeController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.setTitle("Redactar correo");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+
+            controller.setMailService(mailService);
+            controller.setStage(stage);
+
+            if (init != null) {
+                init.accept(controller);
+            }
+
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ================== ACCIONES DE CORREO ==================
+
+    // Acción de menú para abrir una nueva ventana de redacción en blanco.
+    @FXML
+    private void onRedactar() {
+        if (mailService == null) return;
+        abrirVentanaCompose(ComposeController::inicializarNuevo);
+    }
+
+    // Actualiza manualmente la bandeja leyendo de BD y sincronizando con IMAP.
+    @FXML
+    private void onActualizarBandeja() {
+        cargarDesdeBD();
+        cargarBandejaEntradaAsync();
+    }
+
+    // Abre la ventana de redacción cargando el remitente y asunto para responder.
+    @FXML
+    private void onResponder() {
+        if (mailService == null) return;
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+
+        abrirVentanaCompose(c -> c.inicializarResponder(seleccionado));
+    }
+
+    // Abre la ventana de redacción configurada para responder a todos (placeholder de CC).
+    @FXML
+    private void onResponderTodos() {
+        if (mailService == null) return;
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+
+        abrirVentanaCompose(c -> c.inicializarResponderTodos(seleccionado));
+    }
+
+    // Abre la ventana de redacción configurada para reenviar el mensaje.
+    @FXML
+    private void onReenviar() {
+        if (mailService == null) return;
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+
+        abrirVentanaCompose(c -> c.inicializarReenviar(seleccionado));
+    }
+
+    // Elimina el mensaje tanto en el servidor como en la lista local.
+    @FXML
+    private void onBorrarMensajeSeleccionado() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null || mailService == null) {
+            return;
+        }
+        try {
+            mailService.eliminarMensaje(seleccionado, carpetaImapActiva);
+            modeloMensajes.remove(seleccionado);
+            limpiarDetalle();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ================== IA: MARCAR SPAM / LEGÍTIMO ==================
+
+    // Marca el mensaje como SPAM y dispara un reentrenamiento del modelo.
+    @FXML
+    private void onMarcarSpam() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+
+        seleccionado.setCategoria("SPAM");
+        seleccionado.setPrioridad("NORMAL");
+        if (daoMensajes != null && cuentaHash != null) {
+            daoMensajes.actualizarCategoriaPrioridad(
+                    seleccionado.getUidImap(),
+                    cuentaHash,
+                    carpetaImapActiva,
+                    seleccionado.getCategoria(),
+                    seleccionado.getPrioridad()
+            );
+        }
+
+        lstMensajes.refresh();
+
+        entrenarConEjemplos();
+    }
+
+    // Marca el mensaje como legítimo y dispara un reentrenamiento del modelo.
+    @FXML
+    private void onMarcarLegitimo() {
+        Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
+        if (seleccionado == null) return;
+
+        seleccionado.setCategoria("LEGITIMO");
+        seleccionado.setPrioridad("NORMAL");
+        if (daoMensajes != null && cuentaHash != null) {
+            daoMensajes.actualizarCategoriaPrioridad(
+                    seleccionado.getUidImap(),
+                    cuentaHash,
+                    carpetaImapActiva,
+                    seleccionado.getCategoria(),
+                    seleccionado.getPrioridad()
+            );
+        }
+
+        lstMensajes.refresh();
+
+        entrenarConEjemplos();
+    }
+
+    // Fuerza un reentrenado del modelo de spam con todos los ejemplos etiquetados.
+    @FXML
+    private void onReentrenarModelo() {
+        entrenarConEjemplos();
+    }
+
+    // Construye el conjunto de ejemplos etiquetados y entrena el modelo de spam IA.
+    private void entrenarConEjemplos() {
+        if (spamIaService == null || daoMensajes == null || cuentaHash == null) return;
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                try {
+                    List<Mensaje> todos = daoMensajes.listarTodosPorCuenta(cuentaHash);
+                    List<Mensaje> etiquetados = todos.stream()
+                            .filter(m -> m.getCategoria() != null &&
+                                         !m.getCategoria().isBlank() &&
+                                         !"DESCONOCIDO".equalsIgnoreCase(m.getCategoria()))
+                            .collect(Collectors.toList());
+
+                    spamIaService.entrenarModelo(cuentaHash, etiquetados);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+
+        Thread t = new Thread(task, "entrenar-spam-model");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    // ================== IA RESPUESTAS (placeholder) ==================
+
+    @FXML private void onUsarRespuesta1() {}
+    @FXML private void onUsarRespuesta2() {}
+    @FXML private void onUsarRespuesta3() {}
+    @FXML private void onAnularSub() {}
+}

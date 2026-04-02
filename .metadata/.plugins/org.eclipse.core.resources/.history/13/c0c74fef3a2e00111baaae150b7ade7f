@@ -1,0 +1,539 @@
+/* =========================
+   eMailAI - MODO CLARO
+   ========================= */
+
+.root {
+    -fx-background-color: #E8ECEF;
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+    -fx-text-fill: #1E3A5F;
+    -fx-selection-bar:      #0891B2;
+    -fx-selection-bar-text: #ffffff;
+}
+
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
+}
+
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
+}
+
+.label { -fx-text-fill: #1E3A5F; }
+
+.label-secondary {
+    -fx-text-fill: #5C6B7A;
+    -fx-font-size: 12px;
+}
+
+.main-app-sidebar {
+    -fx-background-color: #F4F6F8;
+    -fx-border-color: transparent #D1D5DB transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.main-sidebar-brand {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
+}
+
+.main-nav-heading { -fx-text-fill: #5C6B7A; }
+
+.main-nav-submenu-heading {
+    -fx-text-fill: #6B7280;
+    -fx-padding: 4 0 2 4;
+}
+
+.main-nav-submenu { -fx-background-color: transparent; }
+
+.toggle-button.main-nav-primary {
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+    -fx-max-width: Infinity;
+    -fx-content-display: LEFT;
+    -fx-background-color: transparent;
+    -fx-text-fill: #1E3A5F;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.toggle-button.main-nav-primary:hover { -fx-background-color: #E0F2FE; }
+
+.toggle-button.main-nav-primary:selected {
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+}
+
+.main-nav-folder-list {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.main-nav-folder-list .list-cell {
+    -fx-background-insets: 2 4;
+    -fx-padding: 0 8 0 8;
+    -fx-background-radius: 6;
+    -fx-text-fill: #374151;
+    -fx-font-size: 12px;
+    -fx-background-color: transparent;
+}
+
+.main-nav-folder-list .list-cell:filled:hover { -fx-background-color: #E0F2FE; }
+
+.main-nav-folder-list .list-cell:filled:selected,
+.main-nav-folder-list .list-cell:filled:selected:focused {
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+}
+
+.config-root { -fx-background-color: #E8ECEF; }
+
+.config-header-wrap {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #B8BEC4;
+}
+
+.config-footer-wrap {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #B8BEC4 transparent;
+}
+
+.config-screen-title { -fx-text-fill: #1E3A5F; }
+.config-page-heading { -fx-text-fill: #1E3A5F; }
+.config-section-kicker { -fx-text-fill: #1E3A5F; }
+.config-field-label { -fx-text-fill: #374151; }
+.config-nav-heading { -fx-text-fill: #5C6B7A; }
+
+.config-header-accent {
+    -fx-background-color: #0891B2;
+    -fx-background-radius: 3;
+}
+
+.config-nav-pane {
+    -fx-background-color: #F4F6F8;
+    -fx-border-color: transparent #D1D5DB transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.config-content-stack { -fx-background-color: #E8ECEF; }
+
+.config-section-box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D1D5DB #D1D5DB #D1D5DB #0891B2;
+    -fx-border-width: 1 1 1 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 2);
+}
+
+.config-nav-list { -fx-background-color: transparent; }
+
+.config-nav-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1E3A5F;
+}
+
+.config-nav-list .list-cell:filled:hover { -fx-background-color: #E0F2FE; }
+
+.config-nav-list .list-cell:filled:selected,
+.config-nav-list .list-cell:filled:selected:focused {
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+}
+
+.config-split > .split-pane-divider { -fx-background-color: #D1D5DB; }
+
+.status-label {
+    -fx-text-fill: #0891B2;
+    -fx-font-size: 11px;
+}
+
+.button {
+    -fx-background-radius: 8;
+    -fx-padding: 6 14 6 14;
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button:hover { -fx-background-color: #06B6D4; }
+.button:pressed { -fx-background-color: #1E3A5F; }
+
+.toggle-button {
+    -fx-background-radius: 999;
+    -fx-background-color: #B8BEC4;
+    -fx-text-fill: #1E3A5F;
+}
+
+.toggle-button:selected {
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+}
+
+.text-field,
+.password-field {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #B8BEC4;
+    -fx-border-width: 1;
+    -fx-text-fill: #1E3A5F;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #06B6D4;
+    -fx-border-width: 2;
+}
+
+.accounts-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.accounts-scroll > .viewport { -fx-background-color: transparent; }
+
+#accountsList { -fx-background-color: transparent; }
+
+.account-card {
+    -fx-background-color: #E8ECEF;
+    -fx-border-color: #B8BEC4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.account-card:hover { -fx-background-color: #06B6D4; }
+
+.account-card-selected {
+    -fx-background-color: #0891B2;
+    -fx-border-color: #1E3A5F;
+}
+
+.account-email {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
+}
+
+.account-server {
+    -fx-font-size: 11px;
+    -fx-text-fill: #4b5563;
+}
+
+.account-card-new {
+    -fx-background-color: #B8BEC4;
+    -fx-border-color: #0891B2;
+    -fx-cursor: hand;
+}
+
+.account-card-new:hover { -fx-background-color: #06B6D4; }
+
+.account-new-label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E3A5F;
+}
+
+.theme-toggle {
+    -fx-background-color: #E8ECEF;
+    -fx-text-fill: #1E3A5F;
+    -fx-border-color: #B8BEC4;
+}
+
+/* ── CALENDARIO CLARO ── */
+.cal-dia {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1;
+}
+
+.cal-dia:hover   { -fx-background-color: #f0f4f8; }
+.cal-dia:pressed { -fx-background-color: #e2eaf2; }
+
+.cal-dia-hoy {
+    -fx-border-color: #0078d7;
+    -fx-border-width: 2;
+    -fx-background-color: #e4f1ff;
+}
+.cal-dia-hoy:hover,
+.cal-dia-hoy:pressed { -fx-background-color: #cce4ff; }
+
+.cal-dia-seleccionado {
+    -fx-background-color: #d0eaff;
+    -fx-border-color: #0078d7;
+    -fx-border-width: 2;
+}
+.cal-dia-seleccionado:hover,
+.cal-dia-seleccionado:pressed { -fx-background-color: #b8dcff; }
+
+.cal-dia-urgente-semana {
+    -fx-border-color: #DC2626;
+    -fx-border-width: 2;
+    -fx-background-color: #FEE2E2;
+}
+.cal-dia-urgente-semana:hover,
+.cal-dia-urgente-semana:pressed { -fx-background-color: #fecaca; }
+
+.cal-dia-proxima-semana {
+    -fx-border-color: #D97706;
+    -fx-border-width: 2;
+    -fx-background-color: #FEF3C7;
+}
+.cal-dia-proxima-semana:hover,
+.cal-dia-proxima-semana:pressed { -fx-background-color: #fde68a; }
+
+.cal-dia-mas-tarde {
+    -fx-border-color: #16A34A;
+    -fx-border-width: 2;
+    -fx-background-color: #DCFCE7;
+}
+.cal-dia-mas-tarde:hover,
+.cal-dia-mas-tarde:pressed { -fx-background-color: #bbf7d0; }
+
+.cal-dia-seleccionado.cal-dia-urgente-semana,
+.cal-dia-seleccionado.cal-dia-proxima-semana,
+.cal-dia-seleccionado.cal-dia-mas-tarde {
+    -fx-border-color: #0078d7;
+    -fx-border-width: 3;
+}
+
+.cal-dia-numero { -fx-text-fill: #1E3A5F; }
+.cal-evento-barra { -fx-background-color: #0891B2; }
+
+.cal-evento-barra-seleccionado {
+    -fx-background-color: #005f8a;
+    -fx-border-color: #003f5c;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+}
+
+/* ── MENSAJES CLASIFICADOS CLARO ── */
+.list-cell.message-card-spam {
+    -fx-background-color: #1F2933;
+    -fx-text-fill: #FCA5A5;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.list-cell.message-card-spam:selected {
+    -fx-background-color: #DC2626;
+    -fx-text-fill: #F9FAFB;
+}
+
+.list-cell.message-card-risk {
+    -fx-background-color: #FEF2F2;
+    -fx-text-fill: #991B1B;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: transparent transparent transparent #DC2626;
+}
+
+.list-cell.message-card-risk:selected {
+    -fx-background-color: #FECACA;
+    -fx-text-fill: #450A0A;
+}
+
+.list-cell.message-card-pending {
+    -fx-background-color: #FFFBEB;
+    -fx-text-fill: #92400E;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: transparent transparent transparent #F59E0B;
+}
+
+.list-cell.message-card-pending:selected {
+    -fx-background-color: #FDE68A;
+    -fx-text-fill: #451A03;
+}
+
+.list-cell.message-card-legit {
+    -fx-background-color: #F0FDF4;
+    -fx-text-fill: #166534;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: transparent transparent transparent #22C55E;
+}
+
+.list-cell.message-card-legit:selected {
+    -fx-background-color: #BBF7D0;
+    -fx-text-fill: #14532D;
+}
+
+/* ── SIDEBAR SUBMENU CLARO ── */
+.sidebar-submenu-toggle {
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1E3A5F;
+    -fx-border-color: #B8BEC4;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.sidebar-submenu-toggle:selected {
+    -fx-background-color: #E0F2FE;
+    -fx-text-fill: #0C4A6E;
+    -fx-border-color: #0891B2;
+}
+
+/* ── CONTACTOS CLARO ── */
+.list-cell.contact-card-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1E3A5F;
+    -fx-padding: 2 4 2 4;
+}
+
+.list-cell.contact-card-cell:filled:hover {
+    -fx-background-color: #E0F2FE;
+    -fx-background-radius: 8;
+}
+
+.list-cell.contact-card-cell:filled:selected,
+.list-cell.contact-card-cell:filled:selected:focused,
+.list-cell.contact-card-cell:filled:selected:hover,
+.list-cell.contact-card-cell:filled:selected:focused:hover {
+    -fx-background-color: #0891B2;
+    -fx-background-radius: 8;
+}
+
+.list-cell.contact-card-cell:filled:selected .contact-name,
+.list-cell.contact-card-cell:filled:selected:focused .contact-name,
+.list-cell.contact-card-cell:filled:selected .contact-email,
+.list-cell.contact-card-cell:filled:selected:focused .contact-email,
+.list-cell.contact-card-cell:filled:selected .contact-phone,
+.list-cell.contact-card-cell:filled:selected:focused .contact-phone {
+    -fx-text-fill: white;
+}
+
+.contact-name  { -fx-text-fill: #1E3A5F; -fx-font-weight: bold; }
+.contact-email { -fx-text-fill: #4b5563; -fx-font-size: 11px;   }
+.contact-phone { -fx-text-fill: #1E3A5F; }
+
+/* ── BOTONES CONFIG CLARO ── */
+.button.config-primary-btn {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.button.config-primary-btn:hover { -fx-background-color: #06B6D4; }
+
+.button.config-secondary-btn {
+    -fx-font-size: 13px;
+    -fx-padding: 10 16 10 16;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-background-color: white;
+    -fx-text-fill: #1E3A5F;
+    -fx-border-color: #B8BEC4;
+    -fx-border-width: 1;
+}
+
+.button.config-secondary-btn:hover {
+    -fx-background-color: #F4F6F8;
+    -fx-border-color: #0891B2;
+}
+
+/* ── PAGINACIÓN CLARO ── */
+.btn-pag {
+    -fx-background-color: #E8ECEF;
+    -fx-text-fill: #1E3A5F;
+}
+
+.btn-pag:hover {
+    -fx-background-color: #0891B2;
+    -fx-text-fill: white;
+}
+
+.btn-pag:disabled {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: #bbbbbb;
+    -fx-opacity: 0.6;
+}
+
+.pag-indicator {
+    -fx-background-color: #F4F6F8;
+    -fx-border-color: #B8BEC4;
+}
+
+.pag-label { -fx-text-fill: #1E3A5F;
+	
+}
+
+/* ── Filtro HOY → rojo ── */
+.task-filter-hoy {
+    -fx-background-color: #e53935;
+    -fx-text-fill: white;
+}
+.task-filter-hoy:hover {
+    -fx-background-color: #c62828;
+    -fx-text-fill: white;
+}
+.task-filter-hoy:selected {
+    -fx-background-color: #b71c1c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ── Filtro MAÑANA → naranja ── */
+.task-filter-manana {
+    -fx-background-color: #fb8c00;
+    -fx-text-fill: white;
+}
+.task-filter-manana:hover {
+    -fx-background-color: #ef6c00;
+    -fx-text-fill: white;
+}
+.task-filter-manana:selected {
+    -fx-background-color: #e65100;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ── Filtro SEMANA → amarillo ── */
+.task-filter-semana {
+    -fx-background-color: #fdd835;
+    -fx-text-fill: #333;
+}
+.task-filter-semana:hover {
+    -fx-background-color: #fbc02d;
+    -fx-text-fill: #111;
+}
+.task-filter-semana:selected {
+    -fx-background-color: #f9a825;
+    -fx-text-fill: #111;
+    -fx-font-weight: bold;
+}
+
+/* ── Filtro MES → verde ── */
+.task-filter-mes {
+    -fx-background-color: #43a047;
+    -fx-text-fill: white;
+}
+.task-filter-mes:hover {
+    -fx-background-color: #2e7d32;
+    -fx-text-fill: white;
+}
+.task-filter-mes:selected {
+    -fx-background-color: #1b5e20;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* ── Badges prioridad ── */
+.task-priority-alta  { -fx-background-color: #e53935; -fx-text-fill: white; }
+.task-priority-media { -fx-background-color: #fdd835; -fx-text-fill: #333;  }
+.task-priority-baja  { -fx-background-color: #43a047; -fx-text-fill: white; }

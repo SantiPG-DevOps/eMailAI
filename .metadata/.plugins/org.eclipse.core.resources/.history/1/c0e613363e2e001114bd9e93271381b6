@@ -1,0 +1,55 @@
+package com.emailAI.dao;
+
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+/**
+ * Gestiona las conexiones a las cuatro bases de datos SQLite del proyecto.
+ *
+ *   correos.db   → mensajes recibidos/enviados + cuentas
+ *   agenda.db    → tareas y eventos de calendario
+ *   contactos.db → agenda de contactos
+ *   ia.db        → entrenamiento IA y remitentes confiables
+ *
+ * Las BDs se crean en db/ (directorio de trabajo) al arrancar.
+ */
+public class ConexionBD {
+
+    private static final String DIR_DB    = "/usr/db";
+
+    public static final String URL_CORREOS   = "jdbc:sqlite:" + DIR_DB + "/correos.db";
+    public static final String URL_AGENDA    = "jdbc:sqlite:" + DIR_DB + "/agenda.db";
+    public static final String URL_CONTACTOS = "jdbc:sqlite:" + DIR_DB + "/contactos.db";
+    public static final String URL_IA        = "jdbc:sqlite:" + DIR_DB + "/ia.db";
+
+    static {
+        new File(DIR_DB).mkdirs();
+    }
+
+    public static Connection getConnectionCorreos() throws SQLException {
+        return DriverManager.getConnection(URL_CORREOS);
+    }
+
+    public static Connection getConnectionAgenda() throws SQLException {
+        return DriverManager.getConnection(URL_AGENDA);
+    }
+
+    public static Connection getConnectionContactos() throws SQLException {
+        return DriverManager.getConnection(URL_CONTACTOS);
+    }
+
+    public static Connection getConnectionIA() throws SQLException {
+        return DriverManager.getConnection(URL_IA);
+    }
+
+    /**
+     * @deprecated Usar el método específico según la BD.
+     * Mantenido por compatibilidad → redirige a correos.db
+     */
+    @Deprecated
+    public static Connection getConnection() throws SQLException {
+        return getConnectionCorreos();
+    }
+}

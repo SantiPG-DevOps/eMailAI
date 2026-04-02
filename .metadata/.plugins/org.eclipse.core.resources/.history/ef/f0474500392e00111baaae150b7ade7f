@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.TareasController">
+
+    <center>
+        <SplitPane dividerPositions="0.32">
+            <items>
+
+                <!-- COLUMNA IZQUIERDA: filtros + lista -->
+                <VBox minWidth="260" spacing="10">
+                    <padding>
+                        <Insets bottom="10" left="10" right="6" top="10"/>
+                    </padding>
+
+                    <!-- Bloque filtros -->
+                    <VBox spacing="6">
+
+                        <!-- Fila 1: Hoy / Mañana -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <ToggleButton fx:id="btnHoy" onAction="#onFiltroHoy"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-hoy"
+                                          text="Hoy"/>
+                            <ToggleButton fx:id="btnManana" onAction="#onFiltroManana"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-manana"
+                                          text="Mañana"/>
+                        </HBox>
+
+                        <!-- Fila 2: Semana / Mes -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <ToggleButton fx:id="btnSemana" onAction="#onFiltroSemana"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-semana"
+                                          text="Semana"/>
+                            <ToggleButton fx:id="btnMes" onAction="#onFiltroMes"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-mes"
+                                          text="Mes"/>
+                        </HBox>
+
+                        <!-- Fila 3: Planificado / Etiquetas -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <ToggleButton fx:id="btnPlanificado" onAction="#onFiltroPlanificado"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn"
+                                          text="Planificado"/>
+                            <ToggleButton fx:id="btnEtiquetas" onAction="#onFiltroEtiquetas"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn"
+                                          text="Etiquetas"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Cabecera lista + botones -->
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Label styleClass="section-label" text="Bandeja de tareas"/>
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Button onAction="#onNuevaTarea"  styleClass="small-button" text="Nueva"/>
+                        <Button onAction="#onEditarTarea" styleClass="small-button" text="Editar"/>
+                        <Button onAction="#onBorrarTarea" styleClass="small-button" text="Borrar"/>
+                    </HBox>
+
+                    <!-- Lista de tareas -->
+                    <ListView fx:id="lstTareas" VBox.vgrow="ALWAYS"/>
+
+                </VBox>
+
+                <!-- COLUMNA DERECHA: panel dinámico según filtro -->
+                <VBox fx:id="panelDerecho" minWidth="400" spacing="8">
+                    <padding>
+                        <Insets bottom="10" left="6" right="10" top="10"/>
+                    </padding>
+
+                    <!-- Título dinámico -->
+                    <Label fx:id="lblPanelTitulo" styleClass="section-label" text="Vista general"/>
+
+                    <!-- Timeline (visible en todos los filtros excepto Etiquetas) -->
+                    <ListView fx:id="lstDias" VBox.vgrow="ALWAYS"/>
+
+                    <!-- Panel etiquetas (visible solo en modo Etiquetas) -->
+                    <VBox fx:id="vboxEtiquetas" spacing="6" managed="false" visible="false">
+                        <Label styleClass="label-secondary" text="Añadir etiqueta con prioridad:"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtNuevaEtiqueta"
+                                       promptText="nombre etiqueta"
+                                       prefWidth="140"/>
+                            <ComboBox fx:id="cmbPrioridadEtiqueta" prefWidth="100"/>
+                            <Button onAction="#onAnadirEtiqueta"
+                                    styleClass="small-button" text="Añadir"/>
+                        </HBox>
+                        <ListView fx:id="lstEtiquetas" prefHeight="160"/>
+                    </VBox>
+
+                    <!-- Panel subtareas (siempre visible) -->
+                    <VBox spacing="6">
+                        <Label fx:id="lblSubtareas" styleClass="label-secondary"
+                               text="Subtareas de la tarea seleccionada:"/>
+                        <ListView fx:id="lstSubtareas" prefHeight="140"/>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Button fx:id="btnAnadirSubtarea" onAction="#onAnadirSubtarea"
+                                    styleClass="small-button" text="+ Subtarea"/>
+                        </HBox>
+                    </VBox>
+
+                </VBox>
+
+            </items>
+        </SplitPane>
+    </center>
+
+</BorderPane>

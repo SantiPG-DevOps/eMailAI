@@ -323,7 +323,7 @@ public class MainController {
     private void onSeccionChatIA() {
         try {
             actualizarSubmenuCorreo(false);
-            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/chat-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/chatIA-view.fxml"));
             Node vista = loader.load();
             centerPane.getChildren().setAll(vista);
             if (btnChatIA != null) {

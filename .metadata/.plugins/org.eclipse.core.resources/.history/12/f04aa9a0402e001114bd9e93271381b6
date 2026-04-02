@@ -1,0 +1,36 @@
+package com.emailAI.dao;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class ConexionBD {
+
+    private static final Path BASE_DIR = Path.of(System.getProperty("user.home"), ".emailAI", "db");
+    private static final Path ARCHIVO_DIR = BASE_DIR.resolve("archivo");
+    private static final Path CORREOS_DB = BASE_DIR.resolve("correos.db");
+
+    public static Connection getConnectionCorreos() throws SQLException {
+        try {
+            Files.createDirectories(BASE_DIR);
+            Files.createDirectories(ARCHIVO_DIR);
+        } catch (IOException e) {
+            throw new SQLException("No se pudieron crear los directorios de BD", e);
+        }
+
+        return DriverManager.getConnection("jdbc:sqlite:" + CORREOS_DB.toAbsolutePath());
+    }
+
+    public static Path getRutaArchivoCorreos(int anio) throws SQLException {
+        try {
+            Files.createDirectories(ARCHIVO_DIR);
+        } catch (IOException e) {
+            throw new SQLException("No se pudo crear el directorio de archivo", e);
+        }
+
+        return ARCHIVO_DIR.resolve("correos_" + anio + ".db");
+    }
+}

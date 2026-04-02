@@ -1,0 +1,917 @@
+Estoy haciendo una app, quiero cambiarle cosas a la pestaña de tareas, me ayudarias?
+
+¡Claro, Santi! Con mucho gusto te ayudo con la pestaña de tareas de tu app.
+
+Para orientarte bien, necesito saber un poco más. ¿Qué cambios concretos quieres hacer en esa pestaña de tareas?
+Preparado con Claude Sonnet 4.6
+Esta es la estructura de archivos, pideme lo q necesites saber para verlo ❯ ls -R
+.:
+emailAI
+
+./emailAI:
+emailAI.db  modelos  modelo-spam.model  pom.xml  src  target  ToDo.txt
+
+./emailAI/modelos:
+modelo_SantiPG@gmx.com.model
+
+./emailAI/src:
+main  test
+
+./emailAI/src/main:
+java  resources
+
+./emailAI/src/main/java:
+com
+
+./emailAI/src/main/java/com:
+emailAI
+
+./emailAI/src/main/java/com/emailAI:
+AppFX.java  controller  dao  ia  model  security  service
+
+./emailAI/src/main/java/com/emailAI/controller:
+CalendarioController.java  ContactosController.java               LoginController.java        TareasController.java
+ComposeController.java     CorreoController.java                  MainController.java
+ConfigController.java      EventoCalendarioDialogController.java  TareaDialogController.java
+
+./emailAI/src/main/java/com/emailAI/dao:
+ConexionBD.java    DAOCuentas.java        DAOEventosCalendario.java  DAORemitentesConfiables.java
+DAOContactos.java  DAOEntrenamiento.java  DAOMensajes.java           DAOTareas.java
+
+./emailAI/src/main/java/com/emailAI/ia:
+ExtractorAtributos.java  GestorModelos.java
+
+./emailAI/src/main/java/com/emailAI/model:
+Contacto.java  Mensaje.java  Tarea.java
+
+./emailAI/src/main/java/com/emailAI/security:
+UtilidadCifrado.java
+
+./emailAI/src/main/java/com/emailAI/service:
+IAAsistenteService.java  MailService.java  SpamIaService.java
+
+./emailAI/src/main/resources:
+logo.png  styles-basic.css  styles-dark.css  styles-light.css  ui
+
+./emailAI/src/main/resources/ui:
+calendario-view.fxml  config-view.fxml     correo-view.fxml               login-view.fxml  tarea-dialog.fxml
+compose-view.fxml     contactos-view.fxml  evento-calendario-dialog.fxml  main-view.fxml   tareas-view.fxml
+
+./emailAI/src/test:
+java  resources
+
+./emailAI/src/test/java:
+com
+
+./emailAI/src/test/java/com:
+emailAI
+
+./emailAI/src/test/java/com/emailAI:
+dao  ia  security  service
+
+./emailAI/src/test/java/com/emailAI/dao:
+DAOContactosTest.java  DAOEventosCalendarioTest.java  DAOMensajesTest.java  DAOTareasTest.java
+
+./emailAI/src/test/java/com/emailAI/ia:
+ExtractorAtributosTest.java
+
+./emailAI/src/test/java/com/emailAI/security:
+UtilidadCifradoTest.java
+
+./emailAI/src/test/java/com/emailAI/service:
+SpamIaServiceTest.java
+
+./emailAI/src/test/resources:
+
+./emailAI/target:
+classes  generated-sources  generated-test-sources  maven-status  surefire-reports  test-classes
+
+./emailAI/target/classes:
+com  logo.png  META-INF  styles-basic.css  styles-dark.css  styles-light.css  ui
+
+./emailAI/target/classes/com:
+emailAI
+
+./emailAI/target/classes/com/emailAI:
+AppFX.class  controller  dao  ia  model  security  service
+
+./emailAI/target/classes/com/emailAI/controller:
+'CalendarioController$1.class'            'CorreoController$1.class'                LoginController.class
+ CalendarioController.class               'CorreoController$2.class'               'MainController$1.class'
+ ComposeController.class                  'CorreoController$3.class'                MainController.class
+ ConfigController.class                   'CorreoController$WebLinkBridge.class'    TareaDialogController.class
+'ContactosController$ContactoCell.class'   CorreoController.class                  'TareasController$1.class'
+ ContactosController.class                 EventoCalendarioDialogController.class   TareasController.class
+
+./emailAI/target/classes/com/emailAI/dao:
+ ConexionBD.class                  'DAOEntrenamiento$Ejemplo.class'      DAOMensajes.class
+ DAOContactos.class                 DAOEntrenamiento.class               DAORemitentesConfiables.class
+'DAOCuentas$CuentaGuardada.class'  'DAOEventosCalendario$Evento.class'   DAOTareas.class
+ DAOCuentas.class                   DAOEventosCalendario.class
+
+./emailAI/target/classes/com/emailAI/ia:
+ExtractorAtributos.class  GestorModelos.class
+
+./emailAI/target/classes/com/emailAI/model:
+Contacto.class  Mensaje.class  Tarea.class
+
+./emailAI/target/classes/com/emailAI/security:
+UtilidadCifrado.class
+
+./emailAI/target/classes/com/emailAI/service:
+ IAAsistenteService.class            MailService.class                  SpamIaService.class
+'MailService$CarpetaSidebar.class'  'SpamIaService$ClaseCorreo.class'
+
+./emailAI/target/classes/META-INF:
+MANIFEST.MF  maven
+
+./emailAI/target/classes/META-INF/maven:
+com.emailai
+
+./emailAI/target/classes/META-INF/maven/com.emailai:
+emailAI
+
+./emailAI/target/classes/META-INF/maven/com.emailai/emailAI:
+pom.properties  pom.xml
+
+./emailAI/target/classes/ui:
+calendario-view.fxml  config-view.fxml     correo-view.fxml               login-view.fxml  tarea-dialog.fxml
+compose-view.fxml     contactos-view.fxml  evento-calendario-dialog.fxml  main-view.fxml   tareas-view.fxml
+
+./emailAI/target/generated-sources:
+annotations
+
+./emailAI/target/generated-sources/annotations:
+
+./emailAI/target/generated-test-sources:
+test-annotations
+
+./emailAI/target/generated-test-sources/test-annotations:
+
+./emailAI/target/maven-status:
+maven-compiler-plugin
+
+./emailAI/target/maven-status/maven-compiler-plugin:
+compile  testCompile
+
+./emailAI/target/maven-status/maven-compiler-plugin/compile:
+default-compile
+
+./emailAI/target/maven-status/maven-compiler-plugin/compile/default-compile:
+createdFiles.lst  inputFiles.lst
+
+./emailAI/target/maven-status/maven-compiler-plugin/testCompile:
+default-testCompile
+
+./emailAI/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile:
+createdFiles.lst  inputFiles.lst
+
+./emailAI/target/surefire-reports:
+com.emailAI.dao.DAOContactosTest.txt          TEST-com.emailAI.dao.DAOContactosTest.xml
+com.emailAI.dao.DAOEventosCalendarioTest.txt  TEST-com.emailAI.dao.DAOEventosCalendarioTest.xml
+com.emailAI.dao.DAOMensajesTest.txt           TEST-com.emailAI.dao.DAOMensajesTest.xml
+com.emailAI.dao.DAOTareasTest.txt             TEST-com.emailAI.dao.DAOTareasTest.xml
+com.emailAI.ia.ExtractorAtributosTest.txt     TEST-com.emailAI.ia.ExtractorAtributosTest.xml
+com.emailAI.security.UtilidadCifradoTest.txt  TEST-com.emailAI.security.UtilidadCifradoTest.xml
+com.emailAI.service.SpamIaServiceTest.txt     TEST-com.emailAI.service.SpamIaServiceTest.xml
+
+./emailAI/target/test-classes:
+com
+
+./emailAI/target/test-classes/com:
+emailAI
+
+./emailAI/target/test-classes/com/emailAI:
+dao  ia  security  service
+
+./emailAI/target/test-classes/com/emailAI/dao:
+DAOContactosTest.class  DAOEventosCalendarioTest.class  DAOMensajesTest.class  DAOTareasTest.class
+
+./emailAI/target/test-classes/com/emailAI/ia:
+ExtractorAtributosTest.class
+
+./emailAI/target/test-classes/com/emailAI/security:
+UtilidadCifradoTest.class
+
+./emailAI/target/test-classes/com/emailAI/service:
+SpamIaServiceTest.class
+
+Los archivos están en tu máquina local, no en el sandbox. Necesito que me los pegues directamente en el chat. Compárteme estos tres archivos:
+
+    tareas-view.fxml — la vista de la pestaña
+
+    TareasController.java — el controlador
+
+    Tarea.java — el modelo
+
+Con eso puedo ver exactamente qué hay y orientarte sobre los cambios. ¿Qué quieres modificar concretamente?
+Preparado con Claude Sonnet 4.6
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.emailAI.controller.TareasController">
+
+    <center>
+        <SplitPane dividerPositions="0.28">
+
+            <!-- COLUMNA IZQUIERDA: filtros + lista -->
+            <items>
+                <VBox minWidth="260" spacing="10">
+                    <padding>
+                        <Insets bottom="10" left="10" right="6" top="10" />
+                    </padding>
+
+                    <!-- Bloque filtros (tres filas) -->
+                    <VBox spacing="6">
+
+                        <!-- Fila 1: Hoy / Mañana -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <children>
+                        <VBox prefHeight="0.0" prefWidth="100.0">
+                           <children>
+                                      <ToggleButton fx:id="btnHoy" onAction="#onFiltroHoy" prefHeight="26.0" prefWidth="115.0" styleClass="task-filter-btn" text="Hoy" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="11.0" prefWidth="100.0">
+                           <children>
+                                      <ToggleButton fx:id="btnManana" onAction="#onFiltroManana" prefHeight="26.0" prefWidth="101.0" styleClass="task-filter-btn" text="Mañana" />
+                           </children>
+                        </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Fila 2: Semana / Mes -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <children>
+                        <VBox prefHeight="11.0" prefWidth="100.0">
+                           <children>
+                                      <ToggleButton fx:id="btnSemana" onAction="#onFiltroSemana" prefHeight="26.0" prefWidth="101.0" styleClass="task-filter-btn" text="Semana" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="0.0" prefWidth="100.0">
+                           <children>
+                                      <ToggleButton fx:id="btnMes" onAction="#onFiltroMes" prefHeight="26.0" prefWidth="117.0" styleClass="task-filter-btn" text="Mes" />
+                           </children>
+                        </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Fila 3: Planificado / Etiquetas -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <children>
+                        <VBox prefHeight="0.0" prefWidth="100.0">
+                           <children>
+                                      <ToggleButton fx:id="btnPlanificado" onAction="#onFiltroPlanificado" prefHeight="26.0" prefWidth="104.0" styleClass="task-filter-btn" text="Planificado" />
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="16.0" prefWidth="100.0">
+                           <children>
+                                      <ToggleButton fx:id="btnEtiquetas" onAction="#onFiltroEtiquetas" prefHeight="26.0" prefWidth="101.0" styleClass="task-filter-btn" text="Etiquetas" />
+                           </children>
+                        </VBox>
+                            </children>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Cabecera lista + botón Nueva/Borrar -->
+                    <HBox spacing="6">
+                        <children>
+                            <Label styleClass="section-label" text="Bandeja de tareas" />
+                            <Pane HBox.hgrow="ALWAYS" />
+                            <Button onAction="#onNuevaTarea" styleClass="small-button" text="Nueva" />
+                            <Button onAction="#onBorrarTarea" styleClass="small-button" text="Borrar" />
+                        </children>
+                    </HBox>
+
+                    <!-- Lista de tareas (tarjetas) -->
+                    <ListView fx:id="lstTareas" VBox.vgrow="ALWAYS" />
+
+                </VBox>
+
+                <!-- COLUMNA DERECHA: timeline por días -->
+                <VBox minWidth="400" spacing="8">
+                    <padding>
+                        <Insets bottom="10" left="6" right="10" top="10" />
+                    </padding>
+
+                    <Label styleClass="section-label" text="Calendario de tareas" />
+
+                    <!-- Lista de días con tareas (solo lectura) -->
+                    <ListView fx:id="lstDias" VBox.vgrow="ALWAYS" />
+
+                    <!-- Pie: integraciones (placeholder) -->
+                    <VBox spacing="4">
+                        <Label styleClass="label-secondary" text="Integraciones (pendiente implementar)" />
+                        <HBox spacing="8">
+                            <children>
+                                <Label styleClass="label-secondary" text="Todoist" />
+                                <Label styleClass="label-secondary" text="·" />
+                                <Label styleClass="label-secondary" text="Calendario" />
+                            </children>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </items>
+        </SplitPane>
+    </center>
+
+</BorderPane>
+
+Necesito que pegues:
+
+    TareasController.java — para ver la lógica de filtros, lista y acciones
+
+    Tarea.java — para ver los campos del modelo (título, fecha, prioridad, etiquetas, etc.)
+
+    TareaDialogController.java — para ver qué campos se pueden editar al crear/editar una tarea
+
+Y dime: ¿qué cambios concretos quieres hacer? Por ejemplo:
+
+    Rediseñar el layout visual
+
+    Añadir campos nuevos (prioridad, etiquetas, notas...)
+
+    Cambiar cómo funcionan los filtros
+
+    Mejorar la vista del calendario de tareas
+
+    Otra cosa
+
+Preparado con Claude Sonnet 4.6
+dame el tareas controller completo
+
+java
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOTareas;
+import com.emailAI.model.Tarea;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
+public class TareasController {
+
+    // ── FXML ──────────────────────────────────────────────────────────────────
+    @FXML private ListView<Tarea>  lstTareas;
+    @FXML private ListView<String> lstDias;
+    @FXML private ListView<String> lstSubtareas;
+    @FXML private ListView<String> lstEtiquetas;
+
+    @FXML private Label  lblPanelTitulo;
+    @FXML private Label  lblSubtareas;
+    @FXML private VBox   vboxEtiquetas;
+
+    @FXML private TextField         txtNuevaEtiqueta;
+    @FXML private ComboBox<String>  cmbPrioridadEtiqueta;
+
+    @FXML private ToggleButton btnHoy;
+    @FXML private ToggleButton btnManana;
+    @FXML private ToggleButton btnSemana;
+    @FXML private ToggleButton btnMes;
+    @FXML private ToggleButton btnPlanificado;
+    @FXML private ToggleButton btnEtiquetas;
+
+    // ── Estado interno ────────────────────────────────────────────────────────
+    private DAOTareas daoTareas;
+    private final ObservableList<Tarea>  modeloTareas   = FXCollections.observableArrayList();
+    private FilteredList<Tarea>          tareasFiltradas;
+
+    // Subtareas en memoria (clave: id tarea → lista de textos)
+    private final Map<Integer, ObservableList<String>> subtareasMap = new HashMap<>();
+
+    // Etiquetas globales con prioridad: nombre → prioridad
+    private final Map<String, String> etiquetasGlobales = new LinkedHashMap<>();
+
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    @FXML
+    private void initialize() {
+        daoTareas = new DAOTareas("jdbc:sqlite:emailAI.db");
+
+        tareasFiltradas = new FilteredList<>(modeloTareas, t -> true);
+        lstTareas.setItems(tareasFiltradas);
+
+        cmbPrioridadEtiqueta.getItems().setAll("ALTA", "MEDIA", "BAJA");
+        cmbPrioridadEtiqueta.getSelectionModel().select("MEDIA");
+
+        lstTareas.setCellFactory(list -> new ListCell<>() {
+            @Override
+            protected void updateItem(Tarea t, boolean empty) {
+                super.updateItem(t, empty);
+                if (empty || t == null) {
+                    setText(null); setGraphic(null);
+                    getStyleClass().removeAll("contact-card-cell");
+                    return;
+                }
+
+                HBox root = new HBox(10);
+                root.getStyleClass().add("contact-card");
+
+                VBox left = new VBox(2);
+                Label lblTitulo = new Label(t.getTitulo() != null ? t.getTitulo() : "");
+                lblTitulo.getStyleClass().add("contact-name");
+
+                Label lblEti = new Label(t.getEtiquetas() != null ? t.getEtiquetas() : "");
+                lblEti.getStyleClass().add("contact-email");
+
+                left.getChildren().add(lblTitulo);
+                if (t.getEtiquetas() != null && !t.getEtiquetas().isBlank())
+                    left.getChildren().add(lblEti);
+
+                // Badge prioridad
+                String prio = t.getPrioridad() != null ? t.getPrioridad() : "MEDIA";
+                Label lblPrio = new Label(prio);
+                lblPrio.getStyleClass().addAll("task-priority-badge",
+                        "task-priority-" + prio.toLowerCase());
+
+                Label lblFecha = new Label(t.getFechaVencimiento() != null
+                        ? t.getFechaVencimiento().format(FMT) : "");
+                lblFecha.getStyleClass().add("contact-phone");
+
+                HBox.setHgrow(left, Priority.ALWAYS);
+                root.getChildren().addAll(left, lblPrio, lblFecha);
+
+                setText(null);
+                setGraphic(root);
+                getStyleClass().removeAll("contact-card-cell");
+                getStyleClass().add("contact-card-cell");
+            }
+        });
+
+        // Al seleccionar tarea, actualiza panel derecho
+        lstTareas.getSelectionModel().selectedItemProperty().addListener(
+                (obs, old, sel) -> actualizarPanelDerecho());
+
+        cargarTareas();
+    }
+
+    // ── Carga ─────────────────────────────────────────────────────────────────
+    private void cargarTareas() {
+        modeloTareas.setAll(daoTareas.listarTodas());
+        actualizarPanelDerecho();
+    }
+
+    // ── Panel derecho dinámico ────────────────────────────────────────────────
+    private void actualizarPanelDerecho() {
+        boolean esEtiquetas = btnEtiquetas.isSelected();
+
+        vboxEtiquetas.setVisible(esEtiquetas);
+        vboxEtiquetas.setManaged(esEtiquetas);
+
+        if (esEtiquetas) {
+            lblPanelTitulo.setText("Etiquetas por prioridad");
+            lstDias.setVisible(false);
+            lstDias.setManaged(false);
+            refrescarListaEtiquetas();
+        } else {
+            lstDias.setVisible(true);
+            lstDias.setManaged(true);
+            actualizarTimeline();
+        }
+
+        // Subtareas de la tarea seleccionada
+        Tarea sel = lstTareas.getSelectionModel().getSelectedItem();
+        if (sel != null) {
+            lblSubtareas.setText("Subtareas: " + sel.getTitulo());
+            Integer key = sel.getId() != null ? sel.getId() : System.identityHashCode(sel);
+            lstSubtareas.setItems(subtareasMap.computeIfAbsent(key,
+                    k -> FXCollections.observableArrayList()));
+        } else {
+            lblSubtareas.setText("Subtareas de la tarea seleccionada:");
+            lstSubtareas.setItems(FXCollections.observableArrayList());
+        }
+    }
+
+    // Construye la timeline según el filtro activo
+    private void actualizarTimeline() {
+        if (btnHoy.isSelected())              lblPanelTitulo.setText("Tareas para hoy");
+        else if (btnManana.isSelected())      lblPanelTitulo.setText("Tareas de mañana");
+        else if (btnSemana.isSelected())      lblPanelTitulo.setText("Tareas esta semana");
+        else if (btnMes.isSelected())         lblPanelTitulo.setText("Tareas este mes");
+        else if (btnPlanificado.isSelected()) lblPanelTitulo.setText("Todas las tareas planificadas");
+        else                                  lblPanelTitulo.setText("Vista general");
+
+        // Tareas sin fecha
+        List<String> lineas = new ArrayList<>();
+        List<Tarea> sinFecha = new ArrayList<>();
+        for (Tarea t : tareasFiltradas)
+            if (t.getFechaVencimiento() == null) sinFecha.add(t);
+
+        if (!sinFecha.isEmpty()) {
+            lineas.add("📋 Sin fecha asignada (" + sinFecha.size() + ")");
+            for (Tarea t : sinFecha)
+                lineas.add("   • " + t.getTitulo() + prioBadge(t));
+            lineas.add("");
+        }
+
+        // Tareas con fecha, agrupadas por día
+        Map<LocalDate, List<Tarea>> mapa = new TreeMap<>();
+        for (Tarea t : tareasFiltradas) {
+            LocalDate f = t.getFechaVencimiento();
+            if (f != null) mapa.computeIfAbsent(f, k -> new ArrayList<>()).add(t);
+        }
+
+        for (Map.Entry<LocalDate, List<Tarea>> e : mapa.entrySet()) {
+            List<Tarea> dias = e.getValue();
+            lineas.add("📅 " + e.getKey().format(FMT)
+                    + "  (" + dias.size() + " tarea" + (dias.size() > 1 ? "s" : "") + ")");
+            for (Tarea t : dias)
+                lineas.add("   • " + t.getTitulo() + prioBadge(t));
+            lineas.add("");
+        }
+
+        if (lineas.isEmpty()) lineas.add("No hay tareas para mostrar.");
+        lstDias.setItems(FXCollections.observableArrayList(lineas));
+    }
+
+    private String prioBadge(Tarea t) {
+        if (t.getPrioridad() == null) return "";
+        return switch (t.getPrioridad()) {
+            case "ALTA"  -> "  [🔴 ALTA]";
+            case "MEDIA" -> "  [🟡 MEDIA]";
+            case "BAJA"  -> "  [🟢 BAJA]";
+            default      -> "";
+        };
+    }
+
+    // ── Etiquetas ─────────────────────────────────────────────────────────────
+    private void refrescarListaEtiquetas() {
+        List<String> items = new ArrayList<>();
+        for (Map.Entry<String, String> e : etiquetasGlobales.entrySet())
+            items.add(e.getKey() + "  →  " + e.getValue());
+        if (items.isEmpty()) items.add("No hay etiquetas definidas.");
+        lstEtiquetas.setItems(FXCollections.observableArrayList(items));
+    }
+
+    @FXML
+    private void onAnadirEtiqueta() {
+        String nombre = txtNuevaEtiqueta.getText();
+        if (nombre == null || nombre.isBlank()) return;
+        String prio = cmbPrioridadEtiqueta.getValue();
+        if (prio == null) prio = "MEDIA";
+        etiquetasGlobales.put(nombre.trim(), prio);
+        txtNuevaEtiqueta.clear();
+        refrescarListaEtiquetas();
+    }
+
+    // ── Subtareas ─────────────────────────────────────────────────────────────
+    @FXML
+    private void onAnadirSubtarea() {
+        Tarea sel = lstTareas.getSelectionModel().getSelectedItem();
+        if (sel == null) return;
+
+        TextInputDialog dlg = new TextInputDialog();
+        dlg.setTitle("Nueva subtarea");
+        dlg.setHeaderText("Tarea: " + sel.getTitulo());
+        dlg.setContentText("Descripción de la subtarea:");
+
+        Scene mainScene = lstTareas.getScene();
+        if (mainScene != null)
+            dlg.getDialogPane().getStylesheets().addAll(mainScene.getStylesheets());
+
+        dlg.showAndWait().ifPresent(texto -> {
+            if (!texto.isBlank()) {
+                Integer key = sel.getId() != null ? sel.getId() : System.identityHashCode(sel);
+                subtareasMap.computeIfAbsent(key, k -> FXCollections.observableArrayList())
+                            .add("☐  " + texto.trim());
+                actualizarPanelDerecho();
+            }
+        });
+    }
+
+    // ── CRUD tareas ───────────────────────────────────────────────────────────
+    @FXML
+    private void onNuevaTarea() {
+        Tarea nueva = mostrarDialogoTarea(null);
+        if (nueva != null) {
+            daoTareas.guardarOActualizar(nueva);
+            modeloTareas.add(nueva);
+            actualizarPanelDerecho();
+        }
+    }
+
+    @FXML
+    private void onEditarTarea() {
+        Tarea sel = lstTareas.getSelectionModel().getSelectedItem();
+        if (sel == null) return;
+        Tarea editada = mostrarDialogoTarea(sel);
+        if (editada != null) {
+            daoTareas.guardarOActualizar(editada);
+            lstTareas.refresh();
+            actualizarPanelDerecho();
+        }
+    }
+
+    @FXML
+    private void onBorrarTarea() {
+        Tarea sel = lstTareas.getSelectionModel().getSelectedItem();
+        if (sel == null) return;
+        daoTareas.borrar(sel);
+        modeloTareas.remove(sel);
+        actualizarPanelDerecho();
+    }
+
+    private Tarea mostrarDialogoTarea(Tarea original) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/tarea-dialog.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            Scene mainScene = lstTareas.getScene();
+            if (mainScene != null)
+                scene.getStylesheets().addAll(mainScene.getStylesheets());
+
+            TareaDialogController ctrl = loader.getController();
+            Stage stage = new Stage();
+            stage.setTitle(original == null ? "Nueva tarea" : "Editar tarea");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+
+            ctrl.setStage(stage);
+            ctrl.inicializarEstados();
+            ctrl.setTarea(original);
+
+            stage.showAndWait();
+            return ctrl.isGuardado() ? ctrl.getTarea() : null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // ── Filtros ───────────────────────────────────────────────────────────────
+    @FXML private void onFiltroHoy()         { desactivarOtros(btnHoy);         actualizarFiltro(); }
+    @FXML private void onFiltroManana()      { desactivarOtros(btnManana);      actualizarFiltro(); }
+    @FXML private void onFiltroSemana()      { desactivarOtros(btnSemana);      actualizarFiltro(); }
+    @FXML private void onFiltroMes()         { desactivarOtros(btnMes);         actualizarFiltro(); }
+    @FXML private void onFiltroPlanificado() { desactivarOtros(btnPlanificado); actualizarFiltro(); }
+    @FXML private void onFiltroEtiquetas()   { desactivarOtros(btnEtiquetas);   actualizarFiltro(); }
+
+    // Solo un filtro activo a la vez (radio-style)
+    private void desactivarOtros(ToggleButton activo) {
+        for (ToggleButton b : List.of(btnHoy, btnManana, btnSemana,
+                                      btnMes, btnPlanificado, btnEtiquetas))
+            if (b != activo) b.setSelected(false);
+    }
+
+    private void actualizarFiltro() {
+        boolean ninguno = !btnHoy.isSelected() && !btnManana.isSelected()
+                && !btnSemana.isSelected() && !btnMes.isSelected()
+                && !btnPlanificado.isSelected() && !btnEtiquetas.isSelected();
+
+        tareasFiltradas.setPredicate(ninguno ? t -> true : this::cumpleFiltros);
+        actualizarPanelDerecho();
+    }
+
+    private boolean cumpleFiltros(Tarea t) {
+        LocalDate f   = t.getFechaVencimiento();
+        LocalDate hoy = LocalDate.now();
+
+        if (btnHoy.isSelected())
+            return f != null && f.equals(hoy);
+        if (btnManana.isSelected())
+            return f != null && f.equals(hoy.plusDays(1));
+        if (btnSemana.isSelected())
+            return f != null && !f.isBefore(hoy) && !f.isAfter(hoy.plusDays(7));
+        if (btnMes.isSelected())
+            return f != null && f.getYear() == hoy.getYear() && f.getMonth() == hoy.getMonth();
+        if (btnPlanificado.isSelected())
+            return f != null;
+        if (btnEtiquetas.isSelected()) {
+            String et = t.getEtiquetas();
+            return et != null && !et.isBlank();
+        }
+        return true;
+    }
+}
+
+Preparado con Claude Sonnet 4.6
+dame tarea-dialog.fxml
+
+xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.TareaDialogController">
+
+    <center>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+
+            <GridPane hgap="8" vgap="8">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="80"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <children>
+                    <Label text="Título:"
+                           GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtTitulo"
+                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Fecha:"
+                           GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <DatePicker fx:id="dpFecha"
+                                GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Estado:"
+                           GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="cmbEstado" maxWidth="Infinity"
+                              GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                    <Label text="Prioridad:"
+                           GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="cmbPrioridad" maxWidth="Infinity"
+                              GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                    <Label text="Etiquetas:"
+                           GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtEtiquetas"
+                               GridPane.rowIndex="4" GridPane.columnIndex="1"
+                               promptText="ej. trabajo,personal,urgente"/>
+
+                    <Label text="Descripción:"
+                           GridPane.rowIndex="5" GridPane.columnIndex="0"
+                           GridPane.valignment="TOP"/>
+                    <TextArea fx:id="txtDescripcion"
+                              GridPane.rowIndex="5" GridPane.columnIndex="1"
+                              prefRowCount="6" wrapText="true"/>
+                </children>
+            </GridPane>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <children>
+                    <Label fx:id="lblEstado" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button text="Cancelar" onAction="#onCancelar"/>
+                    <Button text="Guardar"  onAction="#onGuardar" defaultButton="true"/>
+                </children>
+            </HBox>
+        </VBox>
+    </center>
+
+</BorderPane>
+
+Respecto al original, solo se añadió la fila de Prioridad (rowIndex 3), empujando Etiquetas a rowIndex 4 y Descripción a rowIndex 5.
+Preparado con Claude Sonnet 4.6
+dame tareas-view
+
+xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.TareasController">
+
+    <center>
+        <SplitPane dividerPositions="0.32">
+            <items>
+
+                <!-- COLUMNA IZQUIERDA: filtros + lista -->
+                <VBox minWidth="260" spacing="10">
+                    <padding>
+                        <Insets bottom="10" left="10" right="6" top="10"/>
+                    </padding>
+
+                    <!-- Bloque filtros -->
+                    <VBox spacing="6">
+
+                        <!-- Fila 1: Hoy / Mañana -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <ToggleButton fx:id="btnHoy" onAction="#onFiltroHoy"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-hoy"
+                                          text="Hoy"/>
+                            <ToggleButton fx:id="btnManana" onAction="#onFiltroManana"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-manana"
+                                          text="Mañana"/>
+                        </HBox>
+
+                        <!-- Fila 2: Semana / Mes -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <ToggleButton fx:id="btnSemana" onAction="#onFiltroSemana"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-semana"
+                                          text="Semana"/>
+                            <ToggleButton fx:id="btnMes" onAction="#onFiltroMes"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn,task-filter-mes"
+                                          text="Mes"/>
+                        </HBox>
+
+                        <!-- Fila 3: Planificado / Etiquetas -->
+                        <HBox alignment="CENTER" spacing="6">
+                            <ToggleButton fx:id="btnPlanificado" onAction="#onFiltroPlanificado"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn"
+                                          text="Planificado"/>
+                            <ToggleButton fx:id="btnEtiquetas" onAction="#onFiltroEtiquetas"
+                                          prefHeight="28" prefWidth="120"
+                                          styleClass="task-filter-btn"
+                                          text="Etiquetas"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Cabecera lista + botones -->
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Label styleClass="section-label" text="Bandeja de tareas"/>
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Button onAction="#onNuevaTarea"  styleClass="small-button" text="Nueva"/>
+                        <Button onAction="#onEditarTarea" styleClass="small-button" text="Editar"/>
+                        <Button onAction="#onBorrarTarea" styleClass="small-button" text="Borrar"/>
+                    </HBox>
+
+                    <!-- Lista de tareas -->
+                    <ListView fx:id="lstTareas" VBox.vgrow="ALWAYS"/>
+
+                </VBox>
+
+                <!-- COLUMNA DERECHA: panel dinámico según filtro -->
+                <VBox fx:id="panelDerecho" minWidth="400" spacing="8">
+                    <padding>
+                        <Insets bottom="10" left="6" right="10" top="10"/>
+                    </padding>
+
+                    <!-- Título dinámico -->
+                    <Label fx:id="lblPanelTitulo" styleClass="section-label" text="Vista general"/>
+
+                    <!-- Timeline (visible en todos los filtros excepto Etiquetas) -->
+                    <ListView fx:id="lstDias" VBox.vgrow="ALWAYS"/>
+
+                    <!-- Panel etiquetas (visible solo en modo Etiquetas) -->
+                    <VBox fx:id="vboxEtiquetas" spacing="6" managed="false" visible="false">
+                        <Label styleClass="label-secondary" text="Añadir etiqueta con prioridad:"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtNuevaEtiqueta"
+                                       promptText="nombre etiqueta"
+                                       prefWidth="140"/>
+                            <ComboBox fx:id="cmbPrioridadEtiqueta" prefWidth="100"/>
+                            <Button onAction="#onAnadirEtiqueta"
+                                    styleClass="small-button" text="Añadir"/>
+                        </HBox>
+                        <ListView fx:id="lstEtiquetas" prefHeight="160"/>
+                    </VBox>
+
+                    <!-- Panel subtareas (siempre visible) -->
+                    <VBox spacing="6">
+                        <Label fx:id="lblSubtareas" styleClass="label-secondary"
+                               text="Subtareas de la tarea seleccionada:"/>
+                        <ListView fx:id="lstSubtareas" prefHeight="140"/>
+                        <HBox alignment="CENTER_RIGHT">
+                            <Button fx:id="btnAnadirSubtarea" onAction="#onAnadirSubtarea"
+                                    styleClass="small-button" text="+ Subtarea"/>
+                        </HBox>
+                    </VBox>
+
+                </VBox>
+
+            </items>
+        </SplitPane>
+    </center>
+
+</BorderPane>
