@@ -4,26 +4,29 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-// DAO para eventos de calendario diarios: alta, consulta, edición y borrado.
 public class DAOEventosCalendario {
 
-    public record Evento(int id, LocalDate fecha, String titulo, String detalle, String origen) {} // DTO inmutable para filas de evento.
+    // Añadido campo hora (puede ser null si no se especifica)
+    public record Evento(int id, LocalDate fecha, LocalTime hora, String titulo, String detalle, String origen) {}
 
-    // Inicializa el DAO y asegura la existencia de la tabla de eventos.
     public DAOEventosCalendario() throws Exception {
         crearTablaSiNoExiste();
+        migrarAgregarHora(); // añade columna hora si la BD ya existía sin ella
     }
 
-    // Crea la tabla de eventos del calendario cuando aún no existe.
     private void crearTablaSiNoExiste() throws Exception {
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement st = conn.prepareStatement("""
                     CREATE TABLE IF NOT EXISTS eventos_calendario (
                         id      INTEGER PRIMARY KEY AUTOINCREMENT,
                         fecha   TEXT NOT NULL,
+                        hora    TEXT,
                         titulo  TEXT NOT NULL,
                         detalle TEXT,
                         origen  TEXT DEFAULT 'local'
@@ -33,31 +36,44 @@ public class DAOEventosCalendario {
         }
     }
 
-    // Inserta un nuevo evento para una fecha concreta.
-    public void guardarEvento(LocalDate fecha, String titulo, String detalle, String origen) throws Exception {
-        String sql = "INSERT INTO eventos_calendario(fecha, titulo, detalle, origen) VALUES(?, ?, ?, ?)";
+    // Migración segura: añade columna hora si ya existía la tabla sin ella
+    private void migrarAgregarHora() {
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement st = conn.prepareStatement(
+                     "ALTER TABLE eventos_calendario ADD COLUMN hora TEXT")) {
+            st.executeUpdate();
+        } catch (Exception ignored) {
+            // Si ya existe la columna, SQLite lanza excepción — se ignora
+        }
+    }
+
+    public void guardarEvento(LocalDate fecha, LocalTime hora, String titulo, String detalle, String origen) throws Exception {
+        String sql = "INSERT INTO eventos_calendario(fecha, hora, titulo, detalle, origen) VALUES(?, ?, ?, ?, ?)";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, fecha.toString());
-            st.setString(2, titulo);
-            st.setString(3, detalle);
-            st.setString(4, origen != null ? origen : "local");
+            st.setString(2, hora != null ? hora.toString() : null);
+            st.setString(3, titulo);
+            st.setString(4, detalle);
+            st.setString(5, origen != null ? origen : "local");
             st.executeUpdate();
         }
     }
 
-    // Devuelve los eventos de una fecha ordenados por id.
     public List<Evento> listarPorFecha(LocalDate fecha) throws Exception {
-        String sql = "SELECT id, fecha, titulo, detalle, origen FROM eventos_calendario WHERE fecha = ? ORDER BY id";
+        String sql = "SELECT id, fecha, hora, titulo, detalle, origen FROM eventos_calendario WHERE fecha = ? ORDER BY hora, id";
         List<Evento> lista = new ArrayList<>();
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, fecha.toString());
             try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
+                    String horaStr = rs.getString("hora");
+                    LocalTime hora = horaStr != null ? LocalTime.parse(horaStr) : null;
                     lista.add(new Evento(
                             rs.getInt("id"),
                             LocalDate.parse(rs.getString("fecha")),
+                            hora,
                             rs.getString("titulo"),
                             rs.getString("detalle"),
                             rs.getString("origen")
@@ -68,7 +84,21 @@ public class DAOEventosCalendario {
         return lista;
     }
 
-    // Borra un evento por su id.
+    public Set<LocalDate> fechasConEventosEnRango(LocalDate desde, LocalDate hasta) throws Exception {
+        if (desde == null || hasta == null) return Set.of();
+        String sql = "SELECT DISTINCT fecha FROM eventos_calendario WHERE fecha >= ? AND fecha <= ?";
+        Set<LocalDate> set = new HashSet<>();
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement st = conn.prepareStatement(sql)) {
+            st.setString(1, desde.toString());
+            st.setString(2, hasta.toString());
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) set.add(LocalDate.parse(rs.getString("fecha")));
+            }
+        }
+        return set;
+    }
+
     public void borrarEvento(int id) throws Exception {
         String sql = "DELETE FROM eventos_calendario WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
@@ -78,16 +108,16 @@ public class DAOEventosCalendario {
         }
     }
 
-    // Actualiza todos los campos editables de un evento existente.
     public void actualizarEvento(Evento evento) throws Exception {
-        String sql = "UPDATE eventos_calendario SET fecha = ?, titulo = ?, detalle = ?, origen = ? WHERE id = ?";
+        String sql = "UPDATE eventos_calendario SET fecha = ?, hora = ?, titulo = ?, detalle = ?, origen = ? WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement st = conn.prepareStatement(sql)) {
             st.setString(1, evento.fecha().toString());
-            st.setString(2, evento.titulo());
-            st.setString(3, evento.detalle());
-            st.setString(4, evento.origen());
-            st.setInt(5, evento.id());
+            st.setString(2, evento.hora() != null ? evento.hora().toString() : null);
+            st.setString(3, evento.titulo());
+            st.setString(4, evento.detalle());
+            st.setString(5, evento.origen());
+            st.setInt(6, evento.id());
             st.executeUpdate();
         }
     }

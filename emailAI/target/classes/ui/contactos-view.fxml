@@ -7,66 +7,67 @@
 <BorderPane xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.emailAI.controller.ContactosController">
-
     <center>
-        <SplitPane dividerPositions="0.35">
-            <items>
+        <VBox spacing="8" maxHeight="Infinity" maxWidth="Infinity">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
 
-                <!-- IZQUIERDA: lista de contactos -->
-                <VBox spacing="8" minWidth="260">
-                    <padding>
-                        <Insets top="10" left="10" right="5" bottom="10"/>
-                    </padding>
+            <!-- Barra superior -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Contactos" styleClass="section-label"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="＋ Nuevo"  onAction="#onNuevoContacto"  styleClass="small-button"/>
+                <Button fx:id="btnEditar" text="✏ Editar"  onAction="#onEditarContacto" styleClass="small-button" disable="true"/>
+                <Button fx:id="btnBorrar" text="🗑 Borrar"  onAction="#onBorrarContacto" styleClass="small-button" disable="true"/>
+            </HBox>
 
-                    <HBox spacing="6">
-                        <Label text="Contactos" styleClass="section-label" VBox.vgrow="NEVER"/>
-                        <Pane HBox.hgrow="ALWAYS"/>
-                        <Button text="Nuevo" onAction="#onNuevoContacto" styleClass="small-button"/>
-                        <Button text="Borrar" onAction="#onBorrarContacto" styleClass="small-button"/>
-                    </HBox>
+            <!-- Filtro búsqueda -->
+            <TextField fx:id="txtBuscar"
+                       promptText="🔍  Buscar por nombre, apellido, email o teléfono…"
+                       onKeyReleased="#onBuscar"/>
 
-                    <ListView fx:id="lstContactos" VBox.vgrow="ALWAYS"/>
-                </VBox>
+            <!-- 3 columnas de contactos -->
+            <HBox spacing="6" VBox.vgrow="ALWAYS">
+                <ListView fx:id="lstCol1" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Separator orientation="VERTICAL"/>
+                <ListView fx:id="lstCol2" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Separator orientation="VERTICAL"/>
+                <ListView fx:id="lstCol3" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            </HBox>
 
-                <!-- DERECHA: formulario detalle -->
-                <VBox spacing="8" minWidth="340">
-                    <padding>
-                        <Insets top="10" left="5" right="10" bottom="10"/>
-                    </padding>
+            <!-- Paginación centrada con << >> -->
+            <HBox spacing="12" alignment="CENTER">
+                <Button fx:id="btnPrimera"
+                        onAction="#onPrimera"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="«"/>
+                <Button fx:id="btnAnterior"
+                        onAction="#onAnterior"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="‹"/>
 
-                    <GridPane hgap="8" vgap="8">
-                        <columnConstraints>
-                            <ColumnConstraints minWidth="80"/>
-                            <ColumnConstraints hgrow="ALWAYS"/>
-                        </columnConstraints>
+                <HBox styleClass="pag-indicator" alignment="CENTER" spacing="4">
+                    <Label fx:id="lblPagina" text="Pág. 1 / 1" styleClass="pag-label"/>
+                </HBox>
 
-                        <children>
-                            <Label text="Nombre:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                            <TextField fx:id="txtNombre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Button fx:id="btnSiguiente"
+                        onAction="#onSiguiente"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="›"/>
+                <Button fx:id="btnUltima"
+                        onAction="#onUltima"
+                        disable="true"
+                        styleClass="btn-pag"
+                        text="»"/>
 
-                            <Label text="Email:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                            <TextField fx:id="txtEmail" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblEstado" styleClass="status-label"/>
+            </HBox>
 
-                            <Label text="Teléfono:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                            <TextField fx:id="txtTelefono" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                            <Label text="Notas:" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
-                            <TextArea fx:id="txtNotas"
-                                      GridPane.rowIndex="3"
-                                      GridPane.columnIndex="1"
-                                      prefRowCount="5"
-                                      wrapText="true"/>
-                        </children>
-                    </GridPane>
-
-                    <HBox spacing="10" alignment="CENTER_RIGHT">
-                        <Label fx:id="lblEstado" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        <Button text="Guardar" onAction="#onGuardarContacto" defaultButton="true"/>
-                    </HBox>
-                </VBox>
-
-            </items>
-        </SplitPane>
+        </VBox>
     </center>
-
 </BorderPane>

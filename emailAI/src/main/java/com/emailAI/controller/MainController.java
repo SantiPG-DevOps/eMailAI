@@ -2,94 +2,243 @@ package com.emailAI.controller;
 
 import com.emailAI.AppFX;
 import com.emailAI.service.MailService;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
 // Controla la ventana principal y la navegación entre secciones (correo, calendario, contactos, etc.).
 public class MainController {
 
-    // Contenedor central donde se van insertando las distintas vistas.
     @FXML
     private StackPane centerPane;
 
-    // Botón de navegación hacia la sección de correo.
     @FXML
     private ToggleButton btnCorreo;
 
-    // Botón de navegación hacia la sección de calendario.
     @FXML
     private ToggleButton btnCalendario;
 
-    // Botón de navegación hacia la sección de contactos.
     @FXML
     private ToggleButton btnContactos;
 
-    // Botón de navegación hacia la sección de tareas.
     @FXML
     private ToggleButton btnTareas;
 
-    // Botón de navegación hacia la sección de configuración.
     @FXML
     private ToggleButton btnConfiguracion;
 
-    // Botón de navegación hacia la sección de chat IA.
     @FXML
     private ToggleButton btnChatIA;
 
-    // Grupo de toggle buttons que asegura que solo una sección esté activa.
+    @FXML
+    private VBox vboxSubmenuCorreo;
+
+    @FXML
+    private ListView<MailService.CarpetaSidebar> listaCarpetasImap;
+
     @FXML
     private ToggleGroup grpSecciones;
 
-    // Botón que alterna el tema claro/oscuro desde la ventana principal.
     @FXML
     private ToggleButton btnTema;
 
-    private MailService mailService; // Servicio de correo reutilizado por las sub-vistas.
-    private boolean temaClaro = false; // Indica si el tema actual es claro.
+    private MailService mailService;
+    private boolean temaClaro = false;
 
-    // cache de vistas/controladores
-    private Node vistaCorreo; // Vista FXML ya cargada para la sección de correo.
-    private CorreoController correoController; // Controlador asociado a la vista de correo.
+    private Node vistaCorreo;
+    private CorreoController correoController;
 
-    // ===================== Inicialización =====================
+    private ScheduledExecutorService schedulerSyncCorreo;
 
-    // Inicializa la vista marcando por defecto la sección de correo.
     @FXML
     private void initialize() {
-        if (btnCorreo != null) {
+    	AppFX.setMainController(this);
+    	
+    	if (btnCorreo != null) {
             btnCorreo.setSelected(true);
+        }
+        actualizarSubmenuCorreo(true);
+
+        if (listaCarpetasImap != null) {
+            listaCarpetasImap.setFixedCellSize(40);
+            Label phCargando = new Label("Cargando carpetas del servidor…");
+            phCargando.setWrapText(true);
+            phCargando.getStyleClass().add("label-secondary");
+            listaCarpetasImap.setPlaceholder(phCargando);
+            listaCarpetasImap.getSelectionModel().selectedItemProperty().addListener((obs, anterior, sel) -> {
+                if (sel == null || mailService == null) {
+                    return;
+                }
+                try {
+                    seleccionarCorreo();
+                    if (correoController != null) {
+                        correoController.setCarpetaImap(sel.imapFullName());
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                if (btnCorreo != null) {
+                    btnCorreo.setSelected(true);
+                }
+            });
         }
     }
 
-    // Lo llama LoginController después de conectar
-    // Recibe el MailService y configura la sección de correo inicial.
+    private void actualizarSubmenuCorreo(boolean visible) {
+        if (vboxSubmenuCorreo != null) {
+            vboxSubmenuCorreo.setVisible(visible);
+            vboxSubmenuCorreo.setManaged(visible);
+        }
+    }
+
     public void setMailService(MailService mailService) throws Exception {
         this.mailService = mailService;
 
-        // Aplica tema por defecto después de tener la escena
         aplicarTema(temaClaro);
 
         seleccionarCorreo();
+        iniciarSincronizacionPeriodicaCorreo();
+        cargarCarpetasImapDesdeServidor();
     }
 
-    // ===================== Navegación secciones =====================
+    private void cargarCarpetasImapDesdeServidor() {
+        if (mailService == null || listaCarpetasImap == null) {
+            return;
+        }
 
-    // Handler del botón de sección correo que carga la vista correspondiente.
+        Task<List<MailService.CarpetaSidebar>> task = new Task<>() {
+            @Override
+            protected List<MailService.CarpetaSidebar> call() throws Exception {
+                return mailService.listarCarpetasAccesibles();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            List<MailService.CarpetaSidebar> carpetas = task.getValue();
+            if (carpetas == null) {
+                carpetas = List.of();
+            }
+            listaCarpetasImap.getItems().setAll(carpetas);
+            if (carpetas.isEmpty()) {
+                Label ph = new Label("No hay carpetas con mensajes visibles en el servidor.");
+                ph.setWrapText(true);
+                ph.getStyleClass().add("label-secondary");
+                listaCarpetasImap.setPlaceholder(ph);
+            }
+            seleccionarInboxOCarpetaPrimera();
+        });
+
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            if (ex != null) {
+                ex.printStackTrace();
+            }
+            listaCarpetasImap.getItems().clear();
+            Label ph = new Label("No se pudieron cargar las carpetas IMAP. Revisa la conexión.");
+            ph.setWrapText(true);
+            ph.getStyleClass().add("label-secondary");
+            listaCarpetasImap.setPlaceholder(ph);
+        });
+
+        Thread t = new Thread(task, "listar-carpetas-imap");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void seleccionarInboxOCarpetaPrimera() {
+        if (listaCarpetasImap == null) {
+            return;
+        }
+        var items = listaCarpetasImap.getItems();
+        int idx = -1;
+        for (int i = 0; i < items.size(); i++) {
+            if ("INBOX".equalsIgnoreCase(items.get(i).imapFullName())) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx < 0 && !items.isEmpty()) {
+            idx = 0;
+        }
+        if (idx >= 0) {
+            listaCarpetasImap.getSelectionModel().select(idx);
+        }
+    }
+
+    private void detenerSincronizacionPeriodicaCorreo() {
+        if (schedulerSyncCorreo != null && !schedulerSyncCorreo.isShutdown()) {
+            schedulerSyncCorreo.shutdown();
+        }
+        schedulerSyncCorreo = null;
+    }
+
+    private void iniciarSincronizacionPeriodicaCorreo() {
+        if (schedulerSyncCorreo != null && !schedulerSyncCorreo.isShutdown()) {
+            return;
+        }
+        Preferences prefs = Preferences.userNodeForPackage(AppFX.class);
+        int minutos = Math.max(5, Math.min(120, prefs.getInt("sync_interval_minutes", 15)));
+
+        schedulerSyncCorreo = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "emailai-imap-sync");
+            t.setDaemon(true);
+            return t;
+        });
+        schedulerSyncCorreo.scheduleAtFixedRate(
+                () -> Platform.runLater(() -> {
+                    if (correoController != null) {
+                        correoController.sincronizarEnFondoSiBandejaEntrada();
+                    }
+                }),
+                minutos,
+                minutos,
+                TimeUnit.MINUTES
+        );
+    }
+
+    /** Vuelve a leer el intervalo desde preferencias y reinicia el temporizador (p. ej. tras guardar en Ajustes). */
+    public void reprogramarSincronizacionCorreo() {
+        detenerSincronizacionPeriodicaCorreo();
+        if (mailService != null) {
+            iniciarSincronizacionPeriodicaCorreo();
+        }
+    }
+
     @FXML
     private void onSeccionCorreo() {
         try {
+            actualizarSubmenuCorreo(true);
             seleccionarCorreo();
+            MailService.CarpetaSidebar sel = listaCarpetasImap != null
+                    ? listaCarpetasImap.getSelectionModel().getSelectedItem()
+                    : null;
+            if (correoController != null) {
+                if (sel != null) {
+                    correoController.setCarpetaImap(sel.imapFullName());
+                } else {
+                    correoController.setCarpetaImap("INBOX");
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Carga (o reutiliza) la vista de correo y la muestra en el centro.
     private void seleccionarCorreo() throws Exception {
         if (vistaCorreo == null) {
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/correo-view.fxml"));
@@ -97,58 +246,64 @@ public class MainController {
             correoController = loader.getController();
             if (mailService != null) {
                 correoController.setMailService(mailService);
-                // cargarBandejaEntradaAsync ya se llama desde setMailService, no hace falta repetir
             }
         }
         centerPane.getChildren().setAll(vistaCorreo);
         if (btnCorreo != null) {
             btnCorreo.setSelected(true);
         }
+        actualizarSubmenuCorreo(true);
     }
 
-    // Carga y muestra la vista de calendario en el centro.
     @FXML
     private void onSeccionCalendario() {
         try {
+            actualizarSubmenuCorreo(false);
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/calendario-view.fxml"));
             Node vista = loader.load();
             centerPane.getChildren().setAll(vista);
-            if (btnCalendario != null) btnCalendario.setSelected(true);
+            if (btnCalendario != null) {
+                btnCalendario.setSelected(true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Carga y muestra la vista de contactos en el centro.
     @FXML
     private void onSeccionContactos() {
         try {
+            actualizarSubmenuCorreo(false);
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/contactos-view.fxml"));
             Node vista = loader.load();
             centerPane.getChildren().setAll(vista);
-            if (btnContactos != null) btnContactos.setSelected(true);
+            if (btnContactos != null) {
+                btnContactos.setSelected(true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Carga y muestra la vista de tareas en el centro.
     @FXML
     private void onSeccionTareas() {
         try {
+            actualizarSubmenuCorreo(false);
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/tareas-view.fxml"));
             Node vista = loader.load();
             centerPane.getChildren().setAll(vista);
-            if (btnTareas != null) btnTareas.setSelected(true);
+            if (btnTareas != null) {
+                btnTareas.setSelected(true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Carga y muestra la vista de configuración, pasando el MainController para el tema.
     @FXML
     private void onSeccionConfiguracion() {
         try {
+            actualizarSubmenuCorreo(false);
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
             Node vista = loader.load();
 
@@ -156,47 +311,47 @@ public class MainController {
             controller.setMainController(this);
 
             centerPane.getChildren().setAll(vista);
-            if (btnConfiguracion != null) btnConfiguracion.setSelected(true);
+            if (btnConfiguracion != null) {
+                btnConfiguracion.setSelected(true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Carga y muestra la vista de chat IA en el centro.
     @FXML
     private void onSeccionChatIA() {
         try {
+            actualizarSubmenuCorreo(false);
             FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/chat-view.fxml"));
             Node vista = loader.load();
             centerPane.getChildren().setAll(vista);
-            if (btnChatIA != null) btnChatIA.setSelected(true);
+            if (btnChatIA != null) {
+                btnChatIA.setSelected(true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // ===================== Tema claro/oscuro =====================
-
-    // Indica si el tema global actual es el claro.
     public boolean isTemaClaro() {
         return temaClaro;
     }
 
-    // Aplica tema claro/oscuro sobre la escena actual y actualiza el botón de tema.
     public void aplicarTema(boolean light) {
         this.temaClaro = light;
 
         Scene scene = centerPane != null ? centerPane.getScene() : null;
-        if (scene == null) return;
+        if (scene == null) {
+            return;
+        }
 
         scene.getStylesheets().clear();
 
-        // CSS base siempre
         scene.getStylesheets().add(
                 AppFX.class.getResource("/styles-basic.css").toExternalForm()
         );
 
-        // Tema claro/oscuro
         if (light) {
             scene.getStylesheets().add(
                     AppFX.class.getResource("/styles-light.css").toExternalForm()
@@ -213,10 +368,11 @@ public class MainController {
         }
     }
 
-    // Handler del botón de tema que invierte el modo actual.
     @FXML
     private void onToggleTema() {
-        if (btnTema == null) return;
+        if (btnTema == null) {
+            return;
+        }
         aplicarTema(btnTema.isSelected());
     }
 }

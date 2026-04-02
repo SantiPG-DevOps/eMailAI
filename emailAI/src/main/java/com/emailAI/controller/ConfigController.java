@@ -9,12 +9,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 // Controla la pantalla de configuración: tema, alta de cuentas y borrado de cuentas almacenadas.
 public class ConfigController {
@@ -69,12 +71,24 @@ public class ConfigController {
     @FXML
     private ComboBox<String> comboCuentasExistentes;
 
+    @FXML
+    private Spinner<Integer> spinnerSyncMinutos;
+
+    // Navegación lateral de la pantalla de ajustes (sustituye al TabPane).
+    @FXML
+    private ListView<String> configNavList;
+
+    @FXML
+    private StackPane configStack;
+
     private final Map<String, Integer> mapaEmailAId = new HashMap<>();
 
     // Mantiene los proveedores preconfigurados y sus hosts por defecto.
 
     private final Map<String, String[]> proveedores = new HashMap<>();
     private static final String PERSONALIZADO = "Servidor personalizado";
+
+    private static final String PREF_SYNC_INTERVAL_MINUTES = "sync_interval_minutes";
 
     // Conserva referencia al MainController para aplicar cambios de tema globales.
 
@@ -128,6 +142,75 @@ public class ConfigController {
 
         // Carga la lista de cuentas para el bloque de "Olvidar cuenta".
         cargarCuentasExistentes();
+
+        configurarSpinnerSincronizacion();
+
+        configurarNavegacionAjustes();
+    }
+
+    private void configurarSpinnerSincronizacion() {
+        if (spinnerSyncMinutos == null) {
+            return;
+        }
+        int guardado = Preferences.userNodeForPackage(AppFX.class).getInt(PREF_SYNC_INTERVAL_MINUTES, 15);
+        guardado = Math.max(5, Math.min(120, guardado));
+        SpinnerValueFactory.IntegerSpinnerValueFactory factory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 120, guardado, 1);
+        spinnerSyncMinutos.setValueFactory(factory);
+        spinnerSyncMinutos.setEditable(true);
+    }
+
+    @FXML
+    private void onAplicarIntervaloSync(ActionEvent event) {
+        if (spinnerSyncMinutos == null || spinnerSyncMinutos.getValue() == null) {
+            return;
+        }
+        int m = Math.max(5, Math.min(120, spinnerSyncMinutos.getValue()));
+        spinnerSyncMinutos.getValueFactory().setValue(m);
+        Preferences.userNodeForPackage(AppFX.class).putInt(PREF_SYNC_INTERVAL_MINUTES, m);
+        if (mainController != null) {
+            mainController.reprogramarSincronizacionCorreo();
+        }
+        if (statusLabel != null) {
+            statusLabel.setText("Intervalo de sincronización de INBOX guardado: cada " + m + " min.");
+        }
+    }
+
+    // Enlaza la lista lateral con las páginas apiladas del centro.
+    private void configurarNavegacionAjustes() {
+        if (configNavList == null || configStack == null) {
+            return;
+        }
+
+        configNavList.getItems().addAll(
+                "General",
+                "Correo",
+                "Calendario y tareas",
+                "Contactos",
+                "IA"
+        );
+        configNavList.setFixedCellSize(44);
+
+        configNavList.getSelectionModel().selectedIndexProperty().addListener((obs, anterior, idx) -> {
+            if (idx != null && idx.intValue() >= 0) {
+                mostrarPaginaConfig(idx.intValue());
+            }
+        });
+
+        configNavList.getSelectionModel().select(0);
+    }
+
+    private void mostrarPaginaConfig(int indice) {
+        if (configStack == null) {
+            return;
+        }
+        var hijos = configStack.getChildren();
+        for (int i = 0; i < hijos.size(); i++) {
+            Node n = hijos.get(i);
+            boolean activa = (i == indice);
+            n.setVisible(activa);
+            n.setManaged(activa);
+        }
     }
 
     // Handler cuando se cambia de proveedor para ajustar visibilidad/valores de IMAP/SMTP.

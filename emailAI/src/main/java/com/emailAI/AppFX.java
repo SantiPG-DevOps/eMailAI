@@ -6,40 +6,53 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-// Punto de entrada JavaFX que arranca la app y mantiene una referencia global al MainController.
 public class AppFX extends Application {
 
-    private static MainController mainController; // Referencia estática al controlador principal para acceso desde otras vistas.
+    private static MainController mainController;
+    private static Scene mainScene;
 
-    // Carga la vista de login, aplica estilos iniciales y muestra la ventana principal.
+    private static final String CSS_BASIC = "/styles-basic.css";
+    private static final String CSS_DARK  = "/styles-dark.css";
+
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/login-view.fxml"));
-        Scene scene = new Scene(loader.load(), 800, 650);
+        mainScene = new Scene(loader.load(), 800, 650);
 
-        scene.getStylesheets().add(
-                AppFX.class.getResource("/styles-basic.css").toExternalForm()
-        );
-        scene.getStylesheets().add(
-                AppFX.class.getResource("/styles-dark.css").toExternalForm()
-        );
+        // Tema inicial: oscuro hasta que MainController tome el control
+        mainScene.getStylesheets().add(AppFX.class.getResource(CSS_BASIC).toExternalForm());
+        mainScene.getStylesheets().add(AppFX.class.getResource(CSS_DARK).toExternalForm());
 
-        stage.setTitle("Cliente de Correo IA - Login");
-        stage.setScene(scene);
+        stage.setTitle("Cliente de Correo IA");
+        stage.setScene(mainScene);
         stage.show();
     }
 
-    // Permite registrar el MainController justo después de cargar la vista principal.
     public static void setMainController(MainController controller) {
         mainController = controller;
     }
 
-    // Devuelve el MainController si ya ha sido inicializado.
     public static MainController getMainController() {
         return mainController;
     }
 
-    // Método main estándar que lanza la aplicación JavaFX.
+    public static Scene getMainScene() {
+        return mainScene;
+    }
+
+    // Llamado desde cualquier parte de la app para cambiar tema
+    public static void aplicarTema(boolean light) {
+        if (mainController != null) {
+            mainController.aplicarTema(light);
+        } else if (mainScene != null) {
+            // Antes de que MainController exista (pantalla de login)
+            mainScene.getStylesheets().clear();
+            mainScene.getStylesheets().add(AppFX.class.getResource(CSS_BASIC).toExternalForm());
+            String temaCSS = light ? "/styles-light.css" : CSS_DARK;
+            mainScene.getStylesheets().add(AppFX.class.getResource(temaCSS).toExternalForm());
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

@@ -1,0 +1,50 @@
+package com.emailAI.controller;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
+import java.time.LocalDate;
+
+/** Contenido del diálogo modal para crear un evento en el calendario. */
+public class EventoCalendarioDialogController {
+
+    @FXML
+    private DatePicker dpFecha;
+
+    @FXML
+    private TextField txtTitulo;
+
+    @FXML
+    private TextArea txtDetalle;
+
+    @FXML
+    private void initialize() {
+        if (dpFecha != null && dpFecha.getValue() == null) {
+            dpFecha.setValue(LocalDate.now());
+        }
+    }
+
+    public void setFechaInicial(LocalDate fecha) {
+        if (dpFecha != null && fecha != null) {
+            dpFecha.setValue(fecha);
+        }
+    }
+
+    public LocalDate getFecha() {
+        return dpFecha != null ? dpFecha.getValue() : null;
+    }
+
+    public String getTitulo() {
+        return txtTitulo != null && txtTitulo.getText() != null ? txtTitulo.getText().trim() : "";
+    }
+
+    public String getDetalle() {
+        String d = txtDetalle != null ? txtDetalle.getText() : null;
+        if (d == null || d.isBlank()) {
+            return null;
+        }
+        return d.trim();
+    }
+}

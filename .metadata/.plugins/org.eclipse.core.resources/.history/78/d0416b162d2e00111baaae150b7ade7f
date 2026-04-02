@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.emailAI.controller.ContactosController">
+    <center>
+        <VBox spacing="8" maxHeight="Infinity" maxWidth="Infinity">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+
+            <!-- Barra superior -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="Contactos" styleClass="section-label"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button text="＋ Nuevo"  onAction="#onNuevoContacto"  styleClass="small-button"/>
+                <Button text="✏ Editar"  onAction="#onEditarContacto" styleClass="small-button" fx:id="btnEditar" disable="true"/>
+                <Button text="🗑 Borrar"  onAction="#onBorrarContacto" styleClass="small-button" fx:id="btnBorrar" disable="true"/>
+            </HBox>
+
+            <!-- 3 columnas de contactos -->
+            <HBox spacing="8" VBox.vgrow="ALWAYS">
+
+                <!-- Columna 1 -->
+                <ListView fx:id="lstCol1"
+                          HBox.hgrow="ALWAYS"
+                          maxWidth="Infinity"/>
+
+                <!-- Columna 2 -->
+                <ListView fx:id="lstCol2"
+                          HBox.hgrow="ALWAYS"
+                          maxWidth="Infinity"/>
+
+                <!-- Columna 3 -->
+                <ListView fx:id="lstCol3"
+                          HBox.hgrow="ALWAYS"
+                          maxWidth="Infinity"/>
+
+            </HBox>
+
+            <!-- Estado -->
+            <Label fx:id="lblEstado" styleClass="status-label"/>
+
+        </VBox>
+    </center>
+</BorderPane>

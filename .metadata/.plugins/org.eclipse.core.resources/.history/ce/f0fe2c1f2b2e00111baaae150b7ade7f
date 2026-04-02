@@ -1,0 +1,357 @@
+package com.emailAI.controller;
+
+import com.emailAI.dao.DAOContactos;
+import com.emailAI.model.Contacto;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.VPos;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Modality;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class ContactosController {
+
+    // ── FXML ────────────────────────────────────────────────────────────────
+    @FXML private ListView<Contacto> lstCol1;
+    @FXML private ListView<Contacto> lstCol2;
+    @FXML private ListView<Contacto> lstCol3;
+    @FXML private Label  lblEstado;
+    @FXML private Label  lblPagina;
+    @FXML private Button btnEditar;
+    @FXML private Button btnBorrar;
+    @FXML private Button btnPrimera;
+    @FXML private Button btnAnterior;
+    @FXML private Button btnSiguiente;
+    @FXML private Button btnUltima;
+    @FXML private TextField txtBuscar;
+
+    // ── Estado ───────────────────────────────────────────────────────────────
+    private DAOContactos daoContactos;
+    private final List<Contacto> todos    = new ArrayList<>();  // todos los contactos de BD
+    private final List<Contacto> filtrado = new ArrayList<>();  // después de aplicar búsqueda
+
+    private Contacto contactoSeleccionado;
+
+    private static final int POR_PAGINA = 30; // 10 filas × 3 columnas
+    private int paginaActual = 0;
+    private int totalPaginas = 1;
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    @FXML
+    private void initialize() {
+        daoContactos = new DAOContactos("jdbc:sqlite:emailAI.db");
+        configurarLista(lstCol1);
+        configurarLista(lstCol2);
+        configurarLista(lstCol3);
+        cargarContactos();
+    }
+
+    // ── Cell factory + listener de selección ─────────────────────────────────
+    private void configurarLista(ListView<Contacto> lista) {
+        lista.setCellFactory(lv -> new ContactoCell());
+        lista.getSelectionModel().selectedItemProperty().addListener((obs, old, sel) -> {
+            if (sel == null) return;
+            // Si el item es un separador (nombre == null → marca de letra), ignóralo
+            if (sel.getNombre() == null) {
+                lista.getSelectionModel().clearSelection();
+                return;
+            }
+            contactoSeleccionado = sel;
+            deselectOtras(lista);
+            actualizarBotones();
+            lblEstado.setText("");
+        });
+    }
+
+    private void deselectOtras(ListView<Contacto> activa) {
+        if (activa != lstCol1) lstCol1.getSelectionModel().clearSelection();
+        if (activa != lstCol2) lstCol2.getSelectionModel().clearSelection();
+        if (activa != lstCol3) lstCol3.getSelectionModel().clearSelection();
+    }
+
+    private void actualizarBotones() {
+        boolean hay = contactoSeleccionado != null;
+        if (btnEditar != null) btnEditar.setDisable(!hay);
+        if (btnBorrar != null) btnBorrar.setDisable(!hay);
+    }
+
+    // ── Carga y distribución ─────────────────────────────────────────────────
+
+    private void cargarContactos() {
+        todos.clear();
+        todos.addAll(daoContactos.listarTodos());
+
+        // Ordena: apellido → nombre, ambos normalizados
+        todos.sort((a, b) -> {
+            String ka = normalize(safe(a.getApellido()) + " " + safe(a.getNombre()));
+            String kb = normalize(safe(b.getApellido()) + " " + safe(b.getNombre()));
+            return ka.compareTo(kb);
+        });
+
+        aplicarFiltro();
+    }
+
+    /** Filtra según txtBuscar y reinicia paginación. */
+    private void aplicarFiltro() {
+        String q = txtBuscar != null ? normalize(txtBuscar.getText().trim()) : "";
+        filtrado.clear();
+        if (q.isEmpty()) {
+            filtrado.addAll(todos);
+        } else {
+            for (Contacto c : todos) {
+                if (normalize(safe(c.getNombre())).contains(q)
+                        || normalize(safe(c.getEmail())).contains(q)
+                        || safe(c.getTelefono()).contains(q)) {
+                    filtrado.add(c);
+                }
+            }
+        }
+        paginaActual = 0;
+        totalPaginas = Math.max(1, (int) Math.ceil(filtrado.size() / (double) POR_PAGINA));
+        mostrarPagina();
+    }
+
+    /** Muestra los contactos de la página actual distribuidos en 3 columnas con separadores. */
+    private void mostrarPagina() {
+        int desde = paginaActual * POR_PAGINA;
+        int hasta = Math.min(desde + POR_PAGINA, filtrado.size());
+        List<Contacto> pagina = filtrado.subList(desde, hasta);
+
+        // Inserta separadores de letra y distribuye en 3 columnas
+        List<Contacto> conSep = insertarSeparadores(pagina);
+
+        // Divide la lista con separadores en 3 bloques secuenciales iguales
+        List<Contacto> c1 = new ArrayList<>();
+        List<Contacto> c2 = new ArrayList<>();
+        List<Contacto> c3 = new ArrayList<>();
+
+        // Calculamos cuántos contactos reales (no separadores) van en cada columna
+        long reales = conSep.stream().filter(c -> c.getNombre() != null).count();
+        int porCol = (int) Math.ceil(reales / 3.0);
+
+        int contador = 0; // cuenta solo contactos reales
+        for (Contacto c : conSep) {
+            boolean esSep = (c.getNombre() == null);
+            if (!esSep) contador++;
+
+            if (contador <= porCol) {
+                c1.add(c);
+            } else if (contador <= porCol * 2) {
+                c2.add(c);
+            } else {
+                c3.add(c);
+            }
+        }
+
+        lstCol1.setItems(FXCollections.observableArrayList(c1));
+        lstCol2.setItems(FXCollections.observableArrayList(c2));
+        lstCol3.setItems(FXCollections.observableArrayList(c3));
+
+        // Actualiza paginación
+        if (lblPagina != null)
+            lblPagina.setText("Pág. " + (paginaActual + 1) + " / " + totalPaginas);
+        if (btnPrimera   != null) btnPrimera.setDisable(paginaActual == 0);
+        if (btnAnterior  != null) btnAnterior.setDisable(paginaActual == 0);
+        if (btnSiguiente != null) btnSiguiente.setDisable(paginaActual >= totalPaginas - 1);
+        if (btnUltima    != null) btnUltima.setDisable(paginaActual >= totalPaginas - 1);
+
+        contactoSeleccionado = null;
+        actualizarBotones();
+    }
+
+    /**
+     * Recorre la lista ordenada e inserta un Contacto-separador (getNombre()==null,
+     * getEmail() = la letra) antes de cada nuevo grupo de letra inicial.
+     */
+    private List<Contacto> insertarSeparadores(List<Contacto> lista) {
+        List<Contacto> resultado = new ArrayList<>();
+        String letraActual = "";
+        for (Contacto c : lista) {
+            String nombre = c.getNombre() != null ? c.getNombre().trim() : "";
+            String inicial = nombre.isEmpty() ? "#"
+                    : normalize(nombre.substring(0, 1)).toUpperCase();
+            if (!inicial.equals(letraActual)) {
+                letraActual = inicial;
+                // Contacto "fantasma" usado como separador visual
+                Contacto sep = new Contacto(null, null, inicial, null, null);
+                resultado.add(sep);
+            }
+            resultado.add(c);
+        }
+        return resultado;
+    }
+
+    // ── Búsqueda ─────────────────────────────────────────────────────────────
+    @FXML private void onBuscar() { aplicarFiltro(); }
+
+    // ── Paginación ────────────────────────────────────────────────────────────
+    @FXML private void onPrimera()    { paginaActual = 0;                mostrarPagina(); }
+    @FXML private void onAnterior()   { if (paginaActual > 0) paginaActual--; mostrarPagina(); }
+    @FXML private void onSiguiente()  { if (paginaActual < totalPaginas - 1) paginaActual++; mostrarPagina(); }
+    @FXML private void onUltima()     { paginaActual = totalPaginas - 1; mostrarPagina(); }
+
+    // ── CRUD ──────────────────────────────────────────────────────────────────
+    @FXML
+    private void onNuevoContacto() { abrirDialogoEdicion(null); }
+
+    @FXML
+    private void onEditarContacto() {
+        if (contactoSeleccionado == null) { lblEstado.setText("Selecciona un contacto."); return; }
+        abrirDialogoEdicion(contactoSeleccionado);
+    }
+
+    @FXML
+    private void onBorrarContacto() {
+        if (contactoSeleccionado == null) { lblEstado.setText("Selecciona un contacto."); return; }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Borrar contacto");
+        confirm.setHeaderText("¿Borrar \"" + contactoSeleccionado.getNombre() + "\"?");
+        confirm.setContentText("Esta acción no se puede deshacer.");
+        var res = confirm.showAndWait();
+        if (res.isEmpty() || res.get() != ButtonType.OK) return;
+        daoContactos.borrar(contactoSeleccionado);
+        contactoSeleccionado = null;
+        actualizarBotones();
+        cargarContactos();
+        lblEstado.setText("Contacto borrado.");
+    }
+
+    private void abrirDialogoEdicion(Contacto contacto) {
+        try {
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle(contacto == null ? "Nuevo contacto" : "Editar contacto");
+            dialog.initModality(Modality.APPLICATION_MODAL);
+
+            GridPane grid = new GridPane();
+            grid.setHgap(10); grid.setVgap(10);
+            grid.setPadding(new Insets(16, 20, 12, 20));
+
+            ColumnConstraints col0 = new ColumnConstraints(); col0.setMinWidth(80);
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setHgrow(Priority.ALWAYS); col1.setMinWidth(240);
+            grid.getColumnConstraints().addAll(col0, col1);
+
+            TextField fNombre   = new TextField(contacto != null ? safe(contacto.getNombre())   : "");
+            TextField fEmail    = new TextField(contacto != null ? safe(contacto.getEmail())    : "");
+            TextField fTelefono = new TextField(contacto != null ? safe(contacto.getTelefono()) : "");
+            TextArea  fNotas    = new TextArea (contacto != null ? safe(contacto.getNotas())    : "");
+            fNotas.setPrefRowCount(4); fNotas.setWrapText(true);
+            fNombre.setPromptText("Nombre completo");
+            fEmail.setPromptText("correo@ejemplo.com");
+            fTelefono.setPromptText("+34 600 000 000");
+
+            Label lNotas = new Label("Notas:");
+            GridPane.setValignment(lNotas, VPos.TOP);
+            grid.add(new Label("Nombre:"),   0, 0); grid.add(fNombre,   1, 0);
+            grid.add(new Label("Email:"),    0, 1); grid.add(fEmail,    1, 1);
+            grid.add(new Label("Teléfono:"), 0, 2); grid.add(fTelefono, 1, 2);
+            grid.add(lNotas,                 0, 3); grid.add(fNotas,    1, 3);
+
+            dialog.getDialogPane().setContent(grid);
+            dialog.getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
+            if (lstCol1.getScene() != null)
+                dialog.getDialogPane().getStylesheets().setAll(lstCol1.getScene().getStylesheets());
+
+            Button okBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+            okBtn.addEventFilter(ActionEvent.ACTION, ev -> {
+                if (fNombre.getText().isBlank()) {
+                    ev.consume();
+                    lblEstado.setText("El nombre es obligatorio.");
+                }
+            });
+
+            var res = dialog.showAndWait();
+            if (res.isEmpty() || res.get() != ButtonType.OK) return;
+
+            if (contacto == null) {
+                Contacto nuevo = new Contacto(null,
+                        fNombre.getText().trim(), safe(fEmail.getText()),
+                        safe(fTelefono.getText()), safe(fNotas.getText()));
+                daoContactos.guardarOActualizar(nuevo);
+                lblEstado.setText("Contacto creado.");
+            } else {
+                contacto.setNombre(fNombre.getText().trim());
+                contacto.setEmail(safe(fEmail.getText()));
+                contacto.setTelefono(safe(fTelefono.getText()));
+                contacto.setNotas(safe(fNotas.getText()));
+                daoContactos.guardarOActualizar(contacto);
+                lblEstado.setText("Contacto actualizado.");
+            }
+            cargarContactos();
+        } catch (Exception e) {
+            e.printStackTrace();
+            lblEstado.setText("Error: " + e.getMessage());
+        }
+    }
+
+    // ── Cell personalizada ────────────────────────────────────────────────────
+
+    /** Celda que renderiza separador de letra O fila de contacto. */
+    private static class ContactoCell extends ListCell<Contacto> {
+        @Override
+        protected void updateItem(Contacto c, boolean empty) {
+            super.updateItem(c, empty);
+            getStyleClass().removeAll("contact-separator-cell", "contact-card-cell");
+
+            if (empty || c == null) {
+                setText(null); setGraphic(null); setMouseTransparent(false);
+                return;
+            }
+
+            // Separador de letra (getNombre()==null, getEmail()==la letra)
+            if (c.getNombre() == null) {
+                setText(null);
+                Label lbl = new Label(c.getEmail()); // email almacena la inicial
+                lbl.getStyleClass().add("contact-separator-label");
+                setGraphic(lbl);
+                getStyleClass().add("contact-separator-cell");
+                setMouseTransparent(true); // no seleccionable
+                return;
+            }
+
+            // Fila de contacto normal
+            HBox row = new HBox(10);
+            row.setPickOnBounds(false);
+
+            VBox info = new VBox(1);
+            Label lblNombre = new Label(c.getNombre());
+            lblNombre.getStyleClass().add("contact-name");
+            info.getChildren().add(lblNombre);
+            if (!safe(c.getEmail()).isBlank()) {
+                Label lblEmail = new Label(c.getEmail());
+                lblEmail.getStyleClass().add("contact-email");
+                info.getChildren().add(lblEmail);
+            }
+
+            Label lblTel = new Label(safe(c.getTelefono()));
+            lblTel.getStyleClass().add("contact-phone");
+            HBox.setHgrow(info, Priority.ALWAYS);
+            row.getChildren().addAll(info, lblTel);
+
+            setText(null);
+            setGraphic(row);
+            getStyleClass().add("contact-card-cell");
+            setMouseTransparent(false);
+        }
+
+        private static String safe(String s) { return s != null ? s : ""; }
+    }
+
+    // ── Utilidades ────────────────────────────────────────────────────────────
+
+    /** Elimina tildes y normaliza para comparar/ordenar. */
+    private static String normalize(String s) {
+        if (s == null) return "";
+        return java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .toLowerCase();
+    }
+
+    private static String safe(String s) { return s != null ? s.trim() : ""; }
+}

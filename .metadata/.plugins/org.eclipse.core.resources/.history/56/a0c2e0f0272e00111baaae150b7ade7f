@@ -1,0 +1,376 @@
+package com.emailAI.controller;
+
+import com.emailAI.AppFX;
+import com.emailAI.service.MailService;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
+
+// Controla la ventana principal y la navegación entre secciones (correo, calendario, contactos, etc.).
+public class MainController {
+
+    @FXML
+    private StackPane centerPane;
+
+    @FXML
+    private ToggleButton btnCorreo;
+
+    @FXML
+    private ToggleButton btnCalendario;
+
+    @FXML
+    private ToggleButton btnContactos;
+
+    @FXML
+    private ToggleButton btnTareas;
+
+    @FXML
+    private ToggleButton btnConfiguracion;
+
+    @FXML
+    private ToggleButton btnChatIA;
+
+    @FXML
+    private VBox vboxSubmenuCorreo;
+
+    @FXML
+    private ListView<MailService.CarpetaSidebar> listaCarpetasImap;
+
+    @FXML
+    private ToggleGroup grpSecciones;
+
+    @FXML
+    private ToggleButton btnTema;
+
+    private MailService mailService;
+    private boolean temaClaro = false;
+
+    private Node vistaCorreo;
+    private CorreoController correoController;
+
+    private ScheduledExecutorService schedulerSyncCorreo;
+
+    @FXML
+    private void initialize() {
+        if (btnCorreo != null) {
+            btnCorreo.setSelected(true);
+        }
+        actualizarSubmenuCorreo(true);
+
+        if (listaCarpetasImap != null) {
+            listaCarpetasImap.setFixedCellSize(40);
+            Label phCargando = new Label("Cargando carpetas del servidor…");
+            phCargando.setWrapText(true);
+            phCargando.getStyleClass().add("label-secondary");
+            listaCarpetasImap.setPlaceholder(phCargando);
+            listaCarpetasImap.getSelectionModel().selectedItemProperty().addListener((obs, anterior, sel) -> {
+                if (sel == null || mailService == null) {
+                    return;
+                }
+                try {
+                    seleccionarCorreo();
+                    if (correoController != null) {
+                        correoController.setCarpetaImap(sel.imapFullName());
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                if (btnCorreo != null) {
+                    btnCorreo.setSelected(true);
+                }
+            });
+        }
+    }
+
+    private void actualizarSubmenuCorreo(boolean visible) {
+        if (vboxSubmenuCorreo != null) {
+            vboxSubmenuCorreo.setVisible(visible);
+            vboxSubmenuCorreo.setManaged(visible);
+        }
+    }
+
+    public void setMailService(MailService mailService) throws Exception {
+        this.mailService = mailService;
+
+        aplicarTema(temaClaro);
+
+        seleccionarCorreo();
+        iniciarSincronizacionPeriodicaCorreo();
+        cargarCarpetasImapDesdeServidor();
+    }
+
+    private void cargarCarpetasImapDesdeServidor() {
+        if (mailService == null || listaCarpetasImap == null) {
+            return;
+        }
+
+        Task<List<MailService.CarpetaSidebar>> task = new Task<>() {
+            @Override
+            protected List<MailService.CarpetaSidebar> call() throws Exception {
+                return mailService.listarCarpetasAccesibles();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            List<MailService.CarpetaSidebar> carpetas = task.getValue();
+            if (carpetas == null) {
+                carpetas = List.of();
+            }
+            listaCarpetasImap.getItems().setAll(carpetas);
+            if (carpetas.isEmpty()) {
+                Label ph = new Label("No hay carpetas con mensajes visibles en el servidor.");
+                ph.setWrapText(true);
+                ph.getStyleClass().add("label-secondary");
+                listaCarpetasImap.setPlaceholder(ph);
+            }
+            seleccionarInboxOCarpetaPrimera();
+        });
+
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            if (ex != null) {
+                ex.printStackTrace();
+            }
+            listaCarpetasImap.getItems().clear();
+            Label ph = new Label("No se pudieron cargar las carpetas IMAP. Revisa la conexión.");
+            ph.setWrapText(true);
+            ph.getStyleClass().add("label-secondary");
+            listaCarpetasImap.setPlaceholder(ph);
+        });
+
+        Thread t = new Thread(task, "listar-carpetas-imap");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    private void seleccionarInboxOCarpetaPrimera() {
+        if (listaCarpetasImap == null) {
+            return;
+        }
+        var items = listaCarpetasImap.getItems();
+        int idx = -1;
+        for (int i = 0; i < items.size(); i++) {
+            if ("INBOX".equalsIgnoreCase(items.get(i).imapFullName())) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx < 0 && !items.isEmpty()) {
+            idx = 0;
+        }
+        if (idx >= 0) {
+            listaCarpetasImap.getSelectionModel().select(idx);
+        }
+    }
+
+    private void detenerSincronizacionPeriodicaCorreo() {
+        if (schedulerSyncCorreo != null && !schedulerSyncCorreo.isShutdown()) {
+            schedulerSyncCorreo.shutdown();
+        }
+        schedulerSyncCorreo = null;
+    }
+
+    private void iniciarSincronizacionPeriodicaCorreo() {
+        if (schedulerSyncCorreo != null && !schedulerSyncCorreo.isShutdown()) {
+            return;
+        }
+        Preferences prefs = Preferences.userNodeForPackage(AppFX.class);
+        int minutos = Math.max(5, Math.min(120, prefs.getInt("sync_interval_minutes", 15)));
+
+        schedulerSyncCorreo = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "emailai-imap-sync");
+            t.setDaemon(true);
+            return t;
+        });
+        schedulerSyncCorreo.scheduleAtFixedRate(
+                () -> Platform.runLater(() -> {
+                    if (correoController != null) {
+                        correoController.sincronizarEnFondoSiBandejaEntrada();
+                    }
+                }),
+                minutos,
+                minutos,
+                TimeUnit.MINUTES
+        );
+    }
+
+    /** Vuelve a leer el intervalo desde preferencias y reinicia el temporizador (p. ej. tras guardar en Ajustes). */
+    public void reprogramarSincronizacionCorreo() {
+        detenerSincronizacionPeriodicaCorreo();
+        if (mailService != null) {
+            iniciarSincronizacionPeriodicaCorreo();
+        }
+    }
+
+    @FXML
+    private void onSeccionCorreo() {
+        try {
+            actualizarSubmenuCorreo(true);
+            seleccionarCorreo();
+            MailService.CarpetaSidebar sel = listaCarpetasImap != null
+                    ? listaCarpetasImap.getSelectionModel().getSelectedItem()
+                    : null;
+            if (correoController != null) {
+                if (sel != null) {
+                    correoController.setCarpetaImap(sel.imapFullName());
+                } else {
+                    correoController.setCarpetaImap("INBOX");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void seleccionarCorreo() throws Exception {
+        if (vistaCorreo == null) {
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/correo-view.fxml"));
+            vistaCorreo = loader.load();
+            correoController = loader.getController();
+            if (mailService != null) {
+                correoController.setMailService(mailService);
+            }
+        }
+        centerPane.getChildren().setAll(vistaCorreo);
+        if (btnCorreo != null) {
+            btnCorreo.setSelected(true);
+        }
+        actualizarSubmenuCorreo(true);
+    }
+
+    @FXML
+    private void onSeccionCalendario() {
+        try {
+            actualizarSubmenuCorreo(false);
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/calendario-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnCalendario != null) {
+                btnCalendario.setSelected(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onSeccionContactos() {
+        try {
+            actualizarSubmenuCorreo(false);
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/contactos-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnContactos != null) {
+                btnContactos.setSelected(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onSeccionTareas() {
+        try {
+            actualizarSubmenuCorreo(false);
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/tareas-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnTareas != null) {
+                btnTareas.setSelected(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onSeccionConfiguracion() {
+        try {
+            actualizarSubmenuCorreo(false);
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/config-view.fxml"));
+            Node vista = loader.load();
+
+            ConfigController controller = loader.getController();
+            controller.setMainController(this);
+
+            centerPane.getChildren().setAll(vista);
+            if (btnConfiguracion != null) {
+                btnConfiguracion.setSelected(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onSeccionChatIA() {
+        try {
+            actualizarSubmenuCorreo(false);
+            FXMLLoader loader = new FXMLLoader(AppFX.class.getResource("/ui/chat-view.fxml"));
+            Node vista = loader.load();
+            centerPane.getChildren().setAll(vista);
+            if (btnChatIA != null) {
+                btnChatIA.setSelected(true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isTemaClaro() {
+        return temaClaro;
+    }
+
+    public void aplicarTema(boolean light) {
+        this.temaClaro = light;
+
+        Scene scene = centerPane != null ? centerPane.getScene() : null;
+        if (scene == null) {
+            return;
+        }
+
+        scene.getStylesheets().clear();
+
+        scene.getStylesheets().add(
+                AppFX.class.getResource("/styles-basic.css").toExternalForm()
+        );
+
+        if (light) {
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-light.css").toExternalForm()
+            );
+        } else {
+            scene.getStylesheets().add(
+                    AppFX.class.getResource("/styles-dark.css").toExternalForm()
+            );
+        }
+
+        if (btnTema != null) {
+            btnTema.setSelected(light);
+            btnTema.setText(light ? "☼" : "☾");
+        }
+    }
+
+    @FXML
+    private void onToggleTema() {
+        if (btnTema == null) {
+            return;
+        }
+        aplicarTema(btnTema.isSelected());
+    }
+}

@@ -10,11 +10,22 @@ import weka.core.WekaException;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 // Encapsula la conexión IMAP/SMTP, la carga de mensajes y la integración con los servicios de IA.
 public class MailService {
+
+    /** Carpeta IMAP listada en el menú lateral (nombre completo + texto mostrado). */
+    public record CarpetaSidebar(String imapFullName, String etiquetaVista) {
+        @Override
+        public String toString() {
+            return etiquetaVista != null && !etiquetaVista.isBlank() ? etiquetaVista : imapFullName;
+        }
+    }
 
     private Session session;
     private Store store;
@@ -83,26 +94,99 @@ public class MailService {
 
     // Obtiene los últimos N mensajes de la bandeja de entrada y les aplica clasificación IA.
     public List<Mensaje> listInbox() throws Exception {
+        return listMensajesDeCarpeta("INBOX", 20);
+    }
+
+    /**
+     * Lista carpetas que pueden contener mensajes (recursivo desde la raíz de la cuenta).
+     */
+    public List<CarpetaSidebar> listarCarpetasAccesibles() throws MessagingException {
         if (store == null || !store.isConnected()) {
-            throw new IllegalStateException("Store IMAP no conectado. Llama antes a connect().");
+            return List.of();
         }
+        List<CarpetaSidebar> out = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        Folder root = store.getDefaultFolder();
+        recolectarCarpetas(root, out, seen);
+        try {
+            Folder inbox = store.getFolder("INBOX");
+            if (inbox.exists()) {
+                recolectarCarpetas(inbox, out, seen);
+            }
+        } catch (MessagingException ignored) {
+        }
+        out.sort(Comparator.comparing(CarpetaSidebar::imapFullName, String.CASE_INSENSITIVE_ORDER));
+        return out;
+    }
 
+    private void recolectarCarpetas(Folder folder, List<CarpetaSidebar> out, Set<String> seen) throws MessagingException {
+        if (folder == null) {
+            return;
+        }
+        String key = nombreCarpetaNormalizado(folder);
+        int type = folder.getType();
+        boolean soportaMensajes = (type & Folder.HOLDS_MESSAGES) != 0;
+        if (soportaMensajes && !seen.contains(key)) {
+            seen.add(key);
+            out.add(new CarpetaSidebar(key, etiquetaCarpetaParaUi(key)));
+        }
+        if ((type & Folder.HOLDS_FOLDERS) != 0) {
+            Folder[] hijos = folder.list("%");
+            if (hijos != null) {
+                for (Folder h : hijos) {
+                    recolectarCarpetas(h, out, seen);
+                }
+            }
+        }
+    }
+
+    private static String nombreCarpetaNormalizado(Folder folder) throws MessagingException {
+        String full = folder.getFullName();
+        if (full != null && !full.isBlank()) {
+            return full;
+        }
+        String name = folder.getName();
+        return (name != null && !name.isBlank()) ? name : "INBOX";
+    }
+
+    private static String etiquetaCarpetaParaUi(String imapFullName) {
+        if (imapFullName == null || imapFullName.isBlank()) {
+            return "";
+        }
+        return imapFullName.replace("/", " › ");
+    }
+
+    /** Últimos {@code max} mensajes de una carpeta por su nombre IMAP completo. */
+    public List<Mensaje> listMensajesDeCarpeta(String imapFullName, int max) throws Exception {
+        if (store == null || !store.isConnected()) {
+            throw new IllegalStateException("Store IMAP no conectado.");
+        }
+        Folder f = store.getFolder(imapFullName);
+        if (!f.exists()) {
+            throw new MessagingException("La carpeta no existe en el servidor: " + imapFullName);
+        }
+        f.open(Folder.READ_ONLY);
+        try {
+            // Misma clave que en el menú lateral y en SQLite (evita desajustes con getFullName()).
+            return listarUltimosMensajesDeCarpeta(f, max, imapFullName);
+        } finally {
+            f.close(false);
+        }
+    }
+
+    // Lee hasta {@code max} mensajes recientes de una carpeta ya abierta.
+    private List<Mensaje> listarUltimosMensajesDeCarpeta(Folder folder, int max, String carpetaClaveBd) throws Exception {
         List<Mensaje> resultado = new ArrayList<>();
-
-        Folder inbox = store.getFolder("INBOX");
-        inbox.open(Folder.READ_ONLY);
-
-        Message[] messages = inbox.getMessages();
+        Message[] messages = folder.getMessages();
 
         int total = messages.length;
-        int max = 20;
         int inicio = Math.max(1, total - max + 1);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         for (int i = total; i >= inicio; i--) {
             Message msg = messages[i - 1];
-            String uid = obtenerIdentificadorMensaje(inbox, msg);
+            String uid = obtenerIdentificadorMensaje(folder, msg);
 
             Address[] froms = msg.getFrom();
             String remitente = (froms != null && froms.length > 0)
@@ -126,6 +210,7 @@ public class MailService {
 
             mensajeObj.setHtml(html);
             mensajeObj.setCuentaHash(cuentaHash);
+            mensajeObj.setCarpetaImap(carpetaClaveBd);
 
             // ========== IA clásica (Weka) ==========
             try {
@@ -135,7 +220,6 @@ public class MailService {
                     mensajeObj.setCategoria(categoria);
 
                     if (!"SPAM".equalsIgnoreCase(categoria)) {
-                        // de momento prioridad simple; luego afinamos
                         mensajeObj.setPrioridad("NORMAL");
                     } else {
                         mensajeObj.setPrioridad("NORMAL");
@@ -169,28 +253,34 @@ public class MailService {
             resultado.add(mensajeObj);
         }
 
-        inbox.close(false);
         return resultado;
     }
 
-    // Marca como eliminado un mensaje en INBOX a partir de su UID/identificador.
-    public void eliminarMensaje(Mensaje mensaje) throws Exception {
+    // Marca como eliminado un mensaje en la carpeta IMAP indicada.
+    public void eliminarMensaje(Mensaje mensaje, String carpetaImapFullName) throws Exception {
         if (store == null || !store.isConnected()) {
             throw new IllegalStateException("Store IMAP no conectado.");
         }
         if (mensaje == null) return;
 
-        Folder inbox = store.getFolder("INBOX");
-        inbox.open(Folder.READ_WRITE);
+        String carpeta = carpetaImapFullName != null && !carpetaImapFullName.isBlank()
+                ? carpetaImapFullName
+                : "INBOX";
 
-        Message msg = obtenerMensajeParaBorrado(inbox, mensaje.getUidImap());
+        Folder folder = store.getFolder(carpeta);
+        if (!folder.exists()) {
+            throw new IllegalStateException("Carpeta inexistente: " + carpeta);
+        }
+        folder.open(Folder.READ_WRITE);
+
+        Message msg = obtenerMensajeParaBorrado(folder, mensaje.getUidImap());
         if (msg == null) {
-            inbox.close(false);
-            throw new IllegalStateException("No se encontró el mensaje en INBOX para uid=" + mensaje.getUidImap());
+            folder.close(false);
+            throw new IllegalStateException("No se encontró el mensaje en " + carpeta + " para uid=" + mensaje.getUidImap());
         }
 
         msg.setFlag(Flags.Flag.DELETED, true);
-        inbox.close(true);
+        folder.close(true);
     }
 
     // ========================= Envío =========================

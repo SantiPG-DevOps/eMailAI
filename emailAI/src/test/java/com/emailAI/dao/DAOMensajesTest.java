@@ -18,14 +18,15 @@ class DAOMensajesTest {
 
         Mensaje m = new Mensaje("uid-1", "a@test.com", "Asunto", "Cuerpo");
         m.setUidImap("uid-1");
+        m.setCarpetaImap("INBOX");
         m.setCategoria("DESCONOCIDO");
         m.setPrioridad("NORMAL");
 
-        dao.guardarOModificar(List.of(m), "cuenta1");
-        assertEquals(1, dao.listarPorCuentaHash("cuenta1").size());
+        dao.guardarOModificar(List.of(m), "cuenta1", "INBOX");
+        assertEquals(1, dao.listarPorCuentaHashYCarpeta("cuenta1", "INBOX").size());
 
-        dao.actualizarCategoriaPrioridad("uid-1", "cuenta1", "SPAM", "NORMAL");
-        Mensaje actualizado = dao.listarPorCuentaHash("cuenta1").get(0);
+        dao.actualizarCategoriaPrioridad("uid-1", "cuenta1", "INBOX", "SPAM", "NORMAL");
+        Mensaje actualizado = dao.listarPorCuentaHashYCarpeta("cuenta1", "INBOX").get(0);
         assertEquals("SPAM", actualizado.getCategoria());
     }
 }

@@ -1,42 +1,153 @@
 /* =========================
    eMailAI - MODO OSCURO
-   Paleta de Santiago
    ========================= */
 
-/* Fondo principal de la app */
 .root {
-    -fx-background-color: #0F172A;      /* Fondo Principal */
+    -fx-background-color: #0F172A;
     -fx-base: #0F172A;
-    -fx-text-fill: #F1F5F9;             /* Texto Principal */
+    -fx-text-fill: #F1F5F9;
     -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+    -fx-selection-bar:      #38BDF8;
+    -fx-selection-bar-text: #0F172A;
 }
-
-/* ========= CONTENEDORES Y PANELES ========= */
 
 .main-background {
     -fx-background-color: #0F172A;
 }
 
 .sidebar {
-    -fx-background-color: #1E293B;      /* Fondo Secundario */
+    -fx-background-color: #1E293B;
+}
+
+.main-app-sidebar {
+    -fx-background-color: #0B1220;
+    -fx-border-color: transparent #1E293B transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.main-sidebar-brand {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F8FAFC;
+}
+
+.main-nav-heading { -fx-text-fill: #94A3B8; }
+
+.main-nav-submenu-heading {
+    -fx-text-fill: #64748B;
+    -fx-padding: 4 0 2 4;
+}
+
+.main-nav-submenu { -fx-background-color: transparent; }
+
+.toggle-button.main-nav-primary {
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+    -fx-max-width: Infinity;
+    -fx-content-display: LEFT;
+    -fx-background-color: transparent;
+    -fx-text-fill: #E2E8F0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.toggle-button.main-nav-primary:hover { -fx-background-color: #1E293B; }
+
+.toggle-button.main-nav-primary:selected {
+    -fx-background-color: #38BDF8;
+    -fx-text-fill: #0F172A;
+}
+
+.main-nav-folder-list {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.main-nav-folder-list .list-cell {
+    -fx-background-insets: 2 4;
+    -fx-padding: 0 8 0 8;
+    -fx-background-radius: 6;
+    -fx-text-fill: #CBD5E1;
+    -fx-font-size: 12px;
+    -fx-background-color: transparent;
+}
+
+.main-nav-folder-list .list-cell:filled:hover { -fx-background-color: #1E293B; }
+
+.main-nav-folder-list .list-cell:filled:selected,
+.main-nav-folder-list .list-cell:filled:selected:focused {
+    -fx-background-color: #334155;
+    -fx-text-fill: #F8FAFC;
 }
 
 .card {
-    -fx-background-color: #1E293B;      /* Fondo Secundario */
+    -fx-background-color: #1E293B;
     -fx-background-radius: 12;
     -fx-border-radius: 12;
-    -fx-border-color: #334155;          /* Fondo Elevado como borde */
+    -fx-border-color: #334155;
     -fx-border-width: 1;
 }
 
+.config-root { -fx-background-color: #0F172A; }
+
+.config-header-wrap {
+    -fx-background-color: #0B1220;
+    -fx-border-color: #334155;
+}
+
+.config-footer-wrap { -fx-background-color: #0B1220; }
+
+.config-screen-title  { -fx-text-fill: #F8FAFC; }
+.config-page-heading  { -fx-text-fill: #F1F5F9; }
+.config-section-kicker { -fx-text-fill: #E2E8F0; }
+.config-field-label   { -fx-text-fill: #CBD5E1; }
+.config-nav-heading   { -fx-text-fill: #94A3B8; }
+
+.config-header-accent {
+    -fx-background-color: #38BDF8;
+    -fx-background-radius: 3;
+}
+
+.config-nav-pane {
+    -fx-background-color: #0B1220;
+    -fx-border-color: transparent #1E293B transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.config-content-stack { -fx-background-color: #0F172A; }
+
+.config-section-box {
+    -fx-background-color: #1E293B;
+    -fx-border-color: #334155 #334155 #334155 #38BDF8;
+    -fx-border-width: 1 1 1 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 16, 0, 0, 4);
+}
+
+.config-nav-list { -fx-background-color: transparent; }
+
+.config-nav-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #E2E8F0;
+}
+
+.config-nav-list .list-cell:filled:hover { -fx-background-color: #1E293B; }
+
+.config-nav-list .list-cell:filled:selected,
+.config-nav-list .list-cell:filled:selected:focused {
+    -fx-background-color: #38BDF8;
+    -fx-text-fill: #0F172A;
+}
+
+.config-split > .split-pane-divider { -fx-background-color: #334155; }
+
 .elevated {
-    -fx-background-color: #334155;      /* Fondo Elevado */
+    -fx-background-color: #334155;
     -fx-background-radius: 16;
 }
 
-.top-bar {
-    -fx-background-color: #1E293B;
-}
+.top-bar { -fx-background-color: #1E293B; }
 
 .ia-panel {
     -fx-background-color: #1E293B;
@@ -44,20 +155,12 @@
     -fx-padding: 8 10 8 10;
 }
 
-/* ========= TEXTOS ========= */
-
-.label {
-    -fx-text-fill: #F1F5F9;
-}
+.label         { -fx-text-fill: #F1F5F9; }
+.section-label { -fx-text-fill: #F1F5F9; -fx-font-weight: bold; }
 
 .label-secondary {
     -fx-text-fill: #94A3B8;
     -fx-font-size: 12px;
-}
-
-.section-label {
-    -fx-text-fill: #F1F5F9;
-    -fx-font-weight: bold;
 }
 
 .message-subject {
@@ -72,8 +175,6 @@
     -fx-font-size: 12px;
 }
 
-/* ========= CAMPOS DE TEXTO ========= */
-
 .text-field {
     -fx-background-color: #0F172A;
     -fx-control-inner-background: #0F172A;
@@ -84,9 +185,7 @@
     -fx-background-radius: 8;
 }
 
-.text-field:focused {
-    -fx-border-color: #22D3EE;
-}
+.text-field:focused { -fx-border-color: #22D3EE; }
 
 .text-area {
     -fx-control-inner-background: #0F172A;
@@ -96,8 +195,6 @@
     -fx-background-radius: 8;
     -fx-border-radius: 8;
 }
-
-/* ========= LISTA DE MENSAJES ========= */
 
 .list-view {
     -fx-background-color: #0F172A;
@@ -112,9 +209,7 @@
     -fx-padding: 6 10 6 10;
 }
 
-.list-cell:empty {
-    -fx-background-color: transparent;
-}
+.list-cell:empty { -fx-background-color: transparent; }
 
 .list-cell.message-card:selected {
     -fx-background-color: #38BDF8;
@@ -126,8 +221,6 @@
     -fx-text-fill: #F1F5F9;
 }
 
-/* ========= BOTONES GENERALES ========= */
-
 .button {
     -fx-background-color: #22D3EE;
     -fx-text-fill: #0F172A;
@@ -137,17 +230,7 @@
     -fx-border-color: transparent;
 }
 
-.button:hover {
-    -fx-background-color: #67E8F9;
-}
-
-/* Botones pequeños tipo "Enviar/Recibir" */
-.small-button {
-    -fx-font-size: 11px;
-    -fx-padding: 4 10 4 10;
-}
-
-/* ========= BOTONES DE ACCIÓN ========= */
+.button:hover { -fx-background-color: #67E8F9; }
 
 .action-button {
     -fx-background-color: #1E293B;
@@ -166,11 +249,7 @@
     -fx-padding: 2 8 2 8;
 }
 
-.action-button:hover {
-    -fx-background-color: #334155;
-}
-
-/* ========= BOTONES CHIPS IA ========= */
+.action-button:hover { -fx-background-color: #334155; }
 
 .chip {
     -fx-background-color: #22D3EE;
@@ -184,41 +263,22 @@
     -fx-min-width: 120;
 }
 
-.chip:hover {
-    -fx-background-color: #67E8F9;
-}
+.chip:hover { -fx-background-color: #67E8F9; }
 
-/* ========= SPLITPANE ========= */
-
-.split-pane {
-    -fx-background-color: transparent;
-}
-
-.split-pane-divider {
-    -fx-background-color: #0F172A;
-}
-
-/* ========= SCROLLBARS ========= */
+.split-pane           { -fx-background-color: transparent; }
+.split-pane-divider   { -fx-background-color: #0F172A; }
 
 .scroll-bar:vertical,
-.scroll-bar:horizontal {
-    -fx-background-color: transparent;
-}
+.scroll-bar:horizontal { -fx-background-color: transparent; }
 
 .scroll-bar .thumb {
     -fx-background-color: #334155;
     -fx-background-radius: 5;
 }
 
-.scroll-bar .thumb:hover {
-    -fx-background-color: #38BDF8;
-}
+.scroll-bar .thumb:hover { -fx-background-color: #38BDF8; }
 
-/* ========= OTROS ========= */
-
-.tab-pane {
-    -fx-background-color: #0F172A;
-}
+.tab-pane { -fx-background-color: #0F172A; }
 
 .tab {
     -fx-background-color: #1E293B;
@@ -234,26 +294,16 @@
     -fx-effect: dropshadow(gaussian, #00F0FF, 20, 0.5, 0, 0);
 }
 
-/* LOGIN: Scroll de cuentas sin marco */
-
 .accounts-scroll {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
 }
 
-.accounts-scroll > .viewport {
-    -fx-background-color: transparent;
-}
-
-/* Tarjetas de cuenta en modo oscuro */
+.accounts-scroll > .viewport { -fx-background-color: transparent; }
 
 .account-card {
-    -fx-padding: 10;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
-    -fx-border-width: 1;
-    -fx-border-color: #334155;
     -fx-background-color: #1E293B;
+    -fx-border-color: #334155;
     -fx-cursor: hand;
 }
 
@@ -272,39 +322,80 @@
     -fx-font-size: 11px;
 }
 
-/* Toggle sol/luna oscuro */
-
 .theme-toggle {
     -fx-background-color: #1E293B;
     -fx-text-fill: #F1F5F9;
     -fx-border-color: #334155;
-    -fx-border-radius: 999;
-    -fx-background-radius: 999;
 }
 
-/* ========= CALENDARIO ========= */
-
-/* Día normal */
+/* ── CALENDARIO OSCURO ── */
 .cal-dia {
-    -fx-background-color: transparent;
+    -fx-background-color: #1E293B;
     -fx-border-color: #475569;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-padding: 4;
+    -fx-border-width: 1;
 }
 
-/* Hoy */
+.cal-dia:hover   { -fx-background-color: #273548; }
+.cal-dia:pressed { -fx-background-color: #2d3d52; }
+
 .cal-dia-hoy {
     -fx-border-color: #22D3EE;
+    -fx-border-width: 2;
+    -fx-background-color: #1a3a5c;
 }
+.cal-dia-hoy:hover,
+.cal-dia-hoy:pressed { -fx-background-color: #1e4570; }
 
-/* Seleccionado: más contraste */
 .cal-dia-seleccionado {
-    -fx-background-color: #22D3EE55;   /* azul translúcido */
+    -fx-background-color: #1e3d60;
     -fx-border-color: #22D3EE;
+    -fx-border-width: 2;
+}
+.cal-dia-seleccionado:hover,
+.cal-dia-seleccionado:pressed { -fx-background-color: #234875; }
+
+.cal-dia-urgente-semana {
+    -fx-border-color: #F87171;
+    -fx-border-width: 2;
+    -fx-background-color: #450A0A;
+}
+.cal-dia-urgente-semana:hover,
+.cal-dia-urgente-semana:pressed { -fx-background-color: #5a1010; }
+
+.cal-dia-proxima-semana {
+    -fx-border-color: #FBBF24;
+    -fx-border-width: 2;
+    -fx-background-color: #422006;
+}
+.cal-dia-proxima-semana:hover,
+.cal-dia-proxima-semana:pressed { -fx-background-color: #573008; }
+
+.cal-dia-mas-tarde {
+    -fx-border-color: #4ADE80;
+    -fx-border-width: 2;
+    -fx-background-color: #14532D;
+}
+.cal-dia-mas-tarde:hover,
+.cal-dia-mas-tarde:pressed { -fx-background-color: #1a6b3a; }
+
+.cal-dia-seleccionado.cal-dia-urgente-semana,
+.cal-dia-seleccionado.cal-dia-proxima-semana,
+.cal-dia-seleccionado.cal-dia-mas-tarde {
+    -fx-border-color: #22D3EE;
+    -fx-border-width: 3;
 }
 
-/* Tarjeta SPAM */
+.cal-dia-numero { -fx-text-fill: #E2E8F0; }
+.cal-evento-barra { -fx-background-color: #2a7fa0; }
+
+.cal-evento-barra-seleccionado {
+    -fx-background-color: #4da6d0;
+    -fx-border-color: #7ec8e3;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+}
+
+/* ── MENSAJES CLASIFICADOS OSCURO ── */
 .list-cell.message-card-spam {
     -fx-background-color: #1F2933;
     -fx-text-fill: #FCA5A5;
@@ -316,39 +407,151 @@
 .list-cell.message-card-spam:selected {
     -fx-background-color: #DC2626;
     -fx-text-fill: #F9FAFB;
+}
+
+.list-cell.message-card-risk {
+    -fx-background-color: #1F2933;
+    -fx-text-fill: #FCA5A5;
+    -fx-padding: 6 10 6 10;
     -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: transparent transparent transparent #EF4444;
+}
+
+.list-cell.message-card-risk:selected {
+    -fx-background-color: #7F1D1D;
+    -fx-text-fill: #FEF2F2;
+}
+
+.list-cell.message-card-pending {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #FDE68A;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: transparent transparent transparent #FBBF24;
+}
+
+.list-cell.message-card-pending:selected {
+    -fx-background-color: #78350F;
+    -fx-text-fill: #FFFBEB;
+}
+
+.list-cell.message-card-legit {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #BBF7D0;
+    -fx-padding: 6 10 6 10;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 0 0 0 4;
+    -fx-border-color: transparent transparent transparent #22C55E;
+}
+
+.list-cell.message-card-legit:selected {
+    -fx-background-color: #14532D;
+    -fx-text-fill: #F0FDF4;
+}
+
+/* ── SIDEBAR SUBMENU OSCURO ── */
+.sidebar-submenu-toggle {
+    -fx-background-color: #0B1220;
+    -fx-text-fill: #CBD5E1;
+    -fx-border-color: #334155;
+    -fx-border-width: 1;
     -fx-border-radius: 8;
 }
 
-/* ========= CONTACTOS ========= */
+.sidebar-submenu-toggle:selected {
+    -fx-background-color: #334155;
+    -fx-text-fill: #F8FAFC;
+    -fx-border-color: #38BDF8;
+}
 
+/* ── CONTACTOS OSCURO ── */
 .list-cell.contact-card-cell {
     -fx-background-color: transparent;
     -fx-text-fill: #F1F5F9;
+    -fx-padding: 2 4 2 4;
 }
 
-.contact-card {
+.list-cell.contact-card-cell:filled:hover {
     -fx-background-color: #1E293B;
-    -fx-border-color: #334155;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-radius: 8;
+}
+
+.list-cell.contact-card-cell:filled:selected,
+.list-cell.contact-card-cell:filled:selected:focused,
+.list-cell.contact-card-cell:filled:selected:hover,
+.list-cell.contact-card-cell:filled:selected:focused:hover {
+    -fx-background-color: #38BDF8;
+    -fx-background-radius: 8;
+}
+
+.list-cell.contact-card-cell:filled:selected .contact-name,
+.list-cell.contact-card-cell:filled:selected:focused .contact-name,
+.list-cell.contact-card-cell:filled:selected .contact-email,
+.list-cell.contact-card-cell:filled:selected:focused .contact-email,
+.list-cell.contact-card-cell:filled:selected .contact-phone,
+.list-cell.contact-card-cell:filled:selected:focused .contact-phone {
+    -fx-text-fill: #0F172A;
+}
+
+.contact-name  { -fx-text-fill: #F1F5F9; -fx-font-weight: bold; }
+.contact-email { -fx-text-fill: #94A3B8; -fx-font-size: 11px;   }
+.contact-phone { -fx-text-fill: #F1F5F9; }
+
+/* ── BOTONES CONFIG OSCURO ── */
+.button.config-primary-btn {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-background-color: #38BDF8;
+    -fx-text-fill: #0F172A;
+    -fx-border-color: transparent;
+}
+
+.button.config-primary-btn:hover { -fx-background-color: #7DD3FC; }
+
+.button.config-secondary-btn {
+    -fx-font-size: 13px;
+    -fx-padding: 10 16 10 16;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #F1F5F9;
+    -fx-border-color: #475569;
     -fx-border-width: 1;
 }
 
-.list-cell:filled:selected .contact-card,
-.list-cell:filled:selected:focused .contact-card {
+.button.config-secondary-btn:hover {
+    -fx-border-color: #38BDF8;
+    -fx-background-color: #334155;
+}
+
+/* ── PAGINACIÓN OSCURO ── */
+.btn-pag {
+    -fx-background-color: #1E293B;
+    -fx-text-fill: #CBD5E1;
+}
+
+.btn-pag:hover {
     -fx-background-color: #38BDF8;
-    -fx-border-color: #0F172A;
+    -fx-text-fill: #0F172A;
 }
 
-.contact-name {
-    -fx-text-fill: #F1F5F9;
+.btn-pag:disabled {
+    -fx-background-color: #0B1220;
+    -fx-text-fill: #475569;
+    -fx-opacity: 0.6;
 }
 
-.contact-email {
-    -fx-text-fill: #94A3B8;
+.pag-indicator {
+    -fx-background-color: #0B1220;
+    -fx-border-color: #334155;
 }
 
-.contact-phone {
-    -fx-text-fill: #F1F5F9;
-}
+.pag-label { -fx-text-fill: #CBD5E1; }

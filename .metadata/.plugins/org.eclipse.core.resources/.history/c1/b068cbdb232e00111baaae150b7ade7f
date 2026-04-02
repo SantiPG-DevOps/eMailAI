@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.emailAI.controller.EventoCalendarioDialogController"
+      spacing="12">
+    <padding>
+        <Insets top="16" right="20" bottom="12" left="20"/>
+    </padding>
+
+    <Label text="Nuevo evento" styleClass="section-label"/>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="88" halignment="RIGHT"/>
+            <ColumnConstraints hgrow="ALWAYS" minWidth="220"/>
+        </columnConstraints>
+
+        <Label text="Fecha" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <DatePicker fx:id="dpFecha" maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Título" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtTitulo"
+                   promptText="Resumen del evento"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Detalle" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.valignment="TOP">
+            <GridPane.margin>
+                <Insets top="4"/>
+            </GridPane.margin>
+        </Label>
+        <TextArea fx:id="txtDetalle"
+                  promptText="Opcional"
+                  prefRowCount="4"
+                  wrapText="true"
+                  maxWidth="Infinity"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+    </GridPane>
+</VBox>

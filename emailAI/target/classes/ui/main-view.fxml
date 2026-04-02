@@ -15,68 +15,113 @@
         <ToggleGroup fx:id="grpSecciones"/>
     </fx:define>
 
-    <!-- MENÚ LATERAL IZQUIERDO -->
     <left>
-        <VBox spacing="10"
-              styleClass="sidebar"
-              alignment="TOP_CENTER">
+        <VBox styleClass="main-app-sidebar"
+              minWidth="200"
+              prefWidth="232"
+              maxWidth="280"
+              spacing="0">
 
             <padding>
-                <Insets top="15" right="5" bottom="15" left="5"/>
+                <Insets top="14" right="10" bottom="14" left="10"/>
             </padding>
 
-            <children>
-                <!-- Logo eMail AI -->
+            <VBox spacing="10" maxWidth="Infinity">
                 <ImageView fx:id="imgLogo"
-                           fitWidth="180.0"
+                           fitWidth="168.0"
                            preserveRatio="true"
-                           pickOnBounds="true">
+                           pickOnBounds="true"
+                           styleClass="main-sidebar-logo">
                     <image>
                         <Image url="@../logo.png"/>
                     </image>
                 </ImageView>
+                <Label text="eMailAI" styleClass="main-sidebar-brand"/>
+            </VBox>
 
-                <!-- Botones de secciones principales -->
-                <ToggleButton text="Correo" fx:id="btnCorreo"
-                              toggleGroup="$grpSecciones"
-                              onAction="#onSeccionCorreo"
-                              styleClass="sidebar-toggle"/>
+            <Label text="Menú" styleClass="main-nav-heading">
+                <VBox.margin>
+                    <Insets top="14" bottom="6" left="4"/>
+                </VBox.margin>
+            </Label>
 
-                <ToggleButton text="Calendario" fx:id="btnCalendario"
-                              toggleGroup="$grpSecciones"
-                              onAction="#onSeccionCalendario"
-                              styleClass="sidebar-toggle"/>
+            <ScrollPane fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        maxHeight="Infinity"
+                        VBox.vgrow="ALWAYS"
+                        styleClass="main-sidebar-scroll">
+                <VBox spacing="6" maxWidth="Infinity">
+                    <padding>
+                        <Insets bottom="8"/>
+                    </padding>
 
-                <ToggleButton text="Contactos" fx:id="btnContactos"
-                              toggleGroup="$grpSecciones"
-                              onAction="#onSeccionContactos"
-                              styleClass="sidebar-toggle"/>
+                    <ToggleButton text="Correo" fx:id="btnCorreo"
+                                  toggleGroup="$grpSecciones"
+                                  onAction="#onSeccionCorreo"
+                                  maxWidth="Infinity"
+                                  styleClass="main-nav-primary"/>
 
-                <ToggleButton text="Tareas" fx:id="btnTareas"
-                              toggleGroup="$grpSecciones"
-                              onAction="#onSeccionTareas"
-                              styleClass="sidebar-toggle"/>
+                    <VBox fx:id="vboxSubmenuCorreo"
+                          spacing="4"
+                          visible="false"
+                          managed="false"
+                          maxWidth="Infinity"
+                          styleClass="main-nav-submenu">
+                        <padding>
+                            <Insets left="12" right="0" top="2" bottom="4"/>
+                        </padding>
+                        <Label text="Carpetas" styleClass="main-nav-submenu-heading"/>
+                        <ListView fx:id="listaCarpetasImap"
+                                  prefHeight="200"
+                                  minHeight="96"
+                                  maxHeight="320"
+                                  maxWidth="Infinity"
+                                  styleClass="main-nav-folder-list"/>
+                    </VBox>
 
-                <!-- Relleno flexible para empujar lo de abajo -->
-                <Pane VBox.vgrow="ALWAYS"/>
+                    <ToggleButton text="Calendario" fx:id="btnCalendario"
+                                  toggleGroup="$grpSecciones"
+                                  onAction="#onSeccionCalendario"
+                                  maxWidth="Infinity"
+                                  styleClass="main-nav-primary"/>
 
-                <Separator/>
+                    <ToggleButton text="Contactos" fx:id="btnContactos"
+                                  toggleGroup="$grpSecciones"
+                                  onAction="#onSeccionContactos"
+                                  maxWidth="Infinity"
+                                  styleClass="main-nav-primary"/>
 
-                <!-- Botones anclados abajo -->
+                    <ToggleButton text="Tareas" fx:id="btnTareas"
+                                  toggleGroup="$grpSecciones"
+                                  onAction="#onSeccionTareas"
+                                  maxWidth="Infinity"
+                                  styleClass="main-nav-primary"/>
+                </VBox>
+            </ScrollPane>
+
+            <Separator maxWidth="Infinity">
+                <VBox.margin>
+                    <Insets top="6" bottom="8"/>
+                </VBox.margin>
+            </Separator>
+
+            <VBox spacing="6" maxWidth="Infinity">
                 <ToggleButton text="Configuración" fx:id="btnConfiguracion"
                               toggleGroup="$grpSecciones"
                               onAction="#onSeccionConfiguracion"
-                              styleClass="sidebar-toggle"/>
+                              maxWidth="Infinity"
+                              styleClass="main-nav-primary"/>
 
                 <ToggleButton text="Chat IA" fx:id="btnChatIA"
                               toggleGroup="$grpSecciones"
                               onAction="#onSeccionChatIA"
-                              styleClass="sidebar-toggle"/>
-            </children>
+                              maxWidth="Infinity"
+                              styleClass="main-nav-primary"/>
+            </VBox>
         </VBox>
     </left>
 
-    <!-- CENTRO: contenedor donde se cargan las vistas -->
     <center>
         <StackPane fx:id="centerPane"/>
     </center>

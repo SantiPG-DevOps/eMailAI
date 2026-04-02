@@ -15,6 +15,8 @@ public class Mensaje {
     private String categoria;
     private String prioridad;   // URGENTE / NORMAL / etc.
     private String cuentaHash;  // hash de la cuenta
+    /** Nombre completo IMAP de la carpeta (ej. INBOX, [Gmail]/Sent Mail). */
+    private String carpetaImap;
     private String html;        // cuerpo HTML solo para interfaz
 
     // Guarda campos adicionales generados por servicios IA.
@@ -103,6 +105,14 @@ public class Mensaje {
 
     public void setCuentaHash(String cuentaHash) {
         this.cuentaHash = cuentaHash;
+    }
+
+    public String getCarpetaImap() {
+        return carpetaImap;
+    }
+
+    public void setCarpetaImap(String carpetaImap) {
+        this.carpetaImap = carpetaImap;
     }
 
     public String getHtml() {

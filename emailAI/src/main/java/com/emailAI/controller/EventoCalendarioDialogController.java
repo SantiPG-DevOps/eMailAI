@@ -1,0 +1,67 @@
+package com.emailAI.controller;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+public class EventoCalendarioDialogController {
+
+    @FXML private DatePicker dpFecha;
+    @FXML private TextField txtTitulo;
+    @FXML private TextArea txtDetalle;
+    @FXML private ComboBox<String> cbHora;
+
+    @FXML
+    public void initialize() {
+        for (int h = 0; h < 24; h++) {
+            for (int m = 0; m < 60; m += 15) {
+                cbHora.getItems().add(String.format("%02d:%02d", h, m));
+            }
+        }
+        cbHora.setValue("09:00");
+    }
+
+    public void setFechaInicial(LocalDate fecha) {
+        if (dpFecha != null && fecha != null) {
+            dpFecha.setValue(fecha);
+        }
+    }
+
+    public LocalDate getFecha() {
+        return dpFecha != null ? dpFecha.getValue() : null;
+    }
+
+    public LocalTime getHora() {
+        String val = cbHora != null ? cbHora.getValue() : null;
+        if (val == null) return null;
+        String[] parts = val.split(":");
+        return LocalTime.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+    }
+
+    public String getTitulo() {
+        return txtTitulo != null && txtTitulo.getText() != null ? txtTitulo.getText().trim() : "";
+    }
+
+    public String getDetalle() {
+        String d = txtDetalle != null ? txtDetalle.getText() : null;
+        return (d == null || d.isBlank()) ? null : d.trim();
+    }
+    
+    public void setHoraInicial(java.time.LocalTime hora) {
+        if (cbHora != null && hora != null)
+            cbHora.setValue(String.format("%02d:%02d", hora.getHour(), hora.getMinute()));
+    }
+
+    public void setTituloInicial(String titulo) {
+        if (txtTitulo != null && titulo != null) txtTitulo.setText(titulo);
+    }
+
+    public void setDetalleInicial(String detalle) {
+        if (txtDetalle != null && detalle != null) txtDetalle.setText(detalle);
+    }
+}

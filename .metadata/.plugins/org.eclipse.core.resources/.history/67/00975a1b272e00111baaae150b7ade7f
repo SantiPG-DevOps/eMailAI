@@ -1,0 +1,325 @@
+.root {
+    -fx-font-family: "Segoe UI", "Roboto", "Sans-Serif";
+}
+
+/* Títulos y secciones */
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.section-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Estado */
+.status-label,
+.label-secondary {
+    -fx-font-size: 11px;
+}
+
+/* Botón pequeño */
+.small-button {
+    -fx-font-size: 11px;
+    -fx-padding: 4 10 4 10;
+}
+
+/* Tarjetas de cuentas (genérico) */
+.account-card {
+    -fx-padding: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+
+.account-card-selected {
+    /* colores concretos se definen en dark/light */
+}
+
+.account-email {
+    -fx-font-weight: bold;
+}
+
+.account-server {
+    -fx-font-size: 11px;
+}
+
+/* Lista de mensajes como tarjetas */
+.list-view .message-card {
+    -fx-padding: 8;
+    -fx-background-radius: 10;
+}
+
+.message-subject {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Tarjetas de contactos (mismo estilo que mensajes) */
+.list-cell.contact-card-cell {
+    -fx-padding: 4 6 4 6;
+    -fx-background-color: transparent;
+}
+
+.contact-card {
+    -fx-padding: 8 10 8 10;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.contact-name {
+    -fx-font-weight: bold;
+}
+
+.contact-email {
+    -fx-font-size: 11px;
+    -fx-opacity: 0.85;
+}
+
+.contact-phone {
+    -fx-font-weight: normal;
+}
+
+/* Chips IA */
+.chip {
+    -fx-background-radius: 999;
+    -fx-padding: 4 12 4 12;
+}
+
+/* Panel IA */
+.ia-panel {
+    -fx-background-radius: 8;
+    -fx-padding: 8 10 8 10;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-padding: 10 5 10 5;
+    -fx-spacing: 10;
+}
+
+.sidebar-toggle {
+    -fx-background-radius: 999;
+    -fx-padding: 6 14 6 14;
+    -fx-max-width: Infinity;
+}
+
+.sidebar-submenu-toggle {
+    -fx-max-width: Infinity;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 12;
+    -fx-font-size: 11px;
+}
+
+/* Menú principal (misma línea visual que configuración) */
+.main-sidebar-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.main-sidebar-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-nav-heading {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.main-nav-submenu-heading {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+/* Barra superior correo */
+.top-bar {
+    -fx-spacing: 8;
+}
+
+/* LOGIN: campos y botón principal */
+.login-password {
+    /* hereda de .text-field; ajusta aquí si quieres algo específico */
+}
+
+.primary-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+/* Toggle sol/luna */
+.theme-toggle {
+    -fx-font-size: 14px;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 4 10 4 10;
+}
+
+/* Calendario */
+.cal-dia {
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 6;
+    -fx-alignment: top-left;
+    -fx-min-height: 40;
+}
+
+.cal-dia-hoy {
+    -fx-border-color: #0078d7;
+    -fx-background-color: #e4f1ff;
+}
+
+.cal-dia-seleccionado {
+    -fx-background-color: #d0eaff;
+}
+
+/* Días con evento: semana del evento vs hoy (lunes ISO) */
+.cal-dia-urgente-semana {
+    -fx-border-color: #DC2626;
+    -fx-border-width: 2;
+    -fx-background-color: #FEE2E2;
+}
+
+.cal-dia-proxima-semana {
+    -fx-border-color: #D97706;
+    -fx-border-width: 2;
+    -fx-background-color: #FEF3C7;
+}
+
+.cal-dia-mas-tarde {
+    -fx-border-color: #16A34A;
+    -fx-border-width: 2;
+    -fx-background-color: #DCFCE7;
+}
+
+.cal-dia-seleccionado.cal-dia-urgente-semana,
+.cal-dia-seleccionado.cal-dia-proxima-semana,
+.cal-dia-seleccionado.cal-dia-mas-tarde {
+    -fx-border-color: #0078d7;
+    -fx-border-width: 3;
+}
+
+/* Botones de filtro de tareas (Hoy, Mañana, etc.) */
+.task-filter-btn {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 4 12 4 12;
+    -fx-font-size: 11px;
+}
+
+/* Pantalla de configuración (vista principal embebida) */
+.config-root {
+    -fx-min-width: 0;
+    -fx-min-height: 0;
+}
+
+.config-header-wrap {
+    -fx-border-width: 0 0 1 0;
+}
+
+.config-footer-wrap {
+    -fx-border-width: 0;
+}
+
+.config-screen-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.config-page-heading {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.config-section-kicker {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.config-field-label {
+    -fx-font-size: 12px;
+}
+
+.config-nav-heading {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 8 4;
+}
+
+.config-sep {
+    -fx-opacity: 0.65;
+}
+
+.config-content-stack {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.config-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.config-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.config-tab-inner {
+    -fx-max-width: 760;
+}
+
+.config-section-box {
+    -fx-padding: 16 20 18 20;
+    -fx-spacing: 10;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.config-nav-list {
+    -fx-background-insets: 0;
+    -fx-padding: 4 0 8 0;
+    -fx-border-width: 0;
+}
+
+.config-nav-list .list-cell {
+    -fx-background-insets: 2 4;
+    -fx-padding: 0 12 0 12;
+    -fx-background-radius: 8;
+}
+
+.config-nav-list .list-cell:filled:hover {
+    -fx-cursor: hand;
+}
+
+.config-split {
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.config-split > .split-pane-divider {
+    -fx-padding: 0 2 0 2;
+}
+
+.cal-dia-numero {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 2 4 2 4;
+}
+
+.cal-evento-barra {
+    -fx-background-color: #1a6b8a;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-padding: 1 4 1 4;
+    -fx-background-radius: 3;
+    -fx-max-width: Infinity;
+}
