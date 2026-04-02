@@ -4,6 +4,7 @@ import com.emailAI.controller.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -24,6 +25,7 @@ public class AppFX extends Application {
 
         URL basicUrl = AppFX.class.getResource(CSS_BASIC);
         URL darkUrl = AppFX.class.getResource(CSS_DARK);
+        URL iconUrl = AppFX.class.getResource("/logo.png");
 
         if (basicUrl == null) {
             throw new IllegalStateException("No se encontró " + CSS_BASIC);
@@ -31,13 +33,24 @@ public class AppFX extends Application {
         if (darkUrl == null) {
             throw new IllegalStateException("No se encontró " + CSS_DARK);
         }
+        if (iconUrl == null) {
+            throw new IllegalStateException("No se encontró /logo.png");
+        }
 
         mainScene.getStylesheets().add(basicUrl.toExternalForm());
         mainScene.getStylesheets().add(darkUrl.toExternalForm());
 
+        stage.getIcons().add(new Image(iconUrl.toExternalForm()));
+
         stage.setTitle("Cliente de Correo IA");
         stage.setScene(mainScene);
         stage.show();
+
+        stage.setOnCloseRequest(event -> {
+            if (mainController != null) {
+                mainController.detenerTodosLosServicios();
+            }
+        });
     }
 
     public static void setMainController(MainController controller) {

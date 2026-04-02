@@ -229,13 +229,17 @@ public class MailService {
                     mensajeObj.setPrioridad("NORMAL");
                 }
             } catch (WekaException we) {
-                System.err.println("Modelo Weka aún no entrenado, marcando como LEGITIMO por defecto.");
+                System.err.println("Modelo Weka aún no entrenado, marcando como LEGITIMO por defecto. UID: " + uid);
                 mensajeObj.setCategoria("LEGITIMO");
                 mensajeObj.setPrioridad("NORMAL");
             } catch (Exception e) {
                 System.err.println("Error procesando IA clásica para mensaje " + uid + ": " + e.getMessage());
                 mensajeObj.setCategoria("DESCONOCIDO");
                 mensajeObj.setPrioridad("NORMAL");
+                // Log detallado para depuración
+                if (e.getCause() != null) {
+                    System.err.println("Causa raíz: " + e.getCause().getMessage());
+                }
             }
 
             // ========== IA LLM opcional ==========
@@ -247,6 +251,13 @@ public class MailService {
                     mensajeObj.setSugerenciaIA(sugerencia);
                 } catch (Exception e) {
                     System.err.println("Error llamando a IAAsistenteService para mensaje " + uid + ": " + e.getMessage());
+                    // No interrumpe el procesamiento del mensaje por errores de IA
+                    mensajeObj.setResumenIA(null);
+                    mensajeObj.setSugerenciaIA(null);
+                    // Log detallado para depuración
+                    if (e.getCause() != null) {
+                        System.err.println("Causa raíz IA asistente: " + e.getCause().getMessage());
+                    }
                 }
             }
 

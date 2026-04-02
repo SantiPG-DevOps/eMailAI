@@ -3,6 +3,7 @@ package com.emailAI.controller;
 import com.emailAI.AppFX;
 import com.emailAI.model.ThemePreset;
 import com.emailAI.service.MailService;
+import com.emailAI.service.SyncSchedulerService;
 import com.emailAI.service.ThemeCssResolver;
 import com.emailAI.service.ThemeManager;
 import javafx.application.Platform;
@@ -61,6 +62,7 @@ public class MainController {
 
     private MailService mailService;
     private boolean temaClaro = false;
+    private SyncSchedulerService syncSchedulerService;
 
     private Node vistaCorreo;
     private CorreoController correoController;
@@ -114,6 +116,17 @@ public class MainController {
 
     public void setMailService(MailService mailService) throws Exception {
         this.mailService = mailService;
+        
+        // Inicializar y arrancar servicios de sincronización
+        try {
+            syncSchedulerService = new SyncSchedulerService();
+            syncSchedulerService.iniciarSincronizacion();
+            System.out.println("Servicios de calendario y Todoist iniciados");
+        } catch (Exception e) {
+            System.err.println("Error iniciando servicios de sincronización: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
         aplicarTema(temaClaro);
         seleccionarCorreo();
         iniciarSincronizacionPeriodicaCorreo();
@@ -189,6 +202,20 @@ public class MainController {
             schedulerSyncCorreo.shutdown();
         }
         schedulerSyncCorreo = null;
+    }
+    
+    /**
+     * Detiene todos los servicios de sincronización cuando la aplicación se cierra
+     */
+    public void detenerTodosLosServicios() {
+        // Detener sincronización de correo
+        detenerSincronizacionPeriodicaCorreo();
+        
+        // Detener sincronización de calendario y Todoist
+        if (syncSchedulerService != null) {
+            syncSchedulerService.detenerSincronizacion();
+            System.out.println("Servicios de calendario y Todoist detenidos");
+        }
     }
 
     private void iniciarSincronizacionPeriodicaCorreo() {

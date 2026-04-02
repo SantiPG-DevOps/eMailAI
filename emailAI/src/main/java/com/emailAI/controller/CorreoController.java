@@ -19,8 +19,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
@@ -51,9 +49,6 @@ public class CorreoController {
 
     @FXML
     private Label lblEstadoIA;
-
-    @FXML
-    private WebView webViewCuerpo;
 
     @FXML
     private TextArea txtCuerpo;
@@ -170,50 +165,10 @@ public class CorreoController {
                 (obs, oldSel, newSel) -> mostrarMensaje(newSel)
         );
 
-        configurarWebViewEnlacesExternos();
         actualizarSugerenciasIA(null);
     }
 
-    private void configurarWebViewEnlacesExternos() {
-        WebEngine engine = webViewCuerpo.getEngine();
-
-        engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-            if (newState != Worker.State.SUCCEEDED) return;
-
-            try {
-                JSObject window = (JSObject) engine.executeScript("window");
-                window.setMember("emailApp", webLinkBridge);
-
-                String script =
-                        "(function(){"
-                                + "function findAnchor(el){"
-                                + "var n=el;"
-                                + "while(n){if(n.tagName==='A')return n;n=n.parentNode;}"
-                                + "return null;"
-                                + "}"
-                                + "document.addEventListener('click',function(e){"
-                                + "var a=findAnchor(e.target);"
-                                + "if(!a)return;"
-                                + "var href=a.getAttribute('href');"
-                                + "if(!href)return;"
-                                + "var h=href.trim();"
-                                + "var lo=h.toLowerCase();"
-                                + "if(lo.indexOf('http://')===0||lo.indexOf('https://')===0){"
-                                + "e.preventDefault();"
-                                + "if(e.stopPropagation)e.stopPropagation();"
-                                + "if(e.stopImmediatePropagation)e.stopImmediatePropagation();"
-                                + "emailApp.openExternal(h);"
-                                + "}"
-                                + "},true);"
-                                + "})();";
-
-                engine.executeScript(script);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
+    @FXML
     private void abrirEnNavegadorSeguro(String url) {
         if (url == null) return;
 
@@ -382,7 +337,6 @@ public class CorreoController {
     private void limpiarDetalle() {
         lblAsunto.setText("");
         lblRemitente.setText("");
-        webViewCuerpo.getEngine().loadContent("");
         txtCuerpo.clear();
         mensajeActual = null;
 
@@ -407,54 +361,17 @@ public class CorreoController {
         lblAsunto.setText(asunto);
         lblRemitente.setText(remitente);
 
-        String html = msg.getHtml();
-        String texto = msg.getCuerpo();
+        // Mostrar el cuerpo del mensaje como texto plano
+        String cuerpo = msg.getCuerpo() != null ? msg.getCuerpo() : "";
+        txtCuerpo.setVisible(true);
+        txtCuerpo.setManaged(true);
+        txtCuerpo.setText(cuerpo);
 
-        if (html != null && !html.isBlank()) {
-            boolean remitenteConfiable = !remitente.isBlank() && esConfiableSeguro(remitente);
-            boolean imagenesPermitidasPorUsuario = msg.getUidImap() != null
-                    && mensajesConImagenesPermitidas.contains(msg.getUidImap());
-
-            boolean permitirImagenes = remitenteConfiable || imagenesPermitidasPorUsuario;
-            boolean tieneImagenesExternas = contieneImagenesExternas(html);
-
-            String htmlRender = permitirImagenes ? html : eliminarImagenesExternas(html);
-
-            webViewCuerpo.setVisible(true);
-            webViewCuerpo.setManaged(true);
-            webViewCuerpo.getEngine().loadContent(htmlRender, "text/html");
-
-            txtCuerpo.setVisible(false);
-            txtCuerpo.setManaged(false);
-            txtCuerpo.clear();
-
-            if (btnPermitirImagenes != null) {
-                btnPermitirImagenes.setDisable(permitirImagenes || !tieneImagenesExternas);
-            }
-        } else {
-            txtCuerpo.setVisible(true);
-            txtCuerpo.setManaged(true);
-            txtCuerpo.setText(texto != null ? texto : "");
-
-            webViewCuerpo.setVisible(false);
-            webViewCuerpo.setManaged(false);
-            webViewCuerpo.getEngine().loadContent("");
-
-            if (btnPermitirImagenes != null) {
-                btnPermitirImagenes.setDisable(true);
-            }
+        if (btnPermitirImagenes != null) {
+            btnPermitirImagenes.setDisable(true);
         }
 
         actualizarSugerenciasIA(msg);
-    }
-
-    private String eliminarImagenesExternas(String html) {
-        if (html == null || html.isBlank()) return html;
-
-        return html.replaceAll(
-                "(?is)<img\\b[^>]*\\bsrc\\s*=\\s*(['\"]?)https?://.*?\\1[^>]*>",
-                ""
-        );
     }
 
     private boolean contieneImagenesExternas(String html) {
@@ -529,11 +446,28 @@ public class CorreoController {
 
     @FXML
     private void onResponderTodos() {
-        if (mailService == null) return;
+        if (mailService == null) {
+            if (lblEstadoApp != null) {
+                lblEstadoApp.setText("Servicio de correo no disponible");
+            }
+            return;
+        }
         Mensaje seleccionado = lstMensajes.getSelectionModel().getSelectedItem();
-        if (seleccionado == null) return;
+        if (seleccionado == null) {
+            if (lblEstadoApp != null) {
+                lblEstadoApp.setText("Selecciona un mensaje para responder a todos");
+            }
+            return;
+        }
 
-        abrirVentanaCompose(c -> c.inicializarResponderTodos(seleccionado));
+        try {
+            abrirVentanaCompose(c -> c.inicializarResponderTodos(seleccionado));
+        } catch (Exception e) {
+            if (lblEstadoApp != null) {
+                lblEstadoApp.setText("Error al abrir ventana de respuesta: " + e.getMessage());
+            }
+            e.printStackTrace();
+        }
     }
 
     @FXML

@@ -9,6 +9,9 @@ public class Mensaje {
     private String carpetaImap;
 
     private String remitente;
+    private String destinatarios;
+    private String cc;
+    private String cco;
     private String asunto;
     private String cuerpo;
     private String html;
@@ -71,6 +74,30 @@ public class Mensaje {
 
     public void setRemitente(String remitente) {
         this.remitente = remitente;
+    }
+
+    public String getDestinatarios() {
+        return destinatarios;
+    }
+
+    public void setDestinatarios(String destinatarios) {
+        this.destinatarios = destinatarios;
+    }
+
+    public String getCc() {
+        return cc;
+    }
+
+    public void setCc(String cc) {
+        this.cc = cc;
+    }
+
+    public String getCco() {
+        return cco;
+    }
+
+    public void setCco(String cco) {
+        this.cco = cco;
     }
 
     public String getAsunto() {

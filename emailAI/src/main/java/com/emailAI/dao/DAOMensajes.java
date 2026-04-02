@@ -31,6 +31,9 @@ public class DAOMensajes {
                 cuenta_hash TEXT NOT NULL,
                 carpeta_imap TEXT NOT NULL,
                 remitente TEXT,
+                destinatarios TEXT,
+                cc TEXT,
+                cco TEXT,
                 asunto TEXT,
                 cuerpo TEXT,
                 html TEXT,
@@ -42,19 +45,22 @@ public class DAOMensajes {
             """;
 
         try (Connection conn = ConexionBD.getConnectionCorreos();
-             Statement st = conn.createStatement()) {
-            st.execute(sql);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
         }
     }
 
     public void guardarOModificar(List<Mensaje> mensajes, String cuentaHash, String carpeta) throws SQLException {
         String sql = """
             INSERT INTO mensajes (
-                uid_imap, cuenta_hash, carpeta_imap, remitente, asunto, cuerpo,
-                html, categoria, prioridad, fecha_recepcion
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                uid_imap, cuenta_hash, carpeta_imap, remitente, destinatarios, cc, cco,
+                asunto, cuerpo, html, categoria, prioridad, fecha_recepcion
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(uid_imap, cuenta_hash, carpeta_imap) DO UPDATE SET
                 remitente = excluded.remitente,
+                destinatarios = excluded.destinatarios,
+                cc = excluded.cc,
+                cco = excluded.cco,
                 asunto = excluded.asunto,
                 cuerpo = excluded.cuerpo,
                 html = excluded.html,
@@ -72,12 +78,15 @@ public class DAOMensajes {
                     ps.setString(2, cuentaHash);
                     ps.setString(3, carpeta);
                     ps.setString(4, safe(m.getRemitente()));
-                    ps.setString(5, safe(m.getAsunto()));
-                    ps.setString(6, safe(m.getCuerpo()));
-                    ps.setString(7, safe(m.getHtml()));
-                    ps.setString(8, safe(m.getCategoria()));
-                    ps.setString(9, safe(m.getPrioridad()));
-                    ps.setString(10, obtenerFechaRecepcion(m));
+                    ps.setString(5, safe(m.getDestinatarios()));
+                    ps.setString(6, safe(m.getCc()));
+                    ps.setString(7, safe(m.getCco()));
+                    ps.setString(8, safe(m.getAsunto()));
+                    ps.setString(9, safe(m.getCuerpo()));
+                    ps.setString(10, safe(m.getHtml()));
+                    ps.setString(11, safe(m.getCategoria()));
+                    ps.setString(12, safe(m.getPrioridad()));
+                    ps.setString(13, obtenerFechaRecepcion(m));
                     ps.addBatch();
                 }
                 ps.executeBatch();
@@ -94,7 +103,7 @@ public class DAOMensajes {
 
     public List<Mensaje> listarPorCuentaHashYCarpeta(String cuentaHash, String carpeta) throws SQLException {
         String sql = """
-            SELECT uid_imap, remitente, asunto, cuerpo, html, categoria, prioridad, carpeta_imap, fecha_recepcion
+            SELECT uid_imap, remitente, destinatarios, cc, cco, asunto, cuerpo, html, categoria, prioridad, carpeta_imap, fecha_recepcion
             FROM mensajes
             WHERE cuenta_hash = ? AND carpeta_imap = ?
             ORDER BY fecha_recepcion DESC, id DESC
@@ -120,7 +129,7 @@ public class DAOMensajes {
 
     public List<Mensaje> listarTodosPorCuenta(String cuentaHash) throws SQLException {
         String sql = """
-            SELECT uid_imap, remitente, asunto, cuerpo, html, categoria, prioridad, carpeta_imap, fecha_recepcion
+            SELECT uid_imap, remitente, destinatarios, cc, cco, asunto, cuerpo, html, categoria, prioridad, carpeta_imap, fecha_recepcion
             FROM mensajes
             WHERE cuenta_hash = ?
             ORDER BY fecha_recepcion DESC, id DESC
@@ -330,6 +339,9 @@ public class DAOMensajes {
         );
         m.setUidImap(rs.getString("uid_imap"));
         m.setCarpetaImap(rs.getString("carpeta_imap"));
+        m.setDestinatarios(rs.getString("destinatarios"));
+        m.setCc(rs.getString("cc"));
+        m.setCco(rs.getString("cco"));
         m.setCategoria(rs.getString("categoria"));
         m.setPrioridad(rs.getString("prioridad"));
         m.setHtml(rs.getString("html"));

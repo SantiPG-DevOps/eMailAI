@@ -1,6 +1,8 @@
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/CalendarioController.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/ThemeCssResolver.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/TareaDialogController.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/dao/DAOEntrenamiento.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/ChatIAController.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/IAAsistenteService.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/dao/DAOEventosCalendario.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/EventoCalendarioDialogController.java
@@ -9,13 +11,18 @@
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/security/UtilidadCifrado.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/model/Mensaje.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/AppFX.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/model/ThemePreset.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/TareasController.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/dao/DAOTareas.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/TodoistService.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/dao/DAOMensajes.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/ThemeManager.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/MainController.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/dao/DAOCuentas.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/model/Tarea.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/IcsService.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/LoginController.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/SyncSchedulerService.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/dao/DAORemitentesConfiables.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/SpamIaService.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/ia/GestorModelos.java
@@ -23,6 +30,9 @@
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/MailService.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/model/Contacto.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/CorreoController.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/service/ExceptionHandlerService.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/controller/ComposeController.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/security/UtilidadCifradoMejorada.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/dao/DAOContactos.java
 /home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/ia/ExtractorAtributos.java
+/home/santipg/Workspaces/Java/eMailAI/emailAI/src/main/java/com/emailAI/security/ThemePreferences.java

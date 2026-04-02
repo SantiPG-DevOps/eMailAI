@@ -121,4 +121,28 @@ public class DAOEventosCalendario {
             st.executeUpdate();
         }
     }
+    
+    public List<Evento> listarEventos() throws Exception {
+        String sql = """
+                SELECT id, fecha, hora, titulo, detalle, origen
+                FROM eventos_calendario
+                ORDER BY fecha, hora
+                """;
+        List<Evento> lista = new ArrayList<>();
+        try (Connection conn = ConexionBD.getConnectionAgenda();
+             PreparedStatement st = conn.prepareStatement(sql);
+             ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                lista.add(new Evento(
+                        rs.getInt("id"),
+                        LocalDate.parse(rs.getString("fecha")),
+                        rs.getString("hora") != null ? LocalTime.parse(rs.getString("hora")) : null,
+                        rs.getString("titulo"),
+                        rs.getString("detalle"),
+                        rs.getString("origen")
+                ));
+            }
+        }
+        return lista;
+    }
 }

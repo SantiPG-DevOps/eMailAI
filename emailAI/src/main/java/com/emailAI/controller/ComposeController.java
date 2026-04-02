@@ -51,11 +51,35 @@ public class ComposeController {
         lblEstado.setText("");
     }
 
-    // Prepara la vista para responder a todos (placeholder actual en CC).
+    // Prepara la vista para responder a todos (incluyendo CC del mensaje original).
     public void inicializarResponderTodos(Mensaje origen) {
         setMensajeOrigen(origen);
+        
+        // Configurar destinatario principal (remitente original)
         txtPara.setText(origen.getRemitente());
-        txtCc.clear(); // Más adelante: añadir resto de destinatarios
+        
+        // Configurar CC: incluir destinatarios originales y CC existentes
+        StringBuilder ccBuilder = new StringBuilder();
+        
+        // Añadir destinatarios originales (excluyendo el remitente actual)
+        if (origen.getDestinatarios() != null && !origen.getDestinatarios().isBlank()) {
+            String[] dests = origen.getDestinatarios().split(",");
+            for (String dest : dests) {
+                dest = dest.trim();
+                if (!dest.equalsIgnoreCase(origen.getRemitente()) && !dest.isBlank()) {
+                    if (ccBuilder.length() > 0) ccBuilder.append(", ");
+                    ccBuilder.append(dest);
+                }
+            }
+        }
+        
+        // Añadir CC existentes
+        if (origen.getCc() != null && !origen.getCc().isBlank()) {
+            if (ccBuilder.length() > 0) ccBuilder.append(", ");
+            ccBuilder.append(origen.getCc());
+        }
+        
+        txtCc.setText(ccBuilder.toString());
         txtAsunto.setText("Re: " + safe(origen.getAsunto()));
         txtCuerpo.setText("\n\n----- Mensaje original -----\n" + safe(origen.getCuerpo()));
         lblEstado.setText("");
